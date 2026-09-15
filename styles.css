@@ -1,0 +1,165 @@
+:root {
+  --brand: #3a46cd;
+  --fg: #1a2232;
+  --strong: #3a404e;
+  --muted: #595e6b;
+  --hairline: #d0d1d3;
+  --action: #727887;
+  --on-action: #ffffff;
+  --bg: #f4f5f8;
+  --surface: #ffffff;
+  --pass: #087650;
+  --fail: #ba2630;
+  --error: #6040c6;
+  --change: #a45c00;
+  --pass-bg: #eaf7f1;
+  --fail-bg: #fdebed;
+  --error-bg: #f0ecff;
+  --change-bg: #fff2db;
+  --nav-w: 220px;
+}
+* { box-sizing: border-box }
+html, body { margin: 0; height: 100% }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.7 "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+code, .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace }
+.layout { display: grid; grid-template-columns: var(--nav-w) 1fr; min-height: 100vh }
+.side {
+  background: var(--surface);
+  border-right: 1px solid var(--hairline);
+  padding: 28px 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.logo { font-size: 15px; font-weight: 700; color: var(--strong); letter-spacing: -0.02em }
+.logo small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.08em }
+.nav { display: grid; gap: 0; margin-top: 36px }
+.nav button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 0;
+  font: inherit;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+.nav button:hover { color: var(--fg) }
+.nav button.on { color: var(--brand) }
+.sidefoot { position: absolute; bottom: 24px; left: 18px; right: 18px; color: var(--muted); font-size: 11px }
+.main { min-width: 0; padding: 32px 40px 64px }
+.eyebrow { color: var(--brand); font-size: 11px; font-weight: 700; letter-spacing: 0.08em }
+h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.04em; margin: 6px 0 8px; line-height: 1.25 }
+h2 { font-size: 18px; margin: 0 0 8px }
+.muted { color: var(--muted) }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0 }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+}
+.metric { padding: 16px 18px }
+.metric span { font-size: 11px; color: var(--muted); font-weight: 700 }
+.metric strong { display: block; font-size: 28px; line-height: 1.15; margin-top: 4px }
+.metric.pass strong { color: var(--pass) }
+.metric.change strong { color: var(--change) }
+.metric.fail strong { color: var(--fail) }
+.metric.error strong { color: var(--error) }
+.runinfo { display: grid; grid-template-columns: repeat(4, 1fr) }
+.kv { padding: 14px 18px; border-right: 1px solid var(--hairline) }
+.kv:last-child { border-right: 0 }
+.kv span { display: block; color: var(--muted); font-size: 11px }
+.kv b { font-size: 13px }
+.section { margin-top: 32px }
+.sectionhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 12px }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px }
+.filter, .search, .btn {
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--strong);
+  border-radius: 0;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.filter.on { background: var(--brand); color: #fff; border-color: var(--brand) }
+.search { margin-left: auto; width: 240px; cursor: text }
+.btn-fill { background: var(--action); color: var(--on-action); border-color: var(--action) }
+.tablewrap { overflow: auto }
+table { border-collapse: collapse; width: 100%; min-width: 720px }
+th { text-align: left; font-size: 11px; color: var(--muted); background: #fafbfc; padding: 10px 14px; border-bottom: 1px solid var(--hairline); font-weight: 700 }
+td { padding: 12px 14px; border-bottom: 1px solid #edf0f4; vertical-align: top }
+tbody tr { cursor: pointer }
+tbody tr:hover { background: #f7f8fc }
+tbody tr.on { background: #eef0fb }
+.badge { display: inline-flex; padding: 3px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; border-radius: 0 }
+.bp { background: var(--pass-bg); color: var(--pass) }
+.bc { background: var(--change-bg); color: var(--change) }
+.bf { background: var(--fail-bg); color: var(--fail) }
+.be { background: var(--error-bg); color: var(--error) }
+.bn { background: #eef0f3; color: var(--muted) }
+.tcid { font-size: 12px; color: var(--muted) }
+.name b { display: block; color: var(--fg) }
+.name span { font-size: 12px; color: var(--muted) }
+.callout { padding: 12px 14px; font-size: 14px; border-left: 3px solid var(--hairline); background: #fafbfc }
+.callout.good { background: var(--pass-bg); border-left-color: var(--pass) }
+.callout.bad { background: var(--fail-bg); border-left-color: var(--fail) }
+.callout.err { background: var(--error-bg); border-left-color: var(--error) }
+.callout.ui { background: var(--change-bg); border-left-color: var(--change) }
+.steplist { display: grid; gap: 8px }
+.step {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+}
+.num {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  background: #eef0fb; color: var(--brand);
+  font-size: 11px; font-weight: 700;
+}
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px }
+.shot { border: 1px solid var(--hairline); background: #111 }
+.shot img { width: 100%; display: block; border-radius: 16px 16px 0 0; background: #0b0d12 }
+.shot figcaption { padding: 8px 10px; font-size: 11px; color: var(--muted); background: var(--surface) }
+.compare { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 8px; align-items: center }
+.compare .arrow { text-align: center; color: var(--muted); font-size: 20px }
+.doc-list { display: grid; gap: 8px }
+.doc-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; border: 1px solid var(--hairline); background: var(--surface);
+  cursor: pointer; text-align: left; width: 100%; font: inherit;
+}
+.doc-item:hover, .doc-item.on { border-color: var(--brand) }
+.doc-item b { display: block }
+.doc-body { margin-top: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--hairline) }
+.doc-body h1 { font-size: 22px }
+.doc-body h2 { font-size: 17px; margin: 20px 0 8px }
+.doc-body table { min-width: 0; margin: 12px 0 }
+.frame { width: 100%; min-height: 72vh; border: 1px solid var(--hairline); background: #fff }
+.hidden { display: none !important }
+.hist { display: grid; gap: 8px }
+.hist a, .hist button {
+  display: block; width: 100%; text-align: left;
+  padding: 12px 14px; border: 1px solid var(--hairline);
+  background: var(--surface); font: inherit; cursor: pointer;
+}
+.notice { margin: 16px 0; padding: 12px 14px; border: 1px solid var(--hairline); background: var(--surface); font-size: 13px; color: var(--muted) }
+@media (max-width: 900px) {
+  .layout { display: block }
+  .side { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--hairline) }
+  .sidefoot { position: static; margin-top: 24px }
+  .main { padding: 20px }
+  .grid4, .runinfo { grid-template-columns: 1fr 1fr }
+  .compare { grid-template-columns: 1fr }
+}

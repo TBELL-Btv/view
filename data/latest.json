@@ -1,0 +1,720 @@
+{
+  "source": "lab",
+  "run": {
+    "id": 10,
+    "started_at": "2026-09-15T05:00:29.292673+00:00",
+    "finished_at": "2026-09-15T05:02:05.971874+00:00",
+    "trigger": "테스트 진행 VOD:VOD",
+    "status": "done"
+  },
+  "counts": {
+    "PASS": 5,
+    "FAIL": 5,
+    "ERROR": 1
+  },
+  "results": [
+    {
+      "tc_id": "BTVTC-134783",
+      "title": "컴포넌트 호출 / Clean A/V",
+      "verdict": "PASS",
+      "message": "열림 density=0.043",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-01-precheck.png",
+        "data/shots/run-10/vod-02-component.png",
+        "data/shots/run-10/vod-03-after-exit.png",
+        "data/shots/run-10/vod-05-after-5s.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-01-precheck.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-02-component.png",
+          "press:EXIT:4",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-03-after-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-04-component.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-05-after-5s.png"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134784",
+      "title": "재생/일시정지",
+      "verdict": "FAIL",
+      "message": "오디오 세션 불변 before=False after=False",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-06-toggle.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-01-precheck.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-02-component.png",
+          "press:EXIT:4",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-03-after-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-04-component.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-05-after-5s.png",
+          "press:OK:23",
+          "wait:800",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-06-toggle.png"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-145137",
+      "title": "일시정지 후 확인 한 번에 재생",
+      "verdict": "FAIL",
+      "message": "확인 키 후 재생 안 됨 density=0.043",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-07-paused-synopsis.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-01-precheck.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-02-component.png",
+          "press:EXIT:4",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-03-after-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-04-component.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-05-after-5s.png",
+          "press:OK:23",
+          "wait:800",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-06-toggle.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-07-paused-synopsis.png",
+          "press:OK:23",
+          "wait:1500"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134792",
+      "title": "VOD 재생 바",
+      "verdict": "PASS",
+      "message": "재생바 포커스 density=0.128. 시간 형식은 OCR 없이 미검증",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-09-progress.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-01-precheck.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-02-component.png",
+          "press:EXIT:4",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-03-after-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-04-component.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-05-after-5s.png",
+          "press:OK:23",
+          "wait:800",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-06-toggle.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-07-paused-synopsis.png",
+          "press:OK:23",
+          "wait:1500",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-08-component.png",
+          "press:RIGHT:22",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-09-progress.png"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134786",
+      "title": "장면 탐색",
+      "verdict": "PASS",
+      "message": "장면 탐색 density=0.108 5초=0.000 이전=0.044 나가기=0.044",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-11-scene-seek.png",
+        "data/shots/run-10/vod-12-scene-timeout.png",
+        "data/shots/run-10/vod-14-scene-back.png",
+        "data/shots/run-10/vod-15-scene-exit.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-02-component.png",
+          "press:EXIT:4",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-03-after-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-04-component.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-05-after-5s.png",
+          "press:OK:23",
+          "wait:800",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-06-toggle.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-07-paused-synopsis.png",
+          "press:OK:23",
+          "wait:1500",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-08-component.png",
+          "press:RIGHT:22",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-09-progress.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-10-component.png",
+          "press:RIGHT:22",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-11-scene-seek.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-12-scene-timeout.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-13-component.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:BACK:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-14-scene-back.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:EXIT:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-15-scene-exit.png"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134788",
+      "title": "장면 썸네일",
+      "verdict": "PASS",
+      "message": "썸네일 이동 후 OK. audio False→False density=0.110",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-17-thumbs.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-06-toggle.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-07-paused-synopsis.png",
+          "press:OK:23",
+          "wait:1500",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-08-component.png",
+          "press:RIGHT:22",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-09-progress.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-10-component.png",
+          "press:RIGHT:22",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-11-scene-seek.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-12-scene-timeout.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-13-component.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:BACK:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-14-scene-back.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:EXIT:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-15-scene-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-16-component.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:RIGHT:22",
+          "wait:400",
+          "long:RIGHT:22",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-17-thumbs.png",
+          "press:OK:23",
+          "wait:1500"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134795",
+      "title": "VOD 배속 재생",
+      "verdict": "FAIL",
+      "message": "배속 UI 미확인 density=0.024 audio=False",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-19-speed-focus.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "press:RIGHT:22",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-11-scene-seek.png",
+          "wait:5200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-12-scene-timeout.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-13-component.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:BACK:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-14-scene-back.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:EXIT:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-15-scene-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-16-component.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:RIGHT:22",
+          "wait:400",
+          "long:RIGHT:22",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-17-thumbs.png",
+          "press:OK:23",
+          "wait:1500",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-18-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-19-speed-focus.png",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-20-speed.png",
+          "press:OK:23",
+          "wait:800"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-145130",
+      "title": "1분 미만 처음부터 보기 미노출",
+      "verdict": "PASS",
+      "message": "처음부터 보기 미검출(1분 미만 구간)",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-22-from-start.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "wait:500",
+          "press:EXIT:4",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-15-scene-exit.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-16-component.png",
+          "press:RIGHT:22",
+          "wait:500",
+          "press:RIGHT:22",
+          "wait:400",
+          "long:RIGHT:22",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-17-thumbs.png",
+          "press:OK:23",
+          "wait:1500",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-18-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-19-speed-focus.png",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-20-speed.png",
+          "press:OK:23",
+          "wait:800",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-21-component.png",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "wait:500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-22-from-start.png"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134817",
+      "title": "회차 목록 권한 있는 회차",
+      "verdict": "FAIL",
+      "message": "회차 선택 후 재생 안 됨",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-24-ep-btn-rights.png",
+        "data/shots/run-10/vod-25-ep-list-rights.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-18-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-19-speed-focus.png",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-20-speed.png",
+          "press:OK:23",
+          "wait:800",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-21-component.png",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "wait:500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-22-from-start.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-23-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-24-ep-btn-rights.png",
+          "press:OK:23",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-25-ep-list-rights.png",
+          "press:OK:23",
+          "wait:2000"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134818",
+      "title": "회차 목록 권한 없는 회차",
+      "verdict": "ERROR",
+      "message": "전제 미충족: 권한 없는 회차/구매 화면을 찾지 못함",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-27-ep-btn-purchase.png",
+        "data/shots/run-10/vod-28-ep-list-purchase.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-21-component.png",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "press:LEFT:21",
+          "wait:500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-22-from-start.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-23-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-24-ep-btn-rights.png",
+          "press:OK:23",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-25-ep-list-rights.png",
+          "press:OK:23",
+          "wait:2000",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-26-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-27-ep-btn-purchase.png",
+          "press:OK:23",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-28-ep-list-purchase.png",
+          "press:EXIT:4"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-134827",
+      "title": "재생 중 상세정보 이동",
+      "verdict": "FAIL",
+      "message": "상세정보 이동 미확인 density 0.040→0.040 ocr=",
+      "run_id": 10,
+      "started_at": "2026-09-15T05:00:29.292673+00:00",
+      "finished_at": "2026-09-15T05:02:05.971874+00:00",
+      "trigger": "테스트 진행 VOD:VOD",
+      "shots": [
+        "data/shots/run-10/vod-30-detail-before.png",
+        "data/shots/run-10/vod-31-detail-after.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "press:LEFT:21",
+          "wait:500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-22-from-start.png",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-23-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-24-ep-btn-rights.png",
+          "press:OK:23",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-25-ep-list-rights.png",
+          "press:OK:23",
+          "wait:2000",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-26-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-27-ep-btn-purchase.png",
+          "press:OK:23",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-28-ep-list-purchase.png",
+          "press:EXIT:4",
+          "press:OK:23",
+          "wait:900",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-29-component.png",
+          "press:DOWN:20",
+          "press:DOWN:20",
+          "wait:400",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-30-detail-before.png",
+          "press:OK:23",
+          "wait:1500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-10\\vod-31-detail-after.png"
+        ],
+        "notes": [
+          "이미 플레이어(ADB 검정)"
+        ]
+      }
+    }
+  ],
+  "history": [
+    {
+      "run": {
+        "id": 10,
+        "started_at": "2026-09-15T05:00:29.292673+00:00",
+        "finished_at": "2026-09-15T05:02:05.971874+00:00",
+        "trigger": "테스트 진행 VOD:VOD",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 5,
+        "FAIL": 5,
+        "ERROR": 1
+      }
+    },
+    {
+      "run": {
+        "id": 9,
+        "started_at": "2026-09-15T04:58:45.476160+00:00",
+        "finished_at": "2026-09-15T04:59:16.167683+00:00",
+        "trigger": "테스트 진행 VOD:VOD",
+        "status": "done"
+      },
+      "counts": {
+        "ERROR": 11
+      }
+    },
+    {
+      "run": {
+        "id": 8,
+        "started_at": "2026-09-15T04:55:41.308440+00:00",
+        "finished_at": "2026-09-15T04:56:11.615938+00:00",
+        "trigger": "테스트 진행 VOD:VOD",
+        "status": "done"
+      },
+      "counts": {
+        "ERROR": 11
+      }
+    },
+    {
+      "run": {
+        "id": 7,
+        "started_at": "2026-09-15T04:48:53.200490+00:00",
+        "finished_at": "2026-09-15T04:49:16.356604+00:00",
+        "trigger": "테스트 진행 VOD:VOD",
+        "status": "done"
+      },
+      "counts": {
+        "ERROR": 11
+      }
+    },
+    {
+      "run": {
+        "id": 6,
+        "started_at": "2026-09-15T04:27:46.447247+00:00",
+        "finished_at": "2026-09-15T04:27:58.175804+00:00",
+        "trigger": "테스트 진행:BANNER",
+        "status": "done"
+      },
+      "counts": {
+        "ERROR": 2
+      }
+    },
+    {
+      "run": {
+        "id": 5,
+        "started_at": "2026-09-15T04:20:29.135913+00:00",
+        "finished_at": "2026-09-15T04:20:39.722028+00:00",
+        "trigger": "테스트 진행:BANNER",
+        "status": "done"
+      },
+      "counts": {
+        "FAIL": 1,
+        "ERROR": 1
+      }
+    },
+    {
+      "run": {
+        "id": 4,
+        "started_at": "2026-09-15T04:19:02.682035+00:00",
+        "finished_at": "2026-09-15T04:19:02.748033+00:00",
+        "trigger": "테스트 진행:BANNER",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 3
+      }
+    },
+    {
+      "run": {
+        "id": 3,
+        "started_at": "2026-09-15T04:18:27.680517+00:00",
+        "finished_at": "2026-09-15T04:18:27.741516+00:00",
+        "trigger": "테스트 진행:BANNER",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 3
+      }
+    },
+    {
+      "run": {
+        "id": 2,
+        "started_at": "2026-09-15T03:39:51.073194+00:00",
+        "finished_at": "2026-09-15T03:39:51.122239+00:00",
+        "trigger": "docs:nogit:POC",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 2
+      }
+    },
+    {
+      "run": {
+        "id": 1,
+        "started_at": "2026-09-15T03:39:50.043196+00:00",
+        "finished_at": "2026-09-15T03:39:50.086195+00:00",
+        "trigger": "poc:POC",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 2
+      }
+    }
+  ]
+}

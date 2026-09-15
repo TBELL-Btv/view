@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Btv 셋톱 UI 자동화</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="logo">Btv UI 자동화<small>TBELL · 랩 리포트</small></div>
+    <nav class="nav">
+      <button type="button" data-page="home" class="on">홈</button>
+      <button type="button" data-page="docs">기획</button>
+      <button type="button" data-page="cases">테스트케이스</button>
+    </nav>
+    <div class="sidefoot" id="generated">catalog.json 로딩…</div>
+  </aside>
+  <main class="main" id="app"></main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
