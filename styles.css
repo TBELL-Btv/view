@@ -1,212 +1,229 @@
 :root {
-  --ci-deep: #0067ac;
-  --ci-blue: #0083ca;
-  --ci-light: #20c4f4;
+  --brand: #0064ff;
+  --public-blue: #3182f6;
+  --ink: #191f28;
+  --fg: #212529;
+  --secondary: #4e5968;
+  --muted: #6b7684;
+  --toss-gray: #202632;
+  --border: #d1d6db;
+  --hairline: #e5e8eb;
   --canvas: #ffffff;
-  --fg: #000000;
-  --secondary: #333333;
-  --muted: #7f7f7f;
-  --line: #cccccc;
-  --pass: #0067ac;
-  --fail: #000000;
-  --error: #7f7f7f;
-  --change: #0083ca;
-  --nav-w: 200px;
+  --wash: #f2f4f6;
+  --pill: #fdfdfe;
+  --nav-w: 248px;
 }
 * { box-sizing: border-box }
 html, body { margin: 0; height: 100% }
 body {
-  background: var(--canvas);
+  background: var(--wash);
   color: var(--fg);
-  font: 14px/20px "Malgun Gothic", "Noto Sans KR", sans-serif;
+  font: 16px/24px "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
-code, .mono, .tcid { font-family: Dotum, "돋움", Arial, sans-serif }
+code, .mono, .tcid { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px }
 .layout { display: grid; grid-template-columns: var(--nav-w) 1fr; min-height: 100vh }
 .side {
   background: var(--canvas);
-  border-right: 1px solid var(--fg);
-  padding: 0;
+  border-right: 1px solid var(--hairline);
+  padding: 32px 20px;
   position: sticky;
   top: 0;
   height: 100vh;
 }
-.brandbar { height: 4px; background: var(--ci-deep) }
-.brandbar i { display: block; height: 4px; width: 36%; background: var(--ci-light) }
-.side-inner { padding: 22px 16px }
-.logo { font-size: 16px; font-weight: 700; color: var(--ci-deep); line-height: 1.3 }
-.logo small { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 400 }
-.nav { display: grid; gap: 0; margin-top: 28px; border-top: 1px solid var(--line) }
+.logo { font-size: 18px; font-weight: 700; color: var(--toss-gray); letter-spacing: -0.03em; line-height: 1.35 }
+.logo small { display: block; margin-top: 6px; color: var(--muted); font-size: 13px; font-weight: 500; letter-spacing: 0 }
+.nav { display: grid; gap: 4px; margin-top: 32px }
 .nav button {
   border: 0;
-  border-bottom: 1px solid var(--line);
   background: transparent;
   color: var(--secondary);
   text-align: left;
-  padding: 11px 4px;
-  border-radius: 0;
+  padding: 9px 14px;
+  border-radius: 12px;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
+  line-height: 22px;
   cursor: pointer;
+  height: 40px;
 }
-.nav button:hover { color: var(--fg) }
-.nav button.on {
-  color: var(--ci-deep);
-  font-weight: 700;
-  box-shadow: inset 3px 0 0 var(--ci-deep);
-  padding-left: 8px;
-}
+.nav button:hover { color: var(--fg); background: var(--wash) }
+.nav button.on { color: var(--fg); font-weight: 600; background: var(--wash) }
 .sidefoot {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
+  bottom: 24px;
+  left: 20px;
+  right: 20px;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 13px;
+  line-height: 1.5;
 }
-.main { min-width: 0; padding: 28px 36px 56px; background: var(--canvas) }
-.eyebrow { color: var(--ci-deep); font-size: 12px; font-weight: 700 }
-h1 { font-size: 24px; font-weight: 700; line-height: normal; margin: 6px 0 8px; color: var(--fg) }
-h2 { font-size: 16px; font-weight: 700; margin: 0 0 8px; color: var(--fg) }
+.main { min-width: 0; padding: 40px 48px 80px }
+.eyebrow { color: var(--public-blue); font-size: 13px; font-weight: 600 }
+h1 { font-size: 40px; font-weight: 700; line-height: 1.25; margin: 8px 0 12px; color: var(--toss-gray); letter-spacing: -0.04em }
+h2 { font-size: 20px; font-weight: 700; margin: 0 0 8px; color: var(--ink) }
 .muted { color: var(--muted) }
-.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 16px 0; border: 1px solid var(--fg) }
-.card { background: var(--canvas); border: 1px solid var(--line); border-radius: 0; box-shadow: none }
-.metric { padding: 12px 14px; border-right: 1px solid var(--fg) }
-.grid4 .metric:last-child { border-right: 0 }
-.metric span { font-size: 12px; color: var(--muted) }
-.metric strong { display: block; font-size: 24px; font-weight: 700; line-height: 1.2; margin-top: 2px; color: var(--fg) }
-.metric.pass strong { color: var(--ci-deep) }
-.metric.fail strong { color: var(--fg) }
-.metric.change strong { color: var(--ci-blue) }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0 }
+.card {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+}
+.metric { padding: 20px 22px }
+.metric span { font-size: 13px; color: var(--muted); font-weight: 500 }
+.metric strong { display: block; font-size: 36px; font-weight: 700; line-height: 1.15; margin-top: 6px; color: var(--toss-gray); letter-spacing: -0.04em }
+.metric.pass strong { color: var(--brand) }
+.metric.fail strong { color: var(--toss-gray) }
+.metric.change strong { color: var(--public-blue) }
 .metric.error strong { color: var(--muted) }
-.runinfo { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--fg) }
-.kv { padding: 10px 14px; border-right: 1px solid var(--line) }
+.runinfo { display: grid; grid-template-columns: repeat(4, 1fr) }
+.kv { padding: 18px 22px; border-right: 1px solid var(--hairline) }
 .kv:last-child { border-right: 0 }
-.kv span { display: block; color: var(--muted); font-size: 12px }
-.kv b { font-size: 13px; font-weight: 700; color: var(--secondary) }
-.section { margin-top: 28px }
-.sectionhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 8px; border-bottom: 1px solid var(--fg); padding-bottom: 6px }
-.tools { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 8px }
+.kv span { display: block; color: var(--muted); font-size: 13px }
+.kv b { font-size: 14px; font-weight: 600; color: var(--ink) }
+.section { margin-top: 40px }
+.sectionhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px }
 .filter, .btn {
-  border: 1px solid var(--fg);
+  border: 1px solid var(--secondary);
   background: var(--canvas);
   color: var(--secondary);
-  border-radius: 0;
+  border-radius: 40px;
   padding: 4px 10px;
-  height: 26px;
-  font: 12px/23px Dotum, "돋움", sans-serif;
+  height: 28px;
+  font: 11px/17.6px inherit;
+  font-weight: 600;
   cursor: pointer;
 }
-.filter.on { background: var(--ci-deep); color: #fff; border-color: var(--ci-deep) }
+.filter.on {
+  background: var(--pill);
+  color: var(--fg);
+  border-color: var(--hairline);
+}
+.btn {
+  height: auto;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 40px;
+}
 .search {
   margin-left: auto;
-  width: 220px;
-  height: 26px;
-  border: 1px solid var(--line);
-  border-radius: 0;
-  padding: 2px 6px 3px;
-  font: 13px/1 "Malgun Gothic", sans-serif;
+  width: 240px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font: 16px/24px inherit;
   color: var(--fg);
-  background: #fff;
+  background: var(--canvas);
 }
-.tablewrap { overflow: auto; border: 1px solid var(--fg) }
+.tablewrap { overflow: auto; border-radius: 16px }
 table { border-collapse: collapse; width: 100%; min-width: 720px }
 th {
   text-align: left;
-  font-size: 12px;
-  color: var(--secondary);
+  font-size: 13px;
+  color: var(--muted);
   background: var(--canvas);
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--fg);
-  font-weight: 700;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hairline);
+  font-weight: 600;
 }
-td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top }
+td { padding: 16px; border-bottom: 1px solid var(--hairline); vertical-align: top }
 tbody tr { cursor: pointer }
-tbody tr:hover { background: #f7f7f7 }
+tbody tr:hover { background: var(--wash) }
 .badge {
   display: inline-flex;
-  padding: 1px 6px;
+  padding: 4px 10px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 17.6px;
   white-space: nowrap;
-  border: 1px solid currentColor;
-  border-radius: 0;
-  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  background: var(--canvas);
+  color: var(--secondary);
 }
-.bp { color: var(--ci-deep); border-color: var(--ci-deep) }
-.bc { color: var(--ci-blue); border-color: var(--ci-blue) }
-.bf { color: var(--fg); border-color: var(--fg); background: #fff }
-.be { color: var(--muted); border-color: var(--muted) }
-.bn { color: var(--muted); border-color: var(--line) }
-.tcid { font-size: 12px; color: var(--muted) }
-.name b { display: block; color: var(--fg); font-size: 14px }
-.name span { font-size: 12px; color: var(--muted); line-height: 18px }
-.callout { padding: 10px 12px; font-size: 14px; line-height: 20px; border: 1px solid var(--line) }
-.callout.good { border-color: var(--ci-deep); color: var(--secondary) }
-.callout.bad { border-color: var(--fg); color: var(--fg) }
-.callout.err { border-color: var(--muted); color: var(--secondary) }
-.callout.ui { border-color: var(--ci-blue); color: var(--secondary) }
-.steplist { display: grid; gap: 0; border: 1px solid var(--line) }
+.bp { color: var(--brand); border-color: #cfe0ff; background: #f4f8ff }
+.bc { color: var(--public-blue); border-color: #d6e7ff; background: #f7fbff }
+.bf { color: var(--toss-gray); border-color: var(--border); background: var(--wash) }
+.be { color: var(--muted); border-color: var(--hairline) }
+.bn { color: var(--muted) }
+.name b { display: block; color: var(--ink); font-size: 16px; font-weight: 600 }
+.name span { font-size: 13px; color: var(--muted); line-height: 1.45 }
+.callout { padding: 16px 18px; font-size: 16px; line-height: 24px; border-radius: 16px; background: var(--wash); color: var(--fg) }
+.callout.good { background: #f4f8ff; color: var(--ink) }
+.callout.bad { background: var(--wash); color: var(--toss-gray) }
+.callout.err { background: var(--canvas); border: 1px solid var(--hairline); color: var(--secondary) }
+.callout.ui { background: #f7fbff; color: var(--ink) }
+.steplist { display: grid; gap: 8px }
 .step {
   display: grid;
   grid-template-columns: 28px 1fr auto;
-  gap: 8px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--line);
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--canvas);
 }
-.step:last-child { border-bottom: 0 }
 .num {
-  width: 20px; height: 20px;
+  width: 22px; height: 22px;
   display: grid; place-items: center;
-  border: 1px solid var(--ci-deep);
-  color: var(--ci-deep);
-  font-size: 11px; font-weight: 700;
+  border-radius: 100px;
+  background: var(--wash);
+  color: var(--public-blue);
+  font-size: 12px; font-weight: 700;
 }
-.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px }
-.shot { border: 1px solid var(--fg); background: #000; border-radius: 0 }
-.shot img { width: 100%; display: block; background: #000 }
-.shot figcaption { padding: 6px 8px; font-size: 12px; color: var(--muted); background: var(--canvas) }
-.compare { display: grid; grid-template-columns: 1fr 24px 1fr; gap: 8px; align-items: center }
-.compare .arrow { text-align: center; color: var(--muted); font-size: 16px }
-.doc-list { display: grid; gap: 0; border: 1px solid var(--fg) }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px }
+.shot { border: 1px solid var(--hairline); background: var(--toss-gray); border-radius: 16px; overflow: hidden }
+.shot img { width: 100%; display: block; background: var(--toss-gray) }
+.shot figcaption { padding: 10px 12px; font-size: 13px; color: var(--muted); background: var(--canvas) }
+.compare { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 12px; align-items: center }
+.compare .arrow { text-align: center; color: var(--muted); font-size: 20px }
+.doc-list { display: grid; gap: 8px }
 .doc-item {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 12px; border: 0; border-bottom: 1px solid var(--line);
+  padding: 16px 18px;
+  border: 1px solid var(--hairline);
   background: var(--canvas);
   cursor: pointer; text-align: left; width: 100%; font: inherit;
-  border-radius: 0;
+  border-radius: 16px;
 }
-.doc-list .doc-item:last-child { border-bottom: 0 }
-.doc-item:hover { background: #f7f7f7 }
-.doc-item b { display: block; font-size: 14px }
-.doc-body { margin-top: 12px; padding: 16px 18px; background: var(--canvas); border: 1px solid var(--fg) }
-.doc-body h1 { font-size: 24px }
-.doc-body h2 { font-size: 16px; margin: 18px 0 6px }
-.doc-body table { min-width: 0; margin: 10px 0 }
-.frame { width: 100%; min-height: 72vh; border: 1px solid var(--fg); background: #fff }
+.doc-item:hover { border-color: var(--border) }
+.doc-item b { display: block; font-size: 16px; color: var(--ink) }
+.doc-body { margin-top: 16px; padding: 28px 32px; background: var(--canvas); border: 1px solid var(--hairline); border-radius: 16px }
+.doc-body h1 { font-size: 32px }
+.doc-body h2 { font-size: 20px; margin: 24px 0 8px }
+.doc-body table { min-width: 0; margin: 12px 0 }
+.frame { width: 100%; min-height: 72vh; border: 1px solid var(--hairline); background: #fff; border-radius: 16px }
 .hidden { display: none !important }
-.hist { display: grid; gap: 0; border: 1px solid var(--fg) }
+.hist { display: grid; gap: 8px }
 .hist a, .hist button {
   display: block; width: 100%; text-align: left;
-  padding: 10px 12px; border: 0; border-bottom: 1px solid var(--line);
-  background: var(--canvas); font: inherit; cursor: pointer; border-radius: 0;
+  padding: 16px 18px; border: 1px solid var(--hairline);
+  background: var(--canvas); font: inherit; cursor: pointer;
+  border-radius: 16px;
 }
-.hist button:last-child { border-bottom: 0 }
-.notice { margin: 12px 0; padding: 10px 12px; border: 1px solid var(--line); font-size: 13px; color: var(--muted); line-height: 20px }
-.top { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--fg) }
-.kicker { color: var(--ci-deep); font-size: 12px; font-weight: 700; margin: 0 }
-.top nav a { color: var(--secondary); text-decoration: none; margin-left: 12px }
-.top nav a.on { color: var(--ci-deep); font-weight: 700 }
-.log { min-height: 280px; max-height: 52vh; overflow: auto; padding: 8px; border: 1px solid var(--line) }
-.composer { display: flex; gap: 6px }
-.composer input { flex: 1; height: 26px; border: 1px solid var(--line); padding: 2px 6px; font: 13px/1 "Malgun Gothic", sans-serif }
-.composer button { height: 26px; border: 1px solid var(--fg); background: var(--canvas); padding: 0 10px; font: 12px Dotum, sans-serif; cursor: pointer }
+.hist button:hover { background: var(--pill) }
+.notice { margin: 12px 0 16px; padding: 16px 18px; border-radius: 16px; background: var(--wash); font-size: 15px; color: var(--secondary); line-height: 1.55 }
+.top { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; background: var(--canvas); border-bottom: 1px solid var(--hairline) }
+.kicker { color: var(--public-blue); font-size: 13px; font-weight: 600; margin: 0 }
+.top nav a { color: var(--secondary); text-decoration: none; margin-left: 16px; font-size: 15px; font-weight: 500 }
+.top nav a.on { color: var(--fg) }
+.log { min-height: 280px; max-height: 52vh; overflow: auto; padding: 16px; border-radius: 16px; background: var(--canvas); border: 1px solid var(--hairline) }
+.composer { display: flex; gap: 8px }
+.composer input { flex: 1; height: 48px; border: 1px solid var(--border); border-radius: 16px; padding: 12px 16px; font: inherit }
+.composer button {
+  height: 48px; border: 0; background: var(--pill); color: var(--fg);
+  padding: 0 20px; font: inherit; font-weight: 600; cursor: pointer; border-radius: 100px;
+}
 @media (max-width: 900px) {
   .layout { display: block }
-  .side { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--fg) }
-  .sidefoot { position: static; margin-top: 20px }
-  .main { padding: 16px }
+  .side { position: relative; height: auto }
+  .sidefoot { position: static; margin-top: 24px }
+  .main { padding: 24px 20px 48px }
+  h1 { font-size: 32px }
   .grid4, .runinfo { grid-template-columns: 1fr 1fr }
   .compare { grid-template-columns: 1fr }
+  .search { margin-left: 0; width: 100% }
 }

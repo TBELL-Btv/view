@@ -80,8 +80,8 @@ function renderHome() {
   return `
     <header>
       <div class="eyebrow">LATEST RUN${run.id ? " · #" + run.id : ""}</div>
-      <h1>Btv 셋톱박스 UI 자동화</h1>
-      <p class="muted">홈에서 집계를 보고, 기획·테스트케이스는 왼쪽에서 엽니다.</p>
+      <h1>셋톱 테스트를 더 쉽게</h1>
+      <p class="muted">홈에서 결과를 보고, 기획과 테스트케이스는 왼쪽에서 고르면 됩니다.</p>
     </header>
     <section class="grid4">
       <div class="card metric pass"><span>PASS</span><strong>${c.PASS}</strong><div class="muted">기준 일치</div></div>
@@ -118,8 +118,8 @@ function renderDocs() {
   return `
     <header>
       <div class="eyebrow">PLANNING</div>
-      <h1>기획</h1>
-      <p class="muted">Markdown 명세는 여기서 읽고, HWP·PDF는 원본을 열거나 미리봅니다.</p>
+      <h1>기획을 읽기 쉽게</h1>
+      <p class="muted">명세는 여기서 보고, HWP·PDF는 원본을 열거나 미리봅니다.</p>
     </header>
     <section class="section">
       <h2>명세 · 규칙</h2>
@@ -199,7 +199,7 @@ function renderCases() {
     <header>
       <div class="eyebrow">TEST CASES</div>
       <h1>테스트케이스</h1>
-      <p class="muted">행을 누르면 Jira처럼 최신 결과·수행 설명·첨부 화면을 봅니다.</p>
+      <p class="muted">항목을 누르면 최신 결과와 화면을 바로 봅니다.</p>
     </header>
     <div class="tools">
       <button class="filter ${FILTER === "all" ? "on" : ""}" data-filter="all">전체 ${all.length}</button>
