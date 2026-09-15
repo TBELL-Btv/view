@@ -137,7 +137,16 @@ h2 {
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
 }
-.metric { padding: 14px 16px }
+.metric {
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+button.metric { border: 1px solid var(--hairline); background: var(--canvas); }
+button.metric:hover { background: var(--hover); }
 .metric span { font-size: 12px; color: var(--muted); font-weight: 400; line-height: 14px }
 .metric strong {
   display: block;

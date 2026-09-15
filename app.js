@@ -36,6 +36,22 @@ function countsOf(obj) {
   };
 }
 
+function verdictKey(v) {
+  if (!v) return "NONE";
+  if (v === "PASS_CHANGED" || v === "PASS(변경 감지)") return "CHANGE";
+  return v;
+}
+
+function tcTally() {
+  const all = caseList();
+  const out = { PASS: 0, CHANGE: 0, FAIL: 0, ERROR: 0, NONE: 0, total: all.length };
+  for (const tc of all) {
+    const k = verdictKey(tc.latest && tc.latest.verdict);
+    out[k] = (out[k] || 0) + 1;
+  }
+  return out;
+}
+
 function page() {
   const h = location.hash.replace(/^#/, "") || "/home";
   const parts = h.split("/").filter(Boolean);
@@ -142,22 +158,21 @@ function failChart(timeline) {
     </div>`;
 }
 
-function latestRows(timeline) {
-  const latest = (timeline || [])[0];
-  const rows = (latest && latest.results) || [];
-  if (!rows.length) return `<p class="muted">최근 실행 결과가 없습니다.</p>`;
+function caseTable(rows) {
+  if (!rows.length) return `<p class="muted">테스트케이스가 없습니다.</p>`;
   return `<div class="card tablewrap"><table>
       <thead><tr><th>결과</th><th>TC ID</th><th>테스트 항목</th><th></th></tr></thead>
       <tbody>
         ${rows
-          .map(
-            (r) => `<tr data-go="/cases/${encodeURIComponent(r.tc_id)}">
-              <td>${badge(r.verdict)}</td>
-              <td class="tcid">${r.tc_id}</td>
-              <td class="name"><b>${r.title || r.tc_id}</b><span>${(r.message || "").slice(0, 80)}</span></td>
+          .map((tc) => {
+            const L = tc.latest;
+            return `<tr data-go="/cases/${encodeURIComponent(tc.id)}">
+              <td>${badge(L && L.verdict)}</td>
+              <td class="tcid">${tc.id}</td>
+              <td class="name"><b>${tc.title}</b><span>${(tc.expect || "").split("\n")[0] || (L && L.message) || tc.screen_id || ""}</span></td>
               <td class="muted">›</td>
-            </tr>`
-          )
+            </tr>`;
+          })
           .join("")}
       </tbody>
     </table></div>`;
@@ -165,22 +180,22 @@ function latestRows(timeline) {
 
 function renderHome() {
   const run = CATALOG.latest_run || {};
-  const c = countsOf(CATALOG.counts);
-  const n = c.PASS + c.CHANGE + c.FAIL + c.ERROR;
+  const c = tcTally();
   const device = CATALOG.device || {};
   const timeline = CATALOG.timeline || [];
   const whenRun = when(run.started_at || CATALOG.generated_at);
   return `
     <header>
-      <div class="eyebrow">최근 회차${run.id ? " · #" + run.id : ""}</div>
-      <h1>최신 랩 결과</h1>
+      <div class="eyebrow">테스트케이스 ${c.total}건</div>
+      <h1>최신 판정</h1>
     </header>
     ${failChart(timeline)}
     <section class="grid4">
-      <div class="card metric pass"><span>PASS</span><strong>${c.PASS}</strong><div class="muted">기준 일치</div></div>
-      <div class="card metric change"><span>PASS · 변경 감지</span><strong>${c.CHANGE}</strong><div class="muted">기능 정상 · UI 다름</div></div>
-      <div class="card metric fail"><span>FAIL</span><strong>${c.FAIL}</strong><div class="muted">기능 결함</div></div>
-      <div class="card metric error"><span>ERROR</span><strong>${c.ERROR}</strong><div class="muted">전제·판독 불가</div></div>
+      <button type="button" class="card metric pass" data-filter="PASS"><span>PASS</span><strong>${c.PASS}</strong><div class="muted">기준 일치</div></button>
+      <button type="button" class="card metric change" data-filter="CHANGE"><span>PASS · 변경 감지</span><strong>${c.CHANGE}</strong><div class="muted">기능 정상 · UI 다름</div></button>
+      <button type="button" class="card metric fail" data-filter="FAIL"><span>FAIL</span><strong>${c.FAIL}</strong><div class="muted">기능 결함</div></button>
+      <button type="button" class="card metric error" data-filter="ERROR"><span>ERROR</span><strong>${c.ERROR}</strong><div class="muted">전제·판독 불가</div></button>
+      ${c.NONE ? `<button type="button" class="card metric" data-filter="NONE"><span>미실행</span><strong>${c.NONE}</strong><div class="muted">아직 결과 없음</div></button>` : ""}
     </section>
     <div class="card runinfo">
       <div class="kv"><span>최근 회차</span><b>#${run.id || "—"} · ${whenRun}${run.trigger ? " · " + run.trigger : ""}</b></div>
@@ -188,8 +203,8 @@ function renderHome() {
       <div class="kv"><span>제어 · 캡처</span><b>${device.control || "ADB"} · ${device.capture || ""}</b></div>
     </div>
     <section class="section">
-      <div class="sectionhead"><h2>테스트 결과</h2><div class="desc muted">${n}건 · 행을 누르면 상세</div></div>
-      ${latestRows(timeline)}
+      <div class="sectionhead"><h2>테스트케이스</h2><div class="desc muted">${c.total}건 · 각 TC의 최신 판정</div></div>
+      ${caseTable(caseList())}
     </section>
   `;
 }
@@ -391,40 +406,23 @@ function renderCases() {
     if (!q) return true;
     return `${tc.id} ${tc.title} ${tc.steps || ""}`.toLowerCase().includes(q);
   });
-  const all = caseList();
-  const n = (v) => all.filter((t) => ((t.latest && t.latest.verdict) || "NONE") === v).length;
-  const nChange = all.filter((t) => ["PASS_CHANGED", "PASS(변경 감지)"].includes((t.latest || {}).verdict)).length;
+  const t = tcTally();
   return `
     <div class="page-compact">
     <header>
-      <div class="eyebrow">테스트케이스</div>
+      <div class="eyebrow">테스트케이스 ${t.total}건</div>
       <h1>항목과 최신 판정</h1>
     </header>
     <div class="tools">
-      <button class="filter ${FILTER === "all" ? "on" : ""}" data-filter="all">전체 ${all.length}</button>
-      <button class="filter ${FILTER === "PASS" ? "on" : ""}" data-filter="PASS">PASS ${n("PASS")}</button>
-      <button class="filter ${FILTER === "CHANGE" ? "on" : ""}" data-filter="CHANGE">변경 ${nChange}</button>
-      <button class="filter ${FILTER === "FAIL" ? "on" : ""}" data-filter="FAIL">FAIL ${n("FAIL")}</button>
-      <button class="filter ${FILTER === "ERROR" ? "on" : ""}" data-filter="ERROR">ERROR ${n("ERROR")}</button>
-      <button class="filter ${FILTER === "NONE" ? "on" : ""}" data-filter="NONE">미실행 ${n("NONE")}</button>
+      <button class="filter ${FILTER === "all" ? "on" : ""}" data-filter="all">전체 ${t.total}</button>
+      <button class="filter ${FILTER === "PASS" ? "on" : ""}" data-filter="PASS">PASS ${t.PASS}</button>
+      <button class="filter ${FILTER === "CHANGE" ? "on" : ""}" data-filter="CHANGE">변경 ${t.CHANGE}</button>
+      <button class="filter ${FILTER === "FAIL" ? "on" : ""}" data-filter="FAIL">FAIL ${t.FAIL}</button>
+      <button class="filter ${FILTER === "ERROR" ? "on" : ""}" data-filter="ERROR">ERROR ${t.ERROR}</button>
+      <button class="filter ${FILTER === "NONE" ? "on" : ""}" data-filter="NONE">미실행 ${t.NONE}</button>
       <input class="search" id="q" placeholder="TC ID 또는 항목 검색" value="${SEARCH.replace(/"/g, "&quot;")}">
     </div>
-    <div class="card tablewrap"><table>
-      <thead><tr><th>결과</th><th>TC ID</th><th>테스트 항목</th><th></th></tr></thead>
-      <tbody>
-        ${rows
-          .map((tc) => {
-            const L = tc.latest;
-            return `<tr data-go="/cases/${encodeURIComponent(tc.id)}">
-              <td>${badge(L && L.verdict)}</td>
-              <td class="tcid">${tc.id}</td>
-              <td class="name"><b>${tc.title}</b><span>${(tc.expect || "").split("\n")[0] || tc.screen_id}</span></td>
-              <td class="muted">›</td>
-            </tr>`;
-          })
-          .join("")}
-      </tbody>
-    </table></div>
+    ${caseTable(rows)}
     </div>
   `;
 }
@@ -536,8 +534,9 @@ function bind() {
   });
   document.querySelectorAll("[data-filter]").forEach((el) => {
     el.addEventListener("click", () => {
-      FILTER = el.getAttribute("data-filter");
-      render();
+      FILTER = el.getAttribute("data-filter") || "all";
+      if (page().name === "cases") render();
+      else go("/cases");
     });
   });
   const q = document.getElementById("q");
