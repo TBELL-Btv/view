@@ -1,6 +1,7 @@
 # TBELL-Btv / view
 
 GitHub Pages 대시보드. 왼쪽은 **홈 · 기획 · 테스트케이스**.
+크롬은 흰 면·헤어라인·16px 라운드·Pretendard. PASS 포인트 색은 `#0064FF` / `#3182F6`.
 
 - 홈: 최신 회차 집계와 실행 이력
 - 기획: spec.md / 판정 규칙 / inbox의 HTML·PDF 미리보기, HWP는 다운로드
