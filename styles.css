@@ -64,7 +64,8 @@ code, .mono, .tcid {
 .logo img {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: 0;
+  background: transparent;
   display: block;
 }
 .logo small {
@@ -292,7 +293,49 @@ tbody tr:last-child td { border-bottom: 0 }
   border-radius: var(--radius);
   overflow: hidden;
 }
-.shot img { width: 100%; display: block; background: var(--fg) }
+.shot img {
+  width: 100%;
+  display: block;
+  background: var(--fg);
+  cursor: zoom-in;
+}
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-7);
+  background: rgba(0, 0, 0, 0.72);
+  cursor: zoom-out;
+}
+.lightbox.on {
+  display: flex;
+}
+.lightbox img {
+  max-width: min(1200px, 94vw);
+  max-height: 82vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hover);
+  cursor: default;
+  background: #000;
+}
+.lightbox-cap {
+  margin: 0;
+  max-width: 900px;
+  color: #e8e9ed;
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+  pointer-events: none;
+}
+body.lb-open { overflow: hidden }
 .shot figcaption {
   padding: var(--space-2) var(--space-3);
   font-size: 12px;
@@ -402,6 +445,14 @@ tbody tr:last-child td { border-bottom: 0 }
 .case-body .section { margin-top: 10px }
 .case-body h2 { margin-bottom: 4px }
 .case-body p { margin: 2px 0 }
+.spec-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.spec-list li { margin: 4px 0; line-height: 22px }
+.spec-prose { font-size: 15px; line-height: 22px }
+.spec-meta { margin: 0 0 4px; }
+.case-body .muted { margin-top: 10px }
 .top {
   display: flex;
   justify-content: space-between;

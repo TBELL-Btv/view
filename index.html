@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Btv 셋톱 UI 자동화</title>
-  <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
+  <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="styles.css">
@@ -23,6 +23,11 @@
   </aside>
   <main class="main" id="app"></main>
 </div>
-<script src="app.js"></script>
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="화면 확대">
+  <img alt="">
+  <p class="lightbox-cap"></p>
+</div>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

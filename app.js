@@ -46,10 +46,43 @@ function go(path) {
   location.hash = path.startsWith("/") ? path : "/" + path;
 }
 
+function apiBase() {
+  const configured = String(window.STE_BTV_API || "").replace(/\/$/, "");
+  if (configured) return configured;
+  if (location.protocol === "http:" && (location.hostname === "127.0.0.1" || location.hostname === "localhost")) {
+    return "http://127.0.0.1:8080";
+  }
+  return "";
+}
+
+function mediaSrc(src) {
+  if (!src) return src;
+  if (/^https?:\/\//i.test(src) || src.startsWith("data:")) return src;
+  const base = apiBase();
+  if (CATALOG && CATALOG.source === "sqlite" && base) {
+    return base + "/" + String(src).replace(/^\//, "");
+  }
+  return src;
+}
+
 async function load() {
-  const res = await fetch("data/catalog.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("catalog.json 없음");
-  CATALOG = await res.json();
+  const tries = [];
+  const base = apiBase();
+  if (base) tries.push(base + "/api/catalog");
+  tries.push("data/catalog.json");
+  let last = new Error("catalog.json 없음");
+  for (const url of tries) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(url + " " + res.status);
+      CATALOG = await res.json();
+      if (!CATALOG.source) CATALOG.source = url.includes("/api/catalog") ? "sqlite" : "snapshot";
+      return;
+    } catch (err) {
+      last = err;
+    }
+  }
+  throw last;
 }
 
 function render() {
@@ -57,8 +90,9 @@ function render() {
   document.querySelectorAll(".nav button").forEach((b) => {
     b.classList.toggle("on", b.dataset.page === name);
   });
+  const srcLabel = CATALOG.source === "sqlite" ? "랩 SQLite" : "스냅샷";
   document.getElementById("generated").textContent = CATALOG
-    ? `생성 ${when(CATALOG.generated_at)}`
+    ? `${srcLabel} · ${when(CATALOG.generated_at)}`
     : "";
   const app = document.getElementById("app");
   if (!CATALOG) {
@@ -177,34 +211,68 @@ function renderDocs() {
   return `
     <header>
       <div class="eyebrow">기획</div>
-      <h1>Btv 서비스 기획</h1>
+      <h1>화면 명세</h1>
     </header>
     <section class="section">
-      <div class="sectionhead"><h2>공지</h2><div class="desc muted">상단 고정</div></div>
+      <div class="sectionhead"><h2>공지 · 참고 자료</h2><div class="desc muted">원본 기획서 · TC 예시</div></div>
       <div class="doc-list">
         ${notices
           .map((b) => {
             const go = b.preview ? `/docs/${encodeURIComponent("file:" + b.id)}` : "";
             const extra = b.preview
               ? ""
-              : `<a class="muted" href="${b.href}">다운로드</a>`;
-            return `<button class="doc-item" type="button" ${go ? `data-go="${go}"` : ""}><span><b>${b.title}</b><span class="muted">공지</span></span><span class="muted">${extra || "열기"}</span></button>`;
+              : `<a class="muted" href="${mediaSrc(b.href)}">다운로드</a>`;
+            return `<button class="doc-item" type="button" ${go ? `data-go="${go}"` : ""}><span><b>${b.title}</b><span class="muted">참고</span></span><span class="muted">${extra || "열기"}</span></button>`;
           })
           .join("")}
       </div>
     </section>
     <section class="section">
-      <div class="sectionhead"><h2>화면 명세</h2><div class="desc muted">행을 누르면 상세</div></div>
-      <div class="doc-list">
-        ${specs
-          .map(
-            (d) =>
-              `<button class="doc-item" type="button" data-go="/docs/${encodeURIComponent(d.id)}"><span><b>${d.title}</b><span class="muted">${d.screen_id || d.id}</span></span><span class="muted">›</span></button>`
-          )
-          .join("") || `<p class="muted">등록된 화면 명세가 없습니다.</p>`}
-      </div>
+      <div class="sectionhead"><h2>화면</h2><div class="desc muted">테스트케이스와 같은 칸</div></div>
+      <div class="card tablewrap"><table>
+        <thead><tr><th>화면</th><th>관련 TC</th><th>버전</th><th></th></tr></thead>
+        <tbody>
+          ${specs
+            .map((d) => {
+              const n = tcsForScreen(d.screen_id).length || (d.related_tcs || []).length;
+              return `<tr data-go="/docs/${encodeURIComponent(d.id)}">
+                <td class="name"><b>${d.title}</b><span>${d.screen_id || d.id}</span></td>
+                <td class="tcid">${n}건</td>
+                <td class="muted">${d.version || "—"}</td>
+                <td class="muted">›</td>
+              </tr>`;
+            })
+            .join("") || `<tr><td colspan="4" class="muted">등록된 화면 명세가 없습니다.</td></tr>`}
+        </tbody>
+      </table></div>
     </section>
   `;
+}
+
+function escHtml(text) {
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function tcsForScreen(sid) {
+  if (!sid) return [];
+  const related = new Set();
+  const spec = (CATALOG.docs || []).find((d) => d.kind === "spec" && d.screen_id === sid);
+  (spec && spec.related_tcs ? spec.related_tcs : []).forEach((id) => related.add(id));
+  return caseList().filter((tc) => tc.screen_id === sid || related.has(tc.id));
+}
+
+function sectionHtml(text, asSteps) {
+  const raw = String(text || "").trim();
+  if (!raw) return `<p class="muted">없음</p>`;
+  if (asSteps) return stepsHtml(raw);
+  const lines = raw.split(/\n/).map((s) => s.trim()).filter(Boolean);
+  if (lines.length && lines.every((l) => /^[-*]\s/.test(l))) {
+    return `<ul class="spec-list">${lines.map((l) => `<li>${escHtml(l.replace(/^[-*]\s+/, ""))}</li>`).join("")}</ul>`;
+  }
+  return `<div class="spec-prose">${escHtml(raw).replace(/\n/g, "<br>")}</div>`;
 }
 
 function renderDoc(id) {
@@ -213,23 +281,96 @@ function renderDoc(id) {
     const bin = (CATALOG.binaries || []).find((b) => b.id === name);
     if (!bin) return `<p>파일을 찾지 못했습니다.</p>`;
     if (!bin.preview) {
-      return `<p>${bin.note || "미리보기 불가"}</p><p><a href="${bin.href}">${bin.title} 다운로드</a></p>`;
+      return `<p>${bin.note || "미리보기 불가"}</p><p><a href="${mediaSrc(bin.href)}">${bin.title} 다운로드</a></p>`;
     }
     const isPdf = (bin.kind || "").includes("pdf");
+    const href = mediaSrc(bin.href);
     return `
       <button class="btn" type="button" data-go="/docs">← 기획</button>
-      <header style="margin-top:12px"><div class="eyebrow">공지</div><h1>${bin.title}</h1></header>
-      ${isPdf ? `<embed class="frame" src="${bin.href}" type="application/pdf">` : `<iframe class="frame" src="${bin.href}" title="${bin.title}"></iframe>`}
+      <header style="margin-top:12px"><div class="eyebrow">참고 자료</div><h1>${bin.title}</h1></header>
+      ${isPdf ? `<embed class="frame" src="${href}" type="application/pdf">` : `<iframe class="frame" src="${href}" title="${bin.title}"></iframe>`}
     `;
   }
   const doc = (CATALOG.docs || []).find((d) => d.id === id);
   if (!doc) return `<p>문서를 찾지 못했습니다.</p>`;
+  if (doc.kind === "spec") return renderSpec(doc);
   return `
     <button class="btn" type="button" data-go="/docs">← 기획</button>
     <article class="doc-body">
       <div class="eyebrow">${doc.kind}</div>
       <h1>${doc.title}</h1>
       ${doc.html || ""}
+    </article>
+  `;
+}
+
+function renderSpec(doc) {
+  const sec = doc.sections || {};
+  const tcs = tcsForScreen(doc.screen_id);
+  const notices = pinNotice().filter((b) => b.preview);
+  return `
+    <button class="btn" type="button" data-go="/docs">← 기획</button>
+    <article class="card case-sheet">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">화면 명세</div>
+          <h1>${doc.title}</h1>
+          <div class="tcid">${doc.screen_id || doc.id} · ${doc.status || ""}</div>
+        </div>
+        <div class="muted">${doc.version || ""}</div>
+      </div>
+      <div class="case-body">
+        <div class="card runinfo spec-meta">
+          <div class="kv"><span>화면 ID</span><b>${doc.screen_id || "—"}</b></div>
+          <div class="kv"><span>시행일</span><b>${doc.effective_from || "—"}</b></div>
+          <div class="kv"><span>관련 TC</span><b>${tcs.length}건</b></div>
+        </div>
+        <section class="section">
+          <h2>기능</h2>
+          ${sectionHtml(sec["기능"])}
+        </section>
+        <section class="section">
+          <h2>조작</h2>
+          ${sectionHtml(sec["조작"], true)}
+        </section>
+        <section class="section">
+          <h2>전제</h2>
+          ${sectionHtml(sec["전제"])}
+        </section>
+        <section class="section">
+          <h2>디자인</h2>
+          <p class="muted">불일치여도 FAIL 아님 · PASS(변경 감지)</p>
+          ${sectionHtml(sec["디자인"])}
+        </section>
+        <section class="section">
+          <h2>참고</h2>
+          ${sectionHtml(sec["참고"])}
+          ${
+            tcs.length
+              ? `<p class="muted">이 화면 테스트케이스</p><div class="hist">${tcs
+                  .map(
+                    (tc) =>
+                      `<button type="button" data-go="/cases/${encodeURIComponent(tc.id)}"><span>${badge(tc.latest && tc.latest.verdict)} <b>${tc.id}</b> ${escHtml(tc.title)}</span><span class="muted">›</span></button>`
+                  )
+                  .join("")}</div>`
+              : ""
+          }
+          ${
+            notices.length
+              ? `<p class="muted">원본 자료</p><div class="hist">${notices
+                  .map(
+                    (b) =>
+                      `<button type="button" data-go="/docs/${encodeURIComponent("file:" + b.id)}"><span><b>${escHtml(b.title)}</b></span><span class="muted">열기</span></button>`
+                  )
+                  .join("")}</div>`
+              : ""
+          }
+        </section>
+        <section class="section">
+          <h2>변경이력</h2>
+          ${sectionHtml(sec["변경이력"])}
+        </section>
+      </div>
     </article>
   `;
 }
@@ -302,7 +443,7 @@ function shotsHtml(paths, highlightLast) {
     .map((src, i) => {
       const name = src.split("/").pop();
       const mark = highlightLast && i === paths.length - 1 ? " · 실패 시점 후보" : "";
-      return `<figure class="shot"><img src="${src}" alt="${name}"><figcaption>${name}${mark}</figcaption></figure>`;
+      return `<figure class="shot"><img src="${mediaSrc(src)}" alt="${name}"><figcaption>${name}${mark}</figcaption></figure>`;
     })
     .join("")}</div>`;
 }
@@ -312,9 +453,9 @@ function beforeAfter(paths) {
   const a = paths[0];
   const b = paths[paths.length - 1];
   return `<div class="compare">
-    <figure class="shot"><img src="${a}" alt="before"><figcaption>이전 / 기준</figcaption></figure>
+    <figure class="shot"><img src="${mediaSrc(a)}" alt="before"><figcaption>이전 / 기준</figcaption></figure>
     <div class="arrow">→</div>
-    <figure class="shot"><img src="${b}" alt="after"><figcaption>현재</figcaption></figure>
+    <figure class="shot"><img src="${mediaSrc(b)}" alt="after"><figcaption>현재</figcaption></figure>
   </div>`;
 }
 
@@ -408,10 +549,52 @@ function bind() {
   }
 }
 
+function lightbox() {
+  return document.getElementById("lightbox");
+}
+
+function openLightbox(src, cap) {
+  const box = lightbox();
+  if (!box || !src) return;
+  const img = box.querySelector("img");
+  img.src = src;
+  img.alt = cap || "";
+  box.querySelector(".lightbox-cap").textContent = cap || "";
+  box.classList.add("on");
+  box.removeAttribute("hidden");
+  document.body.classList.add("lb-open");
+}
+
+function closeLightbox() {
+  const box = lightbox();
+  if (!box || !box.classList.contains("on")) return;
+  box.classList.remove("on");
+  box.setAttribute("hidden", "");
+  box.querySelector("img").removeAttribute("src");
+  document.body.classList.remove("lb-open");
+}
+
 document.querySelectorAll(".nav button").forEach((b) => {
   b.addEventListener("click", () => go("/" + b.dataset.page));
 });
-window.addEventListener("hashchange", render);
+window.addEventListener("hashchange", () => {
+  closeLightbox();
+  render();
+});
+document.addEventListener("click", (e) => {
+  const box = lightbox();
+  if (box && box.classList.contains("on")) {
+    if (e.target === box) closeLightbox();
+    return;
+  }
+  const img = e.target.closest(".shot img");
+  if (!img) return;
+  e.preventDefault();
+  openLightbox(img.currentSrc || img.src, img.alt || "");
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeLightbox();
+});
 
 load()
   .then(render)
