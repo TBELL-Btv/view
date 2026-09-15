@@ -71,18 +71,77 @@ function render() {
   bind();
 }
 
+function failChart(timeline) {
+  const runs = [...(timeline || [])].reverse();
+  if (!runs.length) return "";
+  const w = 720;
+  const h = 168;
+  const l = 36;
+  const r = 12;
+  const t = 22;
+  const b = 28;
+  const iw = w - l - r;
+  const ih = h - t - b;
+  const fails = runs.map((x) => countsOf(x.counts).FAIL);
+  const ymax = Math.max(1, ...fails);
+  const n = runs.length;
+  const xAt = (i) => l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
+  const yAt = (v) => t + ih - (v / ymax) * ih;
+  const d = fails.map((v, i) => `${i ? "L" : "M"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+  const peak = Math.max(...fails);
+  const dots = fails
+    .map((v, i) => {
+      const hi = v === peak && v > 0;
+      return `<circle cx="${xAt(i)}" cy="${yAt(v)}" r="${hi ? 5 : 3.5}" fill="${hi ? "var(--brand)" : "var(--fg)"}"></circle>
+        <text class="chart-x" x="${xAt(i)}" y="${h - 8}" text-anchor="middle">#${runs[i].run.id}</text>
+        ${hi ? `<text class="chart-peak" x="${xAt(i)}" y="${yAt(v) - 10}" text-anchor="middle">FAIL ${v}</text>` : ""}`;
+    })
+    .join("");
+  return `<div class="chart">
+      <div class="chart-head"><b>회차별 FAIL</b><span class="muted">점이 높을수록 그 회차에 결함이 많습니다</span></div>
+      <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="회차별 FAIL 추이">
+        <line x1="${l}" y1="${t}" x2="${l}" y2="${t + ih}" stroke="var(--hairline)"></line>
+        <line x1="${l}" y1="${t + ih}" x2="${l + iw}" y2="${t + ih}" stroke="var(--hairline)"></line>
+        <path d="${d}" fill="none" stroke="var(--fg)" stroke-width="2"></path>
+        ${dots}
+      </svg>
+    </div>`;
+}
+
+function latestRows(timeline) {
+  const latest = (timeline || [])[0];
+  const rows = (latest && latest.results) || [];
+  if (!rows.length) return `<p class="muted">최근 실행 결과가 없습니다.</p>`;
+  return `<div class="card tablewrap"><table>
+      <thead><tr><th>결과</th><th>TC ID</th><th>테스트 항목</th><th></th></tr></thead>
+      <tbody>
+        ${rows
+          .map(
+            (r) => `<tr data-go="/cases/${encodeURIComponent(r.tc_id)}">
+              <td>${badge(r.verdict)}</td>
+              <td class="tcid">${r.tc_id}</td>
+              <td class="name"><b>${r.title || r.tc_id}</b><span>${(r.message || "").slice(0, 80)}</span></td>
+              <td class="muted">›</td>
+            </tr>`
+          )
+          .join("")}
+      </tbody>
+    </table></div>`;
+}
+
 function renderHome() {
   const run = CATALOG.latest_run || {};
   const c = countsOf(CATALOG.counts);
   const n = c.PASS + c.CHANGE + c.FAIL + c.ERROR;
   const device = CATALOG.device || {};
   const timeline = CATALOG.timeline || [];
+  const whenRun = when(run.started_at || CATALOG.generated_at);
   return `
     <header>
       <div class="eyebrow">최근 회차${run.id ? " · #" + run.id : ""}</div>
       <h1>최신 랩 결과</h1>
-      <p class="muted">홈에서 결과를 보고, 기획과 테스트케이스는 왼쪽에서 고르면 됩니다.</p>
     </header>
+    ${failChart(timeline)}
     <section class="grid4">
       <div class="card metric pass"><span>PASS</span><strong>${c.PASS}</strong><div class="muted">기준 일치</div></div>
       <div class="card metric change"><span>PASS · 변경 감지</span><strong>${c.CHANGE}</strong><div class="muted">기능 정상 · UI 다름</div></div>
@@ -90,60 +149,59 @@ function renderHome() {
       <div class="card metric error"><span>ERROR</span><strong>${c.ERROR}</strong><div class="muted">전제·판독 불가</div></div>
     </section>
     <div class="card runinfo">
-      <div class="kv"><span>생성 일시</span><b>${when(CATALOG.generated_at)}</b></div>
-      <div class="kv"><span>최근 회차</span><b>${when(run.started_at)} · ${run.trigger || "—"}</b></div>
+      <div class="kv"><span>최근 회차</span><b>#${run.id || "—"} · ${whenRun}${run.trigger ? " · " + run.trigger : ""}</b></div>
       <div class="kv"><span>대상 단말</span><b>${device.model || "—"} · ${device.serial || ""}</b></div>
       <div class="kv"><span>제어 · 캡처</span><b>${device.control || "ADB"} · ${device.capture || ""}</b></div>
     </div>
     <section class="section">
-      <div class="sectionhead"><h2>실행 이력</h2><div class="desc muted">${n}건 최신 집계 · 회차 ${timeline.length}</div></div>
-      <div class="hist">
-        ${timeline
-          .map((t) => {
-            const cc = countsOf(t.counts);
-            return `<button type="button" data-go="/cases?run=${t.run.id}">
-              <b>회차 ${t.run.id}</b> · ${when(t.run.started_at)} · ${t.run.trigger || ""}
-              <div class="muted">PASS ${cc.PASS} · 변경 ${cc.CHANGE} · FAIL ${cc.FAIL} · ERROR ${cc.ERROR}</div>
-            </button>`;
-          })
-          .join("")}
-      </div>
+      <div class="sectionhead"><h2>테스트 결과</h2><div class="desc muted">${n}건 · 행을 누르면 상세</div></div>
+      ${latestRows(timeline)}
     </section>
   `;
 }
 
-function renderDocs() {
-  const docs = CATALOG.docs || [];
+function pinNotice() {
   const bins = CATALOG.binaries || [];
+  const ids = [
+    "셋톱박스 테스트 자동화 用 테스트케이스 예시-V1.html",
+    "셋톱박스 테스트 자동화 기획서-V1.html",
+  ];
+  const pinned = ids.map((id) => bins.find((b) => b.id === id)).filter(Boolean);
+  const rest = bins.filter((b) => !ids.includes(b.id));
+  return [...pinned, ...rest];
+}
+
+function renderDocs() {
+  const specs = (CATALOG.docs || []).filter((d) => d.kind === "spec");
+  const notices = pinNotice();
   return `
     <header>
       <div class="eyebrow">기획</div>
-      <h1>명세와 원본</h1>
-      <p class="muted">명세는 여기서 보고, HWP·PDF는 원본을 열거나 미리봅니다.</p>
+      <h1>Btv 서비스 기획</h1>
     </header>
     <section class="section">
-      <h2>명세 · 규칙</h2>
-      <div class="doc-list" style="margin-top:10px">
-        ${docs
-          .map(
-            (d) =>
-              `<button class="doc-item" type="button" data-go="/docs/${encodeURIComponent(d.id)}"><span><b>${d.title}</b><span class="muted">${d.kind} · ${d.id}</span></span><span class="muted">열기</span></button>`
-          )
+      <div class="sectionhead"><h2>공지</h2><div class="desc muted">상단 고정</div></div>
+      <div class="doc-list">
+        ${notices
+          .map((b) => {
+            const go = b.preview ? `/docs/${encodeURIComponent("file:" + b.id)}` : "";
+            const extra = b.preview
+              ? ""
+              : `<a class="muted" href="${b.href}">다운로드</a>`;
+            return `<button class="doc-item" type="button" ${go ? `data-go="${go}"` : ""}><span><b>${b.title}</b><span class="muted">공지</span></span><span class="muted">${extra || "열기"}</span></button>`;
+          })
           .join("")}
       </div>
     </section>
     <section class="section">
-      <h2>원본 파일 (HTML · PDF · HWP)</h2>
-      <p class="notice">HWP는 브라우저에서 그릴 수 없습니다. PDF/HTML은 미리보기, HWP는 다운로드 후 한컴오피스에서 엽니다.</p>
+      <div class="sectionhead"><h2>화면 명세</h2><div class="desc muted">행을 누르면 상세</div></div>
       <div class="doc-list">
-        ${bins
-          .map((b) => {
-            const action = b.preview
-              ? `<button class="btn" type="button" data-go="/docs/${encodeURIComponent("file:" + b.id)}">미리보기</button>`
-              : `<a class="btn" href="${b.href}">다운로드</a>`;
-            return `<div class="doc-item"><span><b>${b.title}</b><span class="muted">${(b.kind || "").toUpperCase()} · ${Math.round((b.bytes || 0) / 1024)} KB${b.note ? " · " + b.note : ""}</span></span>${action}</div>`;
-          })
-          .join("") || `<p class="muted">inbox에 HTML/PDF/HWP가 없습니다.</p>`}
+        ${specs
+          .map(
+            (d) =>
+              `<button class="doc-item" type="button" data-go="/docs/${encodeURIComponent(d.id)}"><span><b>${d.title}</b><span class="muted">${d.screen_id || d.id}</span></span><span class="muted">›</span></button>`
+          )
+          .join("") || `<p class="muted">등록된 화면 명세가 없습니다.</p>`}
       </div>
     </section>
   `;
@@ -160,7 +218,7 @@ function renderDoc(id) {
     const isPdf = (bin.kind || "").includes("pdf");
     return `
       <button class="btn" type="button" data-go="/docs">← 기획</button>
-      <header style="margin-top:16px"><div class="eyebrow">원본</div><h1>${bin.title}</h1></header>
+      <header style="margin-top:12px"><div class="eyebrow">공지</div><h1>${bin.title}</h1></header>
       ${isPdf ? `<embed class="frame" src="${bin.href}" type="application/pdf">` : `<iframe class="frame" src="${bin.href}" title="${bin.title}"></iframe>`}
     `;
   }
@@ -196,10 +254,10 @@ function renderCases() {
   const n = (v) => all.filter((t) => ((t.latest && t.latest.verdict) || "NONE") === v).length;
   const nChange = all.filter((t) => ["PASS_CHANGED", "PASS(변경 감지)"].includes((t.latest || {}).verdict)).length;
   return `
+    <div class="page-compact">
     <header>
       <div class="eyebrow">테스트케이스</div>
       <h1>항목과 최신 판정</h1>
-      <p class="muted">항목을 누르면 최신 결과와 화면을 바로 봅니다.</p>
     </header>
     <div class="tools">
       <button class="filter ${FILTER === "all" ? "on" : ""}" data-filter="all">전체 ${all.length}</button>
@@ -211,7 +269,7 @@ function renderCases() {
       <input class="search" id="q" placeholder="TC ID 또는 항목 검색" value="${SEARCH.replace(/"/g, "&quot;")}">
     </div>
     <div class="card tablewrap"><table>
-      <thead><tr><th>상태</th><th>TC ID</th><th>테스트 항목</th><th>생성·판정</th><th></th></tr></thead>
+      <thead><tr><th>결과</th><th>TC ID</th><th>테스트 항목</th><th></th></tr></thead>
       <tbody>
         ${rows
           .map((tc) => {
@@ -220,13 +278,13 @@ function renderCases() {
               <td>${badge(L && L.verdict)}</td>
               <td class="tcid">${tc.id}</td>
               <td class="name"><b>${tc.title}</b><span>${(tc.expect || "").split("\n")[0] || tc.screen_id}</span></td>
-              <td class="muted">${L ? when(L.started_at) + "<br>회차 " + L.run_id : "아직 실행 없음"}</td>
               <td class="muted">›</td>
             </tr>`;
           })
           .join("")}
       </tbody>
     </table></div>
+    </div>
   `;
 }
 
@@ -260,38 +318,45 @@ function beforeAfter(paths) {
   </div>`;
 }
 
+function histRow(h) {
+  return `<div class="hist-row"><span>${badge(h.verdict)} <b>회차 ${h.run_id}</b> ${when(h.started_at)}</span><span class="muted">${(h.message || "").slice(0, 80)}</span></div>`;
+}
+
 function renderCase(id) {
   const tc = caseList().find((x) => x.id === id);
   if (!tc) return `<p>TC를 찾지 못했습니다.</p>`;
   const L = tc.latest;
   const fp = tc.fail_point;
-  let callout = `<div class="callout">아직 실기 결과가 없습니다. 랩에서 VOD 스위트를 돌리면 이 칸이 갱신됩니다.</div>`;
+  let callout = `<div class="callout">아직 실기 결과가 없습니다.</div>`;
   if (L && fp && fp.kind === "function") {
-    callout = `<div class="callout bad"><b>기능 실패</b><br>${fp.detail}<br><span class="muted">기대: 아래 기대결과 · 실제: 이 메시지 · 첨부는 실패 직후 화면입니다.</span></div>`;
+    callout = `<div class="callout bad"><b>기능 실패</b><br>${fp.detail}</div>`;
   } else if (L && fp && fp.kind === "error") {
     callout = `<div class="callout err"><b>ERROR · 제품 결함 아님</b><br>${fp.detail}</div>`;
   } else if (L && fp && fp.kind === "ui") {
-    callout = `<div class="callout ui"><b>기능은 성공 · UI가 기준과 다름</b><br>${fp.detail}<br>아래 이전/현재를 비교하세요. 바뀌어야 할 곳이 그대로면 그 영역을 표시합니다.</div>`;
+    callout = `<div class="callout ui"><b>기능은 성공 · UI가 기준과 다름</b><br>${fp.detail}</div>`;
   } else if (L && L.verdict === "PASS") {
     callout = `<div class="callout good"><b>기능 정상 · UI 기준 일치</b><br>${L.message || ""}</div>`;
   }
   const shots = (L && L.shots) || [];
   const uiBlock =
     L && (L.verdict === "PASS_CHANGED" || L.verdict === "PASS(변경 감지)" || L.verdict === "FAIL")
-      ? `<section class="section"><h2>${L.verdict === "FAIL" ? "실패 화면" : "UI 이전 / 현재"}</h2>${beforeAfter(shots)}${L.verdict === "FAIL" ? "" : ""}</section>`
+      ? `<section class="section"><h2>${L.verdict === "FAIL" ? "실패 화면" : "UI 이전 / 현재"}</h2>${beforeAfter(shots)}</section>`
       : "";
+  const hist = tc.history || [];
+  const latestH = hist[0];
+  const older = hist.slice(1);
   return `
     <button class="btn" type="button" data-go="/cases">← 테스트케이스</button>
-    <article class="card" style="margin-top:16px">
-      <div style="padding:18px 20px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+    <article class="card case-sheet">
+      <div class="case-head">
         <div>
           ${badge(L && L.verdict)}
-          <h1 style="font-size:22px">${tc.title}</h1>
-          <div class="tcid">${tc.id} · ${tc.screen_id || ""} · ${tc.source || ""}</div>
+          <h1>${tc.title}</h1>
+          <div class="tcid">${tc.id} · ${tc.screen_id || ""}</div>
         </div>
-        <div class="muted">${L ? "판정 " + when(L.started_at) + " · 회차 " + L.run_id : "미실행"}</div>
+        <div class="muted">${L ? "회차 " + L.run_id + " · " + when(L.started_at) : "미실행"}</div>
       </div>
-      <div style="padding:18px 20px">
+      <div class="case-body">
         ${callout}
         <section class="section">
           <h2>작동 설명</h2>
@@ -299,7 +364,7 @@ function renderCase(id) {
           <p>${(tc.precondition || "없음").replace(/\n/g, "<br>")}</p>
           <p class="muted">수행 절차</p>
           ${stepsHtml(tc.steps)}
-          <p class="muted" style="margin-top:14px">기대 결과</p>
+          <p class="muted">기대 결과</p>
           <p>${(tc.expect || "").replace(/\n/g, "<br>")}</p>
         </section>
         <section class="section">
@@ -309,15 +374,15 @@ function renderCase(id) {
         </section>
         ${uiBlock}
         <section class="section">
-          <h2>이 TC의 실행 이력</h2>
+          <h2>실행 이력</h2>
           <div class="hist">
-            ${(tc.history || [])
-              .map(
-                (h) =>
-                  `<div class="doc-item"><span>${badge(h.verdict)} <b>회차 ${h.run_id}</b> ${when(h.started_at)}</span><span class="muted">${(h.message || "").slice(0, 80)}</span></div>`
-              )
-              .join("") || `<p class="muted">이력 없음</p>`}
+            ${latestH ? histRow(latestH) : `<p class="muted">이력 없음</p>`}
           </div>
+          ${
+            older.length
+              ? `<details class="hist-more"><summary>이전 회차 ${older.length}건</summary><div class="hist">${older.map(histRow).join("")}</div></details>`
+              : ""
+          }
         </section>
       </div>
     </article>

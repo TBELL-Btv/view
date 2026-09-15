@@ -52,14 +52,25 @@ code, .mono, .tcid {
   height: 100vh;
 }
 .logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   font-size: 16px;
   font-weight: 700;
   line-height: 19px;
   color: var(--fg);
 }
-.logo small {
+.logo img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: block;
-  margin-top: 6px;
+}
+.logo small {
+  flex-basis: 100%;
+  display: block;
+  margin-top: 2px;
   color: var(--muted);
   font-size: 12px;
   font-weight: 400;
@@ -91,8 +102,8 @@ code, .mono, .tcid {
   font-size: 12px;
   line-height: 14px;
 }
-.main { min-width: 0; padding: var(--space-7) var(--space-7) 80px }
-body > main { padding: var(--space-6) var(--space-7) 80px; max-width: 960px }
+.main { min-width: 0; padding: 24px 28px 56px }
+body > main { padding: 24px 28px 56px; max-width: 960px }
 .eyebrow {
   color: var(--public-blue);
   font-size: 12px;
@@ -100,76 +111,77 @@ body > main { padding: var(--space-6) var(--space-7) 80px; max-width: 960px }
   line-height: 14px;
 }
 h1 {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 38px;
-  margin: var(--space-2) 0 var(--space-3);
+  line-height: 34px;
+  margin: 4px 0 8px;
   color: var(--ink);
 }
 h2 {
   font-size: 16px;
   font-weight: 700;
   line-height: 19px;
-  margin: 0 0 var(--space-2);
+  margin: 0 0 8px;
   color: var(--fg);
 }
 .muted { color: var(--muted) }
 .grid4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-3);
-  margin: var(--space-6) 0;
+  gap: 8px;
+  margin: 16px 0;
 }
 .card {
   background: var(--canvas);
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
 }
-.metric { padding: var(--space-5) }
+.metric { padding: 14px 16px }
 .metric span { font-size: 12px; color: var(--muted); font-weight: 400; line-height: 14px }
 .metric strong {
   display: block;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 38px;
-  margin-top: 4px;
+  line-height: 34px;
+  margin-top: 2px;
   color: var(--ink);
 }
 .metric.pass strong { color: var(--brand) }
 .metric.fail strong { color: var(--fg) }
 .metric.change strong { color: var(--public-blue) }
 .metric.error strong { color: var(--muted) }
-.runinfo { display: grid; grid-template-columns: repeat(4, 1fr) }
-.kv { padding: var(--space-4) var(--space-5); border-right: 1px solid var(--hairline) }
+.runinfo { display: grid; grid-template-columns: repeat(3, 1fr) }
+.kv { padding: 12px 16px; border-right: 1px solid var(--hairline) }
 .kv:last-child { border-right: 0 }
 .kv span { display: block; color: var(--muted); font-size: 12px; line-height: 14px }
 .kv b { font-size: 14px; font-weight: 700; line-height: 17px; color: var(--fg) }
-.section { margin-top: var(--space-7) }
+.section { margin-top: 16px }
+header + .section, header + .chart { margin-top: 10px }
 .sectionhead {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  gap: 12px;
+  margin-bottom: 8px;
 }
 .tools {
   display: flex;
-  gap: var(--space-2);
+  gap: 6px;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: var(--space-4);
+  margin-bottom: 8px;
 }
 .filter, .btn {
   border: 1px solid var(--fg);
   background: var(--canvas);
   color: var(--fg);
   border-radius: var(--radius);
-  padding: 4px var(--space-4);
-  min-height: 40px;
+  padding: 4px 12px;
+  min-height: 32px;
   font: inherit;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 400;
-  line-height: 19px;
+  line-height: 16px;
   cursor: pointer;
 }
 .filter.on {
@@ -183,22 +195,22 @@ h2 {
 }
 .search {
   margin-left: auto;
-  width: 240px;
-  height: 48px;
-  border: 0;
+  width: 220px;
+  height: 32px;
+  border: 1px solid var(--hairline);
   border-radius: var(--radius);
-  padding: 0 var(--space-4);
+  padding: 0 12px;
   font: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 19px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
   color: var(--fg);
   background: var(--canvas);
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
-.search:hover { background: var(--wash); box-shadow: var(--shadow-hover) }
+.search:hover { background: var(--wash); box-shadow: none }
 .tablewrap { overflow: auto; border-radius: var(--radius) }
-table { border-collapse: collapse; width: 100%; min-width: 720px }
+table { border-collapse: collapse; width: 100%; min-width: 640px }
 th {
   text-align: left;
   font-size: 12px;
@@ -206,12 +218,13 @@ th {
   line-height: 14px;
   color: var(--muted);
   background: var(--canvas);
-  padding: var(--space-3) var(--space-4);
+  padding: 8px 12px;
   border-bottom: 1px solid var(--hairline);
 }
-td { padding: var(--space-4); border-bottom: 1px solid var(--hairline); vertical-align: top }
+td { padding: 10px 12px; border-bottom: 1px solid var(--hairline); vertical-align: top }
 tbody tr { cursor: pointer }
 tbody tr:hover { background: var(--hover) }
+tbody tr:last-child td { border-bottom: 0 }
 .badge {
   display: inline-flex;
   align-items: center;
@@ -231,12 +244,12 @@ tbody tr:hover { background: var(--hover) }
 .bf { color: var(--fg); background: var(--hover) }
 .be { color: var(--muted); background: var(--canvas); border: 1px solid var(--hairline) }
 .bn { color: var(--muted) }
-.name b { display: block; color: var(--fg); font-size: 16px; font-weight: 700; line-height: 19px }
+.name b { display: block; color: var(--fg); font-size: 14px; font-weight: 700; line-height: 18px }
 .name span { font-size: 12px; color: var(--muted); line-height: 14px }
 .callout {
-  padding: var(--space-4);
-  font-size: 16px;
-  line-height: 24px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 20px;
   border-radius: var(--radius);
   background: var(--wash);
   color: var(--fg);
@@ -245,16 +258,18 @@ tbody tr:hover { background: var(--hover) }
 .callout.bad { background: var(--wash); color: var(--fg) }
 .callout.err { background: var(--canvas); border: 1px solid var(--hairline); color: var(--muted) }
 .callout.ui { background: var(--wash); color: var(--fg) }
-.steplist { display: grid; gap: var(--space-2) }
+.steplist { display: grid; gap: 4px }
 .step {
   display: grid;
-  grid-template-columns: 28px 1fr auto;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  background: var(--canvas);
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
 }
+.step:last-child { border-bottom: 0 }
 .num {
   width: 22px;
   height: 22px;
@@ -287,31 +302,32 @@ tbody tr:hover { background: var(--hover) }
 }
 .compare { display: grid; grid-template-columns: 1fr 32px 1fr; gap: var(--space-3); align-items: center }
 .compare .arrow { text-align: center; color: var(--muted); font-size: 20px }
-.doc-list { display: grid; gap: var(--space-2) }
+.doc-list { display: grid; gap: 0; background: transparent; border-top: 1px solid var(--hairline) }
 .doc-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-4);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
+  padding: 10px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  background: transparent;
   cursor: pointer;
   text-align: left;
   width: 100%;
   font: inherit;
-  border-radius: var(--radius);
+  border-radius: 0;
 }
-.doc-item:hover { background: var(--wash) }
-.doc-item b { display: block; font-size: 16px; font-weight: 700; line-height: 19px; color: var(--fg) }
+.doc-item:hover { background: var(--hover) }
+.doc-item b { display: block; font-size: 14px; font-weight: 700; line-height: 18px; color: var(--fg) }
 .doc-body {
-  margin-top: var(--space-4);
-  padding: var(--space-6) var(--space-7);
+  margin-top: 12px;
+  padding: 16px 20px;
   background: var(--canvas);
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
 }
-.doc-body h1 { font-size: 32px; line-height: 38px }
-.doc-body h2 { font-size: 16px; margin: var(--space-6) 0 var(--space-2) }
+.doc-body h1 { font-size: 24px; line-height: 30px }
+.doc-body h2 { font-size: 16px; margin: 16px 0 8px }
 .doc-body table { min-width: 0; margin: var(--space-3) 0 }
 .frame {
   width: 100%;
@@ -321,28 +337,71 @@ tbody tr:hover { background: var(--hover) }
   border-radius: var(--radius);
 }
 .hidden { display: none !important }
-.hist { display: grid; gap: var(--space-2) }
-.hist a, .hist button {
-  display: block;
+.hist { display: grid; gap: 0 }
+.hist a, .hist button, .hist-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   text-align: left;
-  padding: var(--space-4);
-  border: 1px solid var(--hairline);
-  background: var(--canvas);
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  background: transparent;
   font: inherit;
-  cursor: pointer;
-  border-radius: var(--radius);
+  cursor: default;
+  border-radius: 0;
 }
-.hist button:hover { background: var(--wash) }
+.hist button { cursor: pointer }
+.hist button:hover, .hist-row:hover { background: var(--hover) }
+.hist-more { margin-top: 2px; border-top: 0 }
+.hist-more summary { cursor: pointer; color: var(--muted); font-size: 13px; padding: 8px 2px }
+.hist-more[open] summary { margin-bottom: 0 }
+.page-compact h1 { font-size: 22px; line-height: 26px; margin: 2px 0 8px }
+.page-compact td { padding: 8px 10px }
+.page-compact th { padding: 6px 10px }
 .notice {
-  margin: var(--space-3) 0 var(--space-4);
-  padding: var(--space-4);
+  margin: 0 0 12px;
+  padding: 10px 12px;
   border-radius: var(--radius);
   background: var(--wash);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.45;
 }
+.chart {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 12px 12px 4px;
+  margin: 12px 0 0;
+}
+.chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 0 4px 4px;
+}
+.chart-head b { font-size: 14px }
+.chart svg { width: 100%; height: 168px; display: block }
+.chart-x { font-size: 11px; fill: var(--muted) }
+.chart-peak { font-size: 11px; font-weight: 700; fill: var(--brand) }
+.case-sheet { margin-top: 10px }
+.case-head {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.case-head h1 { font-size: 18px; line-height: 22px; margin: 4px 0 0 }
+.case-body { padding: 10px 12px }
+.case-body .section { margin-top: 10px }
+.case-body h2 { margin-bottom: 4px }
+.case-body p { margin: 2px 0 }
 .top {
   display: flex;
   justify-content: space-between;
@@ -407,7 +466,8 @@ tbody tr:hover { background: var(--hover) }
   .sidefoot { position: static; margin-top: var(--space-6) }
   .main, body > main { padding: var(--space-6) var(--space-5) 48px }
   h1 { font-size: 32px; line-height: 38px }
-  .grid4, .runinfo { grid-template-columns: 1fr 1fr }
+  .grid4 { grid-template-columns: 1fr 1fr }
+  .runinfo { grid-template-columns: 1fr }
   .compare { grid-template-columns: 1fr }
   .search { margin-left: 0; width: 100% }
 }
