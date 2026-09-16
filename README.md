@@ -9,7 +9,11 @@ GitHub Pages 대시보드. 왼쪽은 **홈 · 기획 · 테스트케이스**.
 
 ## 랩 SQLite와 연동
 
-GitHub Pages는 SQLite를 실행하지 못한다. 랩 FastAPI가 DB를 읽고, 페이지가 그 API를 호출한다.
+GitHub Pages는 SQLite를 실행하지 못한다. 랩 FastAPI가 DB·챗봇·테스트를 하고, **같은 프로세스에서 대시보드 HTML도** 제공한다.
+
+로컬(권장, 비용 없음): `uvicorn` 후 http://127.0.0.1:8080/
+
+github.io에서 실시간으로 보려면 Cloudflare Tunnel로 8080을 HTTPS로 연 뒤 `config.js`에 그 주소를 넣는다. `github.io`는 `http://127.0.0.1`을 호출하지 못한다. API가 꺼져 있으면 `data/catalog.json` 스냅샷으로 떨어진다.
 
 1. 랩에서 `uvicorn ste_btv.api.app:app --host 127.0.0.1 --port 8080`
 2. (공개 페이지) Cloudflare Tunnel 등으로 HTTPS 주소를 연다. `github.io`(HTTPS)는 `http://127.0.0.1`을 호출하지 못한다.

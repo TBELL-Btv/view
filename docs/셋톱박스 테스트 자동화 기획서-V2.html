@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SK브로드밴드 셋톱박스 UI 테스트 자동화 — 기획·구현 현황 V2</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F6F7FB; --surface:#FFFFFF; --ink:#141A2E; --muted:#5B6480; --line:#D9DDEA;
+  --accent:#3B5BDB; --accent-soft:#E7EBFA;
+  --pass:#0E8A7B; --pass-soft:#DFF3EF;
+  --notify:#B45309; --notify-soft:#FDF0DC;
+  --fail:#B91C1C; --fail-soft:#FDE7E7;
+  --err:#5B6480; --err-soft:#ECEEF5;
+  --code-bg:#EEF0F7;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1220; --surface:#171B2E; --ink:#E8EAF3; --muted:#9AA3C0; --line:#2A3050;
+    --accent:#8AA0FF; --accent-soft:#1E2748;
+    --pass:#3FC1AE; --pass-soft:#12312E;
+    --notify:#F2B36B; --notify-soft:#3A2A14;
+    --fail:#F87171; --fail-soft:#3B1717;
+    --err:#9AA3C0; --err-soft:#232945;
+    --code-bg:#1E2338;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:"IBM Plex Sans KR","Noto Sans KR",sans-serif;text-wrap:balance;line-height:1.3;margin:0}
+h1{font-size:1.85rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.35rem;font-weight:700;margin-top:3.2rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+h3{font-size:1.06rem;font-weight:600;margin-top:2rem}
+p{margin:.8rem 0}
+a{color:var(--accent)}
+strong{font-weight:700}
+code,pre{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+code{background:var(--code-bg);padding:.1em .35em;border-radius:3px;font-size:.88em}
+pre{background:var(--code-bg);padding:1rem 1.1rem;border-radius:8px;overflow-x:auto;font-size:.78rem;line-height:1.5;margin:1.1rem 0}
+pre code{background:none;padding:0;font-size:inherit}
+hr{border:none;border-top:1px solid var(--line);margin:2.4rem 0}
+blockquote{margin:1.1rem 0;padding:.75rem 1.1rem;border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0}
+blockquote p{margin:.3rem 0}
+table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.92rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.55rem .8rem;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:700;white-space:nowrap}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--surface) 96%,var(--line))}
+.badge{display:inline-block;padding:.05em .55em;border-radius:99px;font-weight:700;font-size:.85em;white-space:nowrap}
+.badge.pass{background:var(--pass-soft);color:var(--pass)}
+.badge.notify{background:var(--notify-soft);color:var(--notify)}
+.badge.fail{background:var(--fail-soft);color:var(--fail)}
+.badge.error{background:var(--err-soft);color:var(--err)}
+.dgm{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.2rem;margin:1.2rem 0;font-size:.84rem;line-height:1.45}
+.dgm .box{border:1.5px solid var(--line);border-radius:8px;padding:.5rem .75rem;background:var(--bg);text-align:center;flex:1;min-width:140px}
+.dgm .box b{display:block;font-size:.92rem}
+.dgm .box small{display:block;color:var(--muted);margin-top:.18rem}
+.dgm .box.accent{border-color:var(--accent);background:var(--accent-soft)}
+.dgm .box.done{border-color:var(--pass);background:var(--pass-soft)}
+.dgm .row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin:.2rem 0}
+.dgm .arrow{text-align:center;color:var(--accent);font-weight:700;margin:.45rem 0;font-size:.9rem}
+.dgm .arrow span{color:var(--muted);font-weight:500;font-size:.8rem;margin-left:.4rem}
+.dgm .cols2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+@media(max-width:700px){.dgm .cols2{grid-template-columns:1fr}}
+.dgm .lane{display:flex;flex-direction:column}
+.dgm .lane .box{flex:none}
+.dgm .lanelbl{text-align:center;font-weight:700;color:var(--accent);margin-bottom:.5rem;font-size:.82rem;letter-spacing:.05em}
+.dgm .hflow{display:flex;align-items:stretch;gap:.55rem;flex-wrap:wrap;justify-content:center}
+.dgm .harrow{align-self:center;color:var(--accent);font-weight:700;font-size:1.05rem}
+.dgm .stack{display:flex;flex-direction:column;gap:.55rem;flex:1;min-width:150px}
+.dgm .badges{gap:.5rem;align-items:center}
+.legend{font-size:.86rem;margin:.7rem 0 0;padding-left:1.1rem}
+.legend li{margin:.3rem 0}
+.legend b{color:var(--accent)}
+.wrap{display:grid;grid-template-columns:1fr;max-width:1380px;margin:0 auto;padding:0 1.25rem 5rem}
+@media(min-width:1020px){.wrap{grid-template-columns:215px minmax(0,1fr);gap:3rem}}
+nav.toc{display:none}
+@media(min-width:1020px){
+  nav.toc{display:block;position:sticky;top:1.5rem;align-self:start;padding-top:2.4rem;font-size:.8rem;max-height:calc(100vh - 3rem);overflow-y:auto}
+  nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:.28rem .6rem;border-left:2px solid var(--line);line-height:1.4}
+  nav.toc a:hover{color:var(--accent);border-left-color:var(--accent)}
+}
+header.doc{padding:2.4rem 0 0}
+.kicker{color:var(--accent);font-weight:700;font-size:.85rem;letter-spacing:.06em;margin-bottom:.5rem}
+.meta{margin-top:1.2rem;padding:1rem 1.2rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;font-size:.88rem}
+.meta table{margin:0;font-size:inherit;background:none}
+.meta th{white-space:nowrap;width:8.5em;background:none;color:var(--muted);font-weight:600;border:none;padding:.25rem .8rem .25rem 0}
+.meta td{border:none;padding:.25rem 0}
+.meta tr td{background:none!important}
+.hold{margin:1.2rem 0 0;padding:.85rem 1.15rem;background:var(--notify-soft);border:1px solid color-mix(in srgb,var(--notify) 35%,var(--line));border-radius:10px;font-weight:700;color:var(--notify)}
+main{min-width:0}
+@media print{
+  body{background:#fff;font-size:11.5px}
+  nav.toc{display:none}
+  .wrap{grid-template-columns:1fr;max-width:none;padding:0}
+  h2{break-after:avoid}
+  table,pre,blockquote,.dgm{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="toc">
+    <a href="#0-한-장-요약">0. 한 장 요약</a>
+    <a href="#1-배경">1. 배경</a>
+    <a href="#2-왜-일반적인-방법으로는-안-되는가">2. 왜 일반적인 방법으로는 안 되는가</a>
+    <a href="#3-시스템-개념도">3. 시스템 개념도</a>
+    <a href="#4-핵심-판정-정책">4. 핵심 판정 정책</a>
+    <a href="#5-문서-리포지토리와-baseline">5. 문서 리포지토리와 Baseline</a>
+    <a href="#6-시나리오-작성-방식">6. 시나리오 작성 방식</a>
+    <a href="#7-주요-기능-요구사항">7. 주요 기능 요구사항</a>
+    <a href="#8-모델도구-현황">8. 모델·도구 현황</a>
+    <a href="#9-결과-연계">9. 결과 연계</a>
+    <a href="#10-잔여-협의">10. 잔여 협의</a>
+    <a href="#11-poc-현황">11. POC 현황</a>
+    <a href="#12-개발-단계-현황">12. 개발 단계 현황</a>
+    <a href="#13-검수-기준-대비">13. 검수 기준 대비</a>
+    <a href="#14-용어">14. 용어</a>
+    <a href="#15-첨부">15. 첨부</a>
+  </nav>
+  <main>
+    <header class="doc">
+      <div class="kicker">기획·구현 현황 · V2 (V1 대조)</div>
+      <h1>SK브로드밴드 셋톱박스 UI<br>테스트 자동화 시스템</h1>
+      <p class="hold">AI 활용(클라우드·로컬 VLM/LLM)과 HDMI 캡처보드(트랙 B 영상 판정)는 구현 이전이다.</p>
+      <div class="meta"><table>
+<thead>
+<tr><th>항목</th><th>내용</th></tr>
+</thead>
+<tbody>
+<tr><td>작성</td><td>주식회사 티벨 · STE본부</td></tr>
+<tr><td>작성일</td><td>2026-09-16</td></tr>
+<tr><td>문서 버전</td><td><strong>V2 (현재 구현 반영)</strong> — 기준 문서 V1 (2026-09-07)</td></tr>
+<tr><td>문서 성격</td><td>V1 기획을 현 코드베이스(<code>docs</code> / <code>dev</code> / <code>view</code>)에 대조한 <strong>현황 기획서</strong></td></tr>
+<tr><td>실기</td><td>BMA-AI100 · 시리얼 <code>33330003700078</code> · ADB <code>device</code></td></tr>
+<tr><td>우선순위</td><td>본 문서와 부속서(RFP)가 상충하면 <strong>부속서(RFP)가 우선</strong>한다. 구현 사실과 V1이 다르면 <strong>구현 사실</strong>을 현황으로 적는다</td></tr>
+</tbody>
+</table></div>
+    </header>
+
+    <h2 id="0-한-장-요약">0. 한 장 요약</h2>
+<table>
+<thead>
+<tr><th>질문</th><th>V1 답</th><th>V2 현황</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>무엇을 만드나</td>
+  <td>B tv 화면·기능 회귀를 자동 실행·판정하는 시스템</td>
+  <td>동일. 랩 PC에서 스위트를 돌리고 SQLite·대시보드에 남긴다</td>
+</tr>
+<tr>
+  <td>왜 새로 만드나</td>
+  <td>셋톱 UI는 객체 인식이 불가해 Appium이 통하지 않는다</td>
+  <td>동일. uiautomator 계층을 쓰지 않고 키 주입 + 화면/오디오 판독</td>
+</tr>
+<tr>
+  <td>어떻게 판단하나</td>
+  <td>ADB 스크린샷·HDMI → OCR + 비전 AI → 코드 판정</td>
+  <td><strong>ADB 스크린샷 + RapidOCR + 결정론 지표</strong>로 <em>판정 가능한 항목만</em>. VOD는 오버레이 OCR + 오디오 세션(보조). 복합 레이아웃·의미 판독·영상 플레인은 이후</td>
+</tr>
+<tr>
+  <td>무엇이 다른가</td>
+  <td>디자인만 바뀌면 PASS(변경 감지). 기획서 업로드 시 AI가 기준 갱신</td>
+  <td>입력은 PDF·PPT·HTML·원 TC 등 등록(<code>inbox/registry.yaml</code>). 러너 기준은 검수 후 <code>spec.md</code> + <code>status: approved</code>. AI 판독은 이후</td>
+</tr>
+<tr>
+  <td>시나리오 관리</td>
+  <td>BDD(Gherkin)</td>
+  <td>스위트가 Gherkin 문장 순서대로 Step Definition → Page 메서드를 실행한다. TC 상세에 경로·샷·OCR을 남긴다</td>
+</tr>
+<tr>
+  <td>결과 활용</td>
+  <td>CI + 대시보드 URL + JIRA FAIL 이슈</td>
+  <td>대시보드(도넛·추이)·셀프컨테인드 HTML 리포트 동작. nightly mock workflow·JIRA는 dry-run</td>
+</tr>
+<tr>
+  <td>우선 추진</td>
+  <td>POC 2건 (원 TC 확보 중)</td>
+  <td><strong>POC 실행 가능.</strong> LIVE 9건 + VOD 11건 Markdown TC·page 메서드 연결</td>
+</tr>
+</tbody>
+</table>
+
+    <h2 id="1-배경">1. 배경</h2>
+<ul>
+<li>고객사(SK브로드밴드) B tv 셋톱의 화면·기능 회귀를 자동 실행·판정한다.</li>
+<li>V1 전제(객체 인식 불가, ADB 스틸컷 / HDMI 영상 이원, 모델은 해석기·판정은 코드)는 그대로다.</li>
+<li>V2 시점의 구현은 <strong>랩 PC 한 대 + USB ADB 실기 1대</strong>를 전제로 한 3레포 워크스페이스다.</li>
+</ul>
+<table>
+<thead>
+<tr><th>폴더</th><th>원격</th><th>역할</th></tr>
+</thead>
+<tbody>
+<tr><td><code>docs/</code></td><td>TBELL-Btv/docs</td><td>기획·설계·원 TC (Markdown). <code>status: approved</code>만 기준으로 씀</td></tr>
+<tr><td><code>dev/</code></td><td>TBELL-Btv/dev</td><td>러너·ADB·SQLite·FastAPI. 랩 PC에서 상시 실행</td></tr>
+<tr><td><code>view/</code></td><td>TBELL-Btv/view</td><td>대시보드·챗봇 UI. GitHub Pages 또는 랩 <code>:8080</code></td></tr>
+</tbody>
+</table>
+
+    <h2 id="2-왜-일반적인-방법으로는-안-되는가">2. 왜 일반적인 방법으로는 안 되는가 — 3가지 전제</h2>
+<p>V1과 같다. 구현이 이 전제를 확인한 상태다.</p>
+<h3>전제 1 — UI 객체를 인식할 수 없다</h3>
+<p>메뉴·버튼이 네이티브 UI 요소로 존재하지 않는다. 셀렉터 기반 자동화는 쓰지 않는다. 화면은 이미지(OCR·영역 휘도)와 시스템 상태(<code>dumpsys</code>)로 판독한다.</p>
+<h3>전제 2 — 화면 확보 경로는 2가지다</h3>
+<table>
+<thead>
+<tr><th>대상</th><th>확보 방법</th><th>V2</th></tr>
+</thead>
+<tbody>
+<tr><td>정지 화면</td><td>ADB <code>screencap</code></td><td><span class="badge pass">구현됨</span> 실기·mock</td></tr>
+<tr><td>움직이는 화면</td><td>HDMI 캡처보드 → PC</td><td>이후 단계. 재생 여부는 오디오 세션으로 대체</td></tr>
+</tbody>
+</table>
+<p>실측: 방송·재생 영역은 ADB 캡처 시 검정으로 찍힌다. VOD 본편 픽셀 판정은 ADB만으로는 불가하다.</p>
+<h3>전제 3 — 실시간 판독 모델은 아직 붙이지 않았다</h3>
+<p>판독은 RapidOCR(로컬)과 결정론 지표다. Judge 프로토콜(<code>Judge.extract</code>)은 두었고, 현재 구현은 <code>OcrRuleJudge</code>다.</p>
+
+    <h2 id="3-시스템-개념도">3. 시스템 개념도</h2>
+<div class="dgm">
+  <div class="cols2">
+    <div class="lane">
+      <div class="lanelbl">기준정보 계층</div>
+      <div class="box done"><b>docs Git</b><small>screens/*/spec.md · tcs · design</small></div>
+      <div class="arrow">▼ <span>approved만 파싱</span></div>
+      <div class="box done"><b>Baseline</b><small>baseline/{screen}/{version}.json<br>+ current 포인터</small></div>
+    </div>
+    <div class="lane">
+      <div class="lanelbl">실행 계층</div>
+      <div class="box done"><b>스위트 = BDD 실행</b><small>Gherkin → Step → Page<br>LIVE · VOD · POC</small></div>
+      <div class="arrow">▼ <span>챗봇 실행: · CLI · mock nightly</span></div>
+      <div class="box done"><b>러너</b><small>ADB 키 · 타임아웃 상수 · teardown EXIT</small></div>
+      <div class="arrow">▼</div>
+      <div class="box"><b>셋톱 (B tv)</b><small>BMA-AI100</small></div>
+    </div>
+  </div>
+  <div class="arrow">▼ <span>화면·상태 확보</span></div>
+  <div class="row">
+    <div class="box done"><b>ADB 스크린샷</b><small>정지 화면 · OCR</small></div>
+    <div class="box done"><b>dumpsys audio</b><small>VOD 재생 여부</small></div>
+  </div>
+  <div class="arrow">▼</div>
+  <div class="box accent"><b>판독 — RapidOCR + 결정론</b><small>텍스트·박스·신뢰도 · 진행바 채움 · 포커스 휘도 · 해시 캐시<br>모델은 JSON 추출 창구만 (OcrRuleJudge)</small></div>
+  <div class="arrow">▼ <span>spec 기능 vs 디자인</span></div>
+  <div class="box accent"><b>판정 — 코드</b><small>PASS / PASS(변경 감지) / FAIL / ERROR</small></div>
+  <div class="arrow">▼</div>
+  <div class="row badges">
+    <span class="badge pass">PASS</span>
+    <span class="badge notify">PASS (변경 감지)</span>
+    <span class="badge fail">FAIL</span>
+    <span class="badge error">ERROR</span>
+  </div>
+  <div class="arrow">▼</div>
+  <div class="row">
+    <div class="box done"><b>회차 리포트</b><small>report.html · 샷 임베드</small></div>
+    <div class="box done"><b>대시보드</b><small>view · 도넛·추이</small></div>
+    <div class="box"><b>JIRA</b><small>FAIL dry-run</small></div>
+    <div class="box done"><b>변경 알림</b><small>jsonl + webhook</small></div>
+  </div>
+</div>
+<p><strong>설계 원칙 4가지</strong> (V1 유지 · 협상 대상 아님)</p>
+<table>
+<thead>
+<tr><th>원칙</th><th>의미</th><th>V2</th></tr>
+</thead>
+<tbody>
+<tr><td>모델은 해석기, 판정은 코드</td><td>PASS/FAIL을 모델에게 묻지 않는다</td><td>준수. pages가 판정 문자열을 낸다</td></tr>
+<tr><td>결정론 우선</td><td>OCR·좌표·시스템 상태로 되면 모델을 안 부른다</td><td>현재 판정 경로 전부 이쪽</td></tr>
+<tr><td>캡처와 판정의 분리</td><td>짧은 노출은 먼저 쌓고 나중에 판정</td><td>아티팩트 디렉터리에 샷·OCR json 보존</td></tr>
+<tr><td>근거 보존</td><td>화면·인식 덤프를 남겨 재판정</td><td>run-{id}/ 샷 + *.ocr.json + report.html</td></tr>
+</tbody>
+</table>
+
+    <h2 id="4-핵심-판정-정책">4. 핵심 판정 정책 — 기능과 디자인의 분리</h2>
+<p>V1 정책을 코드·문서 스키마에 반영했다.</p>
+<table>
+<thead>
+<tr><th>판정</th><th>조건</th><th>처리</th><th>V2</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td><span class="badge pass">PASS</span></td>
+  <td>기능 정상 + UI가 기준과 일치</td>
+  <td>통과</td>
+  <td>스위트 기본 결과</td>
+</tr>
+<tr>
+  <td><span class="badge notify">PASS (변경 감지)</span></td>
+  <td>기능 정상 + 디자인만 변경</td>
+  <td>통과 집계 + 하이라이트 + 알림</td>
+  <td><code>PASS_CHANGED</code>. notify jsonl / webhook. 대시보드 파란 배지</td>
+</tr>
+<tr>
+  <td><span class="badge fail">FAIL</span></td>
+  <td>기능 불일치</td>
+  <td>제품 결함</td>
+  <td>JIRA 훅(URL 없으면 dry-run 로그)</td>
+</tr>
+<tr>
+  <td><span class="badge error">ERROR</span></td>
+  <td>전제 미충족·장비/판독 불가</td>
+  <td>FAIL과 분리 집계</td>
+  <td>좌측 Wing 미확보·신호 팝업·오디오 전제 실패 등</td>
+</tr>
+</tbody>
+</table>
+<p>spec.md에서 <code>## 기능</code> 규칙 불일치 → FAIL, <code>## 디자인</code> 치수·색·폰트 불일치 → PASS(변경 감지), <code>## 전제</code> 미충족 → ERROR.</p>
+<blockquote>
+<p>구현 관점: AI에게 합격을 묻지 않는다. OCR이 텍스트·박스를 주고, 화면별 page 코드가 스키마를 적용한다.</p>
+</blockquote>
+
+    <h2 id="5-문서-리포지토리와-baseline">5. 문서 리포지토리와 기준(Baseline) 자동 반영</h2>
+<h3>5.1 문서 리포지토리</h3>
+<table>
+<thead>
+<tr><th>항목</th><th>V1</th><th>V2</th></tr>
+</thead>
+<tbody>
+<tr><td>대상 문서</td><td>기획·설계·UI 가이드·원 TC</td><td><code>screens/*/spec.md</code>, <code>design/</code>, <code>tcs/{BTVTC-id}.md</code>, <code>starts.md</code></td></tr>
+<tr><td>저장소</td><td>Git 권장</td><td>Git. PPT/PDF는 <code>inbox/raw/</code> 참고본만 (판정 기준 아님)</td></tr>
+<tr><td>반입 = 계획된 변경</td><td>업로드</td><td>프론트매터 <code>status: approved</code> + merge. draft는 baseline 미반영·대시보드 「대기」</td></tr>
+</tbody>
+</table>
+<h3>5.2 기준 갱신 (현재는 규칙 파싱)</h3>
+<div class="dgm"><div class="hflow">
+  <div class="box done"><b>① spec.md</b><small>기능 / 디자인 / 전제</small></div>
+  <div class="harrow">→</div>
+  <div class="box done"><b>② docs_parse</b><small>approved만 로드</small></div>
+  <div class="harrow">→</div>
+  <div class="box done"><b>③ version.json</b><small>이전 버전 유지<br>current 포인터</small></div>
+  <div class="harrow">→</div>
+  <div class="box done"><b>④ 러너</b><small>current 기준</small></div>
+</div></div>
+<p>화면 spec 예: <code>wing-left</code>, <code>wing-right-banner</code>, <code>vod-player</code>, <code>vod-list</code>.</p>
+<h3>5.3 판정 분기</h3>
+<table>
+<thead>
+<tr><th>상황</th><th>판정</th><th>V2</th></tr>
+</thead>
+<tbody>
+<tr><td>등록된 변경이 화면에 보임</td><td>PASS (계획된 변경)</td><td>approved spec이 곧 등록</td></tr>
+<tr><td>미등록 변경</td><td>PASS(변경 감지) + 알림</td><td>notify 훅</td></tr>
+<tr><td>등록됐는데 화면은 이전 UI</td><td>기획 미반영 알림</td><td>잔여 (명시 케이스 적음)</td></tr>
+</tbody>
+</table>
+
+    <h2 id="6-시나리오-작성-방식">6. 시나리오 작성 방식 — BDD + 스위트</h2>
+<p>원 TC는 Markdown이다. Gherkin은 spec에서 생성하고, 실기 회차는 스위트가 page 메서드를 부른다.</p>
+<pre><code>기능: 좌측 Wing UI 메뉴 확인
+  원 TC: BTVTC-157215
+  시나리오: 좌측 키로 Wing을 열고 메뉴를 확인한다
+    조건   실시간 방송을 시청 중이고 미니 EPG가 없다
+    만일   리모컨 [좌] 키를 누르면
+    그러면 좌측 Wing UI가 열리고 기본 포커스는 인기채널 TOP20 이다</code></pre>
+<ul>
+<li>step은 <code>WingLeftPage</code> / <code>VodPlayerPage</code> / <code>LiveWingPage</code>를 호출한다.</li>
+<li>챗봇: <code>문의:</code> · <code>실행:</code> · <code>변경:</code> · 「테스트 진행」. LLM 키 없이도 실행·문서 검색은 동작한다.</li>
+</ul>
+<table>
+<thead>
+<tr><th>스위트</th><th>구문</th><th>구성</th></tr>
+</thead>
+<tbody>
+<tr><td>BANNER</td><td>테스트 진행 / 실행: BANNER</td><td>BTVTC-157265</td></tr>
+<tr><td>LIVE / WING / POC1</td><td>실행: LIVE · 실시간 · 윙</td><td>우측·좌측 Wing 9건</td></tr>
+<tr><td>VOD / PLAYER</td><td>실행: VOD · 플레이어</td><td>소장용 시작 11건</td></tr>
+<tr><td>VOD-FREE</td><td>실행: VOD-FREE</td><td>무료 시리즈 시작</td></tr>
+<tr><td>POC</td><td>실행: POC</td><td>POC1 LIVE 9 + POC2A VOD 11 (캡처보드 없이 가능한 오버레이·오디오)</td></tr>
+</tbody>
+</table>
+
+    <h2 id="7-주요-기능-요구사항">7. 주요 기능 요구사항 (요약 · 현황)</h2>
+<p>상세 FR은 부속서. 아래는 V1 그룹에 구현 현황을 붙인 것이다.</p>
+<table>
+<thead>
+<tr><th>그룹</th><th>요구</th><th>현황</th><th>구현 위치</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>A. 디바이스 제어</td>
+  <td>ADB 연결, 키 추상화, 스크린샷, 시스템 상태</td>
+  <td><span class="badge pass">구현됨</span></td>
+  <td><code>device/adb.py</code> · <code>keys.py</code> · <code>remote.py</code> · <code>gate.py</code></td>
+</tr>
+<tr>
+  <td>B. 화면 판독</td>
+  <td>한국어 OCR, 캐시, 구조화 추출</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+  <td>RapidOCR + 박스·신뢰도·해시 캐시·ocr.json. 스키마 추출은 OcrRuleJudge</td>
+</tr>
+<tr>
+  <td>C. 판정</td>
+  <td>기능/디자인 분리, 4분류</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+  <td>pages + spec 스키마. 목록 말줄임·상대시각 등 세부는 화면별로 다름</td>
+</tr>
+<tr>
+  <td>D. 기준정보</td>
+  <td>기획 → 기준 갱신 · 버전</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+  <td>Markdown 파싱. 버전드 baseline. 과거 버전 재판정 UI는 잔여</td>
+</tr>
+<tr>
+  <td>E. 영상 판정</td>
+  <td>캡처보드 프레임 · 재생/블랙/프리즈</td>
+  <td>이후</td>
+  <td>오디오 경로로 VOD 재생 여부만 대체</td>
+</tr>
+<tr>
+  <td>F. 시나리오·실행</td>
+  <td>BDD, 선택 실행, 격리·teardown</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+  <td>TC try/except 계속 실행, EXIT teardown. <code>TC_TIMEOUT_S=180</code> 상수만 있고 강제 적용은 잔여</td>
+</tr>
+<tr>
+  <td>G. 리포트·알림</td>
+  <td>셀프컨테인드 HTML, 변경 알림</td>
+  <td><span class="badge pass">구현됨</span></td>
+  <td>샷 base64 임베드, 4색. notify 파일 + 선택 webhook</td>
+</tr>
+<tr>
+  <td>H. 제작 파이프라인</td>
+  <td>원 TC → 초안, 트리아지</td>
+  <td><span class="badge notify">부분</span></td>
+  <td>spec → Gherkin 생성. 챗봇 <code>변경:</code>은 spec PR 초안. FAIL AI 트리아지는 이후</td>
+</tr>
+</tbody>
+</table>
+
+    <h2 id="8-모델도구-현황">8. 모델·도구 현황</h2>
+<p>V1 8장의 온라인/오프라인 VLM 경로는 이후 단계다. 지금 쓰는 스택은 아래와 같다.</p>
+<table>
+<thead>
+<tr><th>용도</th><th>도구</th><th>비고</th></tr>
+</thead>
+<tbody>
+<tr><td>기기 제어</td><td>adb</td><td>키·screencap·dumpsys. 키 간격 기본 400ms</td></tr>
+<tr><td>OCR</td><td>RapidOCR (ONNX)</td><td>로컬. 캐시·박스·신뢰도</td></tr>
+<tr><td>이미지 지표</td><td>Pillow (+ OpenCV 선택)</td><td>진행바 채움, 포커스 휘도, Wing 좌/우 판별</td></tr>
+<tr><td>언어·러너</td><td>Python 3.12, pytest</td><td></td></tr>
+<tr><td>BDD</td><td>pytest-bdd</td><td><code># language: ko</code> Wing·VOD 각 1 feature</td></tr>
+<tr><td>판독 창구</td><td><code>Judge</code> 프로토콜</td><td><code>OcrRuleJudge</code> 사용. 모델 Judge는 인터페이스만</td></tr>
+<tr><td>결과 저장</td><td>SQLite + HTML 리포트</td><td></td></tr>
+<tr><td>랩 API</td><td>FastAPI :8080</td><td>catalog · 실행 · 챗봇. GitHub OAuth(쓰기)</td></tr>
+<tr><td>형상</td><td>git · GitHub Actions</td><td>mock nightly. 실기는 랩 PC</td></tr>
+</tbody>
+</table>
+<p>Judge 추상화는 V1 8.1과 같다. 엔드포인트만 바꾸면 모델 경로를 붙일 수 있게 창구를 열어 두었다.</p>
+
+    <h2 id="9-결과-연계">9. 결과 연계 — CI/CD · JIRA · 대시보드</h2>
+<div class="dgm"><div class="hflow">
+  <div class="box done"><b>트리거</b><small>CLI · 챗봇 · mock nightly</small></div>
+  <div class="harrow">→</div>
+  <div class="box done"><b>러너</b><small>스위트</small></div>
+  <div class="harrow">→</div>
+  <div class="box done"><b>SQLite + report.html</b></div>
+  <div class="harrow">→</div>
+  <div class="stack">
+    <div class="box done"><b>대시보드</b><small>/ · 기획 · TC</small></div>
+    <div class="box"><b>JIRA</b><small>FAIL dry-run</small></div>
+  </div>
+</div></div>
+<h3>9.1 실행 자동화</h3>
+<table>
+<thead>
+<tr><th>항목</th><th>현황</th></tr>
+</thead>
+<tbody>
+<tr><td>수동</td><td><code>python -m ste_btv.scripts.run_test "실시간" --real</code> / <code>--mock</code></td></tr>
+<tr><td>챗봇</td><td>랩 FastAPI. 다른 PC는 브라우저만 (같은 Wi-Fi 또는 Tunnel)</td></tr>
+<tr><td>스케줄</td><td>GitHub Actions mock은 <strong>코드 검증 CI</strong>. 실기 CI는 랩 PC self-hosted runner 예정 (<code>lab-device.yml</code>). mock을 운영 CI/CD로 보지 않는다</td></tr>
+</tbody>
+</table>
+<h3>9.2 JIRA</h3>
+<p>FAIL만 이슈 후보. ERROR는 만들지 않는다. <code>STE_BTV_JIRA_URL</code>이 없으면 <code>artifacts/jira/fail-issues.jsonl</code> dry-run. 동일 TC 미해결 이슈 코멘트 병합·필드 매핑은 고객사 협의 후.</p>
+<h3>9.3 대시보드</h3>
+<table>
+<thead>
+<tr><th>화면</th><th>내용</th><th>현황</th></tr>
+</thead>
+<tbody>
+<tr><td>홈</td><td>최신 회차 도넛, PASS/FAIL/ERROR 추이</td><td><span class="badge pass">구현됨</span></td></tr>
+<tr><td>기획</td><td>spec을 TC와 같은 칸(기능·조작·전제). 승인/대기 배지</td><td><span class="badge pass">구현됨</span></td></tr>
+<tr><td>테스트케이스</td><td>TC별 최신 판정·수행·첨부 샷</td><td><span class="badge pass">구현됨</span></td></tr>
+<tr><td>챗봇</td><td>문의·실행·변경</td><td><span class="badge pass">구현됨</span></td></tr>
+</tbody>
+</table>
+<p>랩이 켜져 있으면 API가 catalog를 준다. 꺼져 있으면 <code>view/data/catalog.json</code> 스냅샷.</p>
+
+    <h2 id="10-잔여-협의">10. 잔여 협의</h2>
+<p>V1 「개발사 제안」 항목을 현재 결정으로 바꿔 적는다.</p>
+<table>
+<thead>
+<tr><th>#</th><th>항목</th><th>V2 결정 / 잔여</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>운용 경로 ①/②</td><td>지금은 로컬 OCR. VLM 경로 전환은 Judge 창구로 열어 둠</td></tr>
+<tr><td>2</td><td>AI 모델</td><td>이후. 골든 세트 ≥ 0.98 조건은 V1 유지</td></tr>
+<tr><td>3</td><td>실시간 영상 파이프라인</td><td>이후. VOD는 오디오 + 오버레이 OCR</td></tr>
+<tr><td>4</td><td>HDMI / HDCP</td><td>이후. 보드 입고 시 <code>index/할일.md</code> §3</td></tr>
+<tr><td>5</td><td>문서 포맷</td><td><strong>Git + Markdown 확정.</strong> inbox의 PPT/PDF/HTML은 참고</td></tr>
+<tr><td>6</td><td>JIRA·CI·대시보드</td><td>대시보드·mock CI 동작. JIRA 프로젝트 매핑·실기 스케줄은 협의</td></tr>
+</tbody>
+</table>
+<p>받지 않는 설계(V1과 동일): 검정 재생 화면을 ADB로 “보겠다”, 캡처보드 없이 방송 픽셀 판정, PASS/FAIL을 모델에게 직접 묻기.</p>
+
+    <h2 id="11-poc-현황">11. 우선 추진 범위 — POC 현황</h2>
+<p>V1은 원 TC 확보 중이었다. V2는 <strong>원 TC Markdown + page 메서드가 붙어 실행된다.</strong></p>
+<table>
+<thead>
+<tr><th>구분</th><th>POC 1 — Wing UI</th><th>POC 2 — VOD Player</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>대상</td>
+  <td>실시간 시청 중 좌·우 Wing</td>
+  <td>재생·일시정지·재생바·장면·배속·회차·상세</td>
+</tr>
+<tr>
+  <td>판정</td>
+  <td>ADB 스크린샷 + OCR + 영역 색</td>
+  <td>오버레이 OCR + 진행바 채움 + <code>dumpsys audio</code>(보조). 본편 픽셀은 하지 않음</td>
+</tr>
+<tr>
+  <td>TC</td>
+  <td>157233, 157255, 157249, 157242, 157261, 157265, 157215, 157217, 157214</td>
+  <td>134783, 134784, 145137, 134792, 134786, 134788, 134795, 145130, 134817, 134818, 134827</td>
+</tr>
+<tr>
+  <td>실행</td>
+  <td><code>실행: LIVE</code></td>
+  <td><code>실행: VOD</code> / <code>VOD-FREE</code></td>
+</tr>
+<tr>
+  <td>묶음</td>
+  <td colspan="2"><code>실행: POC</code> = LIVE 9 + BTVTC-134784</td>
+</tr>
+</tbody>
+</table>
+<h3>POC 2 판정 포인트 (현재)</h3>
+<ol class="legend">
+  <li><b>①</b> 재생 여부 — 조작 전후 <b>오디오 세션</b> 비교</li>
+  <li><b>②</b> PLAYER 오버레이 — OCR(시간·배속 라벨 등) + 진행바 채움 비율</li>
+  <li><b>③</b> 영상 플레인(재생/블랙/프리즈) — 이후 단계</li>
+</ol>
+<p>mock 스위트: POC 10건 PASS를 단위 테스트로 고정(<code>test_poc_mock_run</code>).</p>
+
+    <h2 id="12-개발-단계-현황">12. 개발 범위와 단계 현황</h2>
+<p>V1 Phase 1~3을 랩 구현 플랜 P0~P4에 대응했다. 캡처보드 트랙은 이 표와 병행하지 않는다.</p>
+<table>
+<thead>
+<tr><th>V1</th><th>현재 Phase</th><th>내용</th><th>상태</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Phase 1 기반</td>
+  <td>P0</td>
+  <td>ADB, 스위트 격리, HTML 리포트, LIVE/VOD expect, POC 묶음</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+</tr>
+<tr>
+  <td>Phase 1 기준</td>
+  <td>P1</td>
+  <td>버전드 baseline, 변경 알림, OCR 덤프</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+</tr>
+<tr>
+  <td>Phase 1 BDD·비전</td>
+  <td>P2</td>
+  <td>OCR 캐시, cv_metrics, OcrRuleJudge, 기존 Gherkin</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+</tr>
+<tr>
+  <td>Phase 3 연계</td>
+  <td>P3</td>
+  <td>nightly mock, JIRA dry-run, 대시보드 도넛/추이</td>
+  <td><span class="badge notify">핵심 반영</span></td>
+</tr>
+<tr>
+  <td>운영</td>
+  <td>P4</td>
+  <td>승인 배지, repro 스크립트. 멀티 디바이스·10회 실기 하네스는 잔여</td>
+  <td><span class="badge notify">부분</span></td>
+</tr>
+<tr>
+  <td>Phase 2 영상</td>
+  <td>—</td>
+  <td>HDMI · HDCP · 프레임 판정</td>
+  <td>이후</td>
+</tr>
+</tbody>
+</table>
+<p>권장 잔여 순서: TC 타임아웃 강제 → 기획 미반영 알림 케이스 → JIRA 실연동 매핑 → 실기 야간 스케줄 → 재현성 10회 실기.</p>
+
+    <h2 id="13-검수-기준-대비">13. 검수 기준 대비</h2>
+<table>
+<thead>
+<tr><th>무엇을 확인하나</th><th>합격의 의미</th><th>V2</th></tr>
+</thead>
+<tbody>
+<tr><td>지정 원 TC 자동 실행·판정</td><td>전건 실행, 기대 일치</td><td>LIVE·VOD mock 완주. 실기는 게이트·채널·콘텐츠 전제에 따라 ERROR 분리</td></tr>
+<tr><td>재현성</td><td>동일 TC 10회 PASS/FAIL 불일치 없음</td><td><code>python -m ste_btv.scripts.repro --n 10</code> 스크립트. 실기 10회 리포트는 잔여</td></tr>
+<tr><td>기기 이식성</td><td>셋톱 2대 동일 코드</td><td>시리얼 1대. 목록 큐는 잔여</td></tr>
+<tr><td>변경 감지</td><td>디자인만 바뀌면 PASS(변경 감지)+알림</td><td>라벨·훅·대시보드. 골든 시나리오 fixture는 보강 중</td></tr>
+<tr><td>기획서 반영</td><td>등록/미등록 구분</td><td>approved spec → baseline. 미승인 「대기」</td></tr>
+<tr><td>근거 보존</td><td>샷·인식 덤프</td><td>run 폴더 + ocr.json + HTML</td></tr>
+<tr><td>리포트</td><td>네트워크 없이 열림, ERROR 구분</td><td>셀프컨테인드 HTML</td></tr>
+<tr><td>경로 전환</td><td>설정만으로 모델 전환, 코드 0줄</td><td>Judge 창구만. 모델 엔드포인트는 이후</td></tr>
+<tr><td>JIRA 자동 이슈</td><td>FAIL만, 중복은 코멘트</td><td>dry-run. 중복 코멘트·실서버는 협의</td></tr>
+<tr><td>대시보드</td><td>추이·최신·변경 현황</td><td>홈·기획·TC URL 열람</td></tr>
+</tbody>
+</table>
+
+    <h2 id="14-용어">14. 용어</h2>
+<table>
+<thead>
+<tr><th>용어</th><th>정의</th></tr>
+</thead>
+<tbody>
+<tr><td>STB</td><td>셋톱박스. 대상은 SK브로드밴드 B tv</td></tr>
+<tr><td>원 TC</td><td>QA 자연어 명세. 현재는 <code>docs/tcs/BTVTC-*.md</code></td></tr>
+<tr><td>기준(Baseline)</td><td>화면별 기대 명세. 기능/디자인 분리, 버전 파일</td></tr>
+<tr><td>앵커</td><td>화면 표시 판정의 고정 텍스트·영역</td></tr>
+<tr><td>PASS(변경 감지)</td><td>기능 정상 + 디자인 변경. 코드값 <code>PASS_CHANGED</code></td></tr>
+<tr><td>ERROR</td><td>전제·장비·판독 문제로 판정 불가. 제품 결함 아님</td></tr>
+<tr><td>랩 PC</td><td>셋톱 USB가 꽂힌 실행 머신. FastAPI :8080</td></tr>
+<tr><td>스위트</td><td>한 명령으로 도는 TC 묶음 (LIVE, VOD, POC …)</td></tr>
+<tr><td>트랙 B</td><td>HDMI 캡처 기반 영상 판정. 이후</td></tr>
+<tr><td>Judge</td><td>화면 → 구조화 추출 창구. 판정 코드와 분리</td></tr>
+</tbody>
+</table>
+
+    <h2 id="15-첨부">15. 첨부</h2>
+<ol>
+<li>『셋톱박스 테스트 자동화 기획서-V1.html』 — 본 문서의 원 기획</li>
+<li>『STB UI 테스트 자동화 플랫폼 구축 RFP 초안 v2』 — 부속서 (제약·FR·AC)</li>
+<li>워크스페이스: <code>index/구현플랜.md</code> · <code>index/할일.md</code> · <code>index/현재상태.md</code></li>
+</ol>
+<h3>실행 (점검용)</h3>
+<pre><code>cd c:\develop_folder\STE-Btv_server\dev
+.\.venv\Scripts\Activate.ps1
+python -m ste_btv.scripts.gate_check
+python -m ste_btv.scripts.run_test "실시간" --mock
+python -m ste_btv.scripts.run_test "플레이어" --mock
+python -m ste_btv.scripts.serve_lab
+# 브라우저 http://127.0.0.1:8080/</code></pre>
+<p>실기는 <code>--real</code> (USB 디버깅 허용, <code>STE_BTV_MOCK=0</code>). mock 상태로 실기 검증했다고 보지 않는다.</p>
+  </main>
+</div>
+</body>
+</html>

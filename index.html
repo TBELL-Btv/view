@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260916i">
 </head>
 <body>
 <div class="layout">
@@ -27,7 +27,30 @@
   <img alt="">
   <p class="lightbox-cap"></p>
 </div>
+<div id="chat-widget">
+  <div id="chat-pop" hidden role="dialog" aria-modal="true" aria-labelledby="chat-title">
+    <header class="chat-head">
+      <div class="chat-brand">
+        <img src="favicon-32.png" width="22" height="22" alt="">
+        <div class="chat-brand-text">
+          <strong id="chat-title">랩 어시스턴트</strong>
+          <span class="chat-mode" id="chat-mode-label">모드를 골라 주세요</span>
+        </div>
+      </div>
+      <button type="button" id="chat-x" aria-label="챗봇 닫기">×</button>
+    </header>
+    <div id="chat-log" class="chat-log" aria-live="polite"></div>
+    <form id="chat-form" class="chat-composer">
+      <input id="chat-q" autocomplete="off" placeholder="메시지를 입력하세요" aria-label="메시지">
+      <button type="submit">보내기</button>
+    </form>
+  </div>
+  <button type="button" id="chat-fab" aria-label="챗봇 열기">
+    <img src="favicon-32.png" width="22" height="22" alt="">
+    <span>질문</span>
+  </button>
+</div>
   <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=20260916i"></script>
 </body>
 </html>
