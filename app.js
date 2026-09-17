@@ -63,7 +63,13 @@ function page() {
 }
 
 function go(path) {
-  location.hash = path.startsWith("/") ? path : "/" + path;
+  const next = path.startsWith("/") ? path : "/" + path;
+  const cur = location.hash.replace(/^#/, "") || "/home";
+  if (cur === next) {
+    render();
+    return;
+  }
+  location.hash = next;
 }
 
 function apiBase() {
@@ -107,57 +113,93 @@ function shotSrc(name) {
   return "data/ref-shots/" + file;
 }
 
-async function load() {
-  const tries = [];
-  const base = apiBase();
-  if (base) tries.push(base + "/api/catalog");
-  tries.push("data/catalog.json");
-  let last = new Error("catalog.json 없음");
-  for (const url of tries) {
-    try {
-      const res = await fetch(url, { cache: "no-store" });
+function fetchJson(url, timeoutMs) {
+  const ctrl = timeoutMs ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+  return fetch(url, { cache: "no-store", signal: ctrl ? ctrl.signal : undefined })
+    .then((res) => {
       if (!res.ok) throw new Error(url + " " + res.status);
-      CATALOG = await res.json();
-      if (!CATALOG.source) CATALOG.source = url.includes("/api/catalog") ? "sqlite" : "snapshot";
-      return;
-    } catch (err) {
-      last = err;
-    }
+      return res.json();
+    })
+    .finally(() => {
+      if (timer) clearTimeout(timer);
+    });
+}
+
+async function loadSnapshot() {
+  const data = await fetchJson("data/catalog.json");
+  CATALOG = data;
+  if (!CATALOG.source) CATALOG.source = "snapshot";
+}
+
+async function loadLive() {
+  const base = apiBase();
+  if (!base) return false;
+  try {
+    const data = await fetchJson(base + "/api/catalog", 8000);
+    CATALOG = data;
+    if (!CATALOG.source) CATALOG.source = "sqlite";
+    return true;
+  } catch {
+    return false;
   }
-  throw last;
+}
+
+async function boot() {
+  let snapOk = false;
+  try {
+    await loadSnapshot();
+    snapOk = true;
+    render();
+  } catch {
+    /* snapshot optional when the lab API is available */
+  }
+  const upgraded = await loadLive();
+  if (upgraded) render();
+  else if (!snapOk) throw new Error("catalog.json 없음");
 }
 
 function render() {
-  const { name, id } = page();
-  document.querySelectorAll(".nav button").forEach((b) => {
-    b.classList.toggle("on", b.dataset.page === name);
-  });
-  const srcLabel = CATALOG.source === "sqlite" ? "랩 SQLite" : "스냅샷";
-  document.getElementById("generated").textContent = CATALOG
-    ? `${srcLabel} · ${when(CATALOG.generated_at)}`
-    : "";
   const app = document.getElementById("app");
-  if (!CATALOG) {
-    app.innerHTML = `<p class="muted">랩에서 publish_view 후 data/catalog.json 이 생깁니다.</p>`;
-    return;
-  }
-  if (name === "chat") {
-    openChat();
-    go("/home");
-    return;
-  }
-  if (name === "docs") app.innerHTML = id ? renderDoc(id) : renderDocs();
-  else if (name === "cases") {
-    if (!id) CASE_HIST_RUN = null;
-    app.innerHTML = id ? renderCase(id) : renderCases();
-  }   else if (name === "process") {
-    app.innerHTML = renderProcess(id);
+  try {
+    const { name, id } = page();
+    document.querySelectorAll(".nav button").forEach((b) => {
+      b.classList.toggle("on", b.dataset.page === name);
+    });
+    const srcLabel = CATALOG && CATALOG.source === "sqlite" ? "랩 SQLite" : "스냅샷";
+    const gen = document.getElementById("generated");
+    if (gen) {
+      gen.textContent = CATALOG ? `${srcLabel} · ${when(CATALOG.generated_at)}` : "";
+    }
+    if (!CATALOG) {
+      app.innerHTML = `<p class="muted">랩에서 publish_view 후 data/catalog.json 이 생깁니다.</p>`;
+      return;
+    }
+    if (name === "chat") {
+      openChat();
+      go("/home");
+      return;
+    }
+    if (name === "docs") app.innerHTML = id ? renderDoc(id) : renderDocs();
+    else if (name === "cases") {
+      if (!id) CASE_HIST_RUN = null;
+      app.innerHTML = id ? renderCase(id) : renderCases();
+    } else if (name === "process") {
+      app.innerHTML = renderProcess(id);
+      bind();
+      fillProcessShots();
+      window.scrollTo(0, 0);
+      return;
+    } else if (name === "runs") app.innerHTML = id ? renderRun(id) : renderHome();
+    else app.innerHTML = renderHome();
     bind();
-    fillProcessShots();
-    return;
-  } else if (name === "runs") app.innerHTML = id ? renderRun(id) : renderHome();
-  else app.innerHTML = renderHome();
-  bind();
+    window.scrollTo(0, 0);
+  } catch (err) {
+    if (app) {
+      app.innerHTML = `<p class="muted">화면을 그리지 못했습니다. ${escHtml(err && err.message)}</p>`;
+    }
+    console.error(err);
+  }
 }
 
 function runSeries(timeline) {
@@ -1501,11 +1543,12 @@ function stepStatusHtml(verdict) {
   return `<span class="step-status">${escHtml(v)}</span>`;
 }
 
-function stepsHtml(text, verdict) {
+function stepsHtml(text, verdict, message) {
   const groups = parseSteps(text);
   if (!groups.length) return `<p class="muted">단계 없음</p>`;
   let n = 0;
-  const status = stepStatusHtml(verdict);
+  const timeout = /타임아웃/.test(String(message || ""));
+  const status = timeout ? "" : stepStatusHtml(verdict);
   return `<div class="steplist">${groups
     .map((g) => {
       const head = g.title ? `<div class="step-group">${escHtml(g.title)}</div>` : "";
@@ -1545,12 +1588,24 @@ function proseHtml(text) {
     .join("");
 }
 
+function isOcrWorkShot(name) {
+  const n = String(name || "")
+    .split(/[/\\]/)
+    .pop();
+  if (!n || n.startsWith("_")) return true;
+  const stem = n.replace(/\.png$/i, "");
+  if (/-(rail|title|lrail)$/i.test(stem)) return true;
+  if (/-body$/i.test(stem) && !/-\d{2}-body$/i.test(stem)) return true;
+  return false;
+}
+
 function shotsHtml(paths, highlightLast) {
-  if (!paths || !paths.length) return `<p class="muted">첨부 화면 없음</p>`;
-  return `<div class="shots">${paths
+  const visible = (paths || []).filter((src) => !isOcrWorkShot(src));
+  if (!visible.length) return `<p class="muted">첨부 화면 없음</p>`;
+  return `<div class="shots">${visible
     .map((src, i) => {
       const name = src.split("/").pop();
-      const mark = highlightLast && i === paths.length - 1 ? " · 실패 시점 후보" : "";
+      const mark = highlightLast && i === visible.length - 1 ? " · 실패 시점 후보" : "";
       const primary = mediaSrc(src);
       const refGuess = shotSrc(name);
       const onerr =
@@ -1563,9 +1618,10 @@ function shotsHtml(paths, highlightLast) {
 }
 
 function beforeAfter(paths) {
-  if (!paths || paths.length < 2) return "";
-  const a = paths[0];
-  const b = paths[paths.length - 1];
+  const visible = (paths || []).filter((src) => !isOcrWorkShot(src));
+  if (visible.length < 2) return "";
+  const a = visible[0];
+  const b = visible[visible.length - 1];
   return `<div class="compare">
     <figure class="shot"><img src="${mediaSrc(a)}" alt="before"><figcaption>이전 / 기준</figcaption></figure>
     <div class="arrow">→</div>
@@ -1681,73 +1737,163 @@ ${(t.steps || []).map((s) => `    ${s.kw}   ${s.text}`).join("\n")}`;
   </section>`;
 }
 
-function fillShotBox(boxId, jsonUrl, dir, labels) {
+function lastRunId() {
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
+  return (tc.latest && tc.latest.run_id) || (CATALOG.latest_run && CATALOG.latest_run.id) || "";
+}
+
+function lastRunShot(file) {
+  const run = lastRunId();
+  if (!run || !file) return "";
+  const path = `data/shots/run-${run}/${file}`;
+  const base = apiBase();
+  if (CATALOG && CATALOG.source === "sqlite" && base) {
+    return base + "/" + path;
+  }
+  return path;
+}
+
+function fillStepPairs(boxId, pairs) {
   const box = document.getElementById(boxId);
   if (!box) return;
-  fetch(jsonUrl, { cache: "no-store" })
-    .then((r) => (r.ok ? r.json() : { shots: [] }))
-    .then((data) => {
-      const shots = data.shots || [];
-      if (!shots.length) {
-        box.innerHTML = `<p class="muted">이 단계 실기 샷이 아직 없습니다.</p>`;
-        return;
-      }
-      const ch = data.channel ? ` · 채널 ${escHtml(data.channel)}` : "";
-      const result = data.result
-        ? `<p class="muted">결과 scene=<b>${escHtml(data.result)}</b>${ch}</p>`
-        : "";
-      const figs = shots
-        .map((s) => {
-          const src = dir + s.file;
-          const cap = `${labels[s.tag] || s.tag} · ${s.scene || ""}`;
-          return `<figure class="shot"><img src="${src}" alt="${escHtml(cap)}"><figcaption>${escHtml(cap)} · ${escHtml(s.file)}</figcaption></figure>`;
-        })
-        .join("");
-      box.innerHTML = result + `<div class="shots">${figs}</div>`;
+  if (!pairs.length) {
+    box.innerHTML = `<p class="muted">이 단계 샷이 없습니다.</p>`;
+    return;
+  }
+  box.innerHTML = pairs
+    .map((p) => {
+      const lastSrc = p.lastFile ? lastRunShot(p.lastFile) : "";
+      const lastFig = lastSrc
+        ? `<figure class="shot"><img src="${lastSrc}" alt="마지막 결과" onerror="this.parentNode.outerHTML='<p class=\\'muted\\'>이번 회차 샷 없음</p>'"><figcaption>마지막 결과 · ${escHtml(p.lastFile)}</figcaption></figure>`
+        : `<p class="muted">이번 회차 없음</p>`;
+      return `<div class="compare-block">
+        <p class="howto-label">${escHtml(p.label)}</p>
+        <div class="compare">
+          <figure class="shot"><img src="${mediaSrc(p.base)}" alt="기준"><figcaption>기준 · ${escHtml((p.base || "").split("/").pop())}</figcaption></figure>
+          <div class="arrow">→</div>
+          ${lastFig}
+        </div>
+      </div>`;
     })
-    .catch(() => {
-      box.innerHTML = `<p class="muted">샷 목록을 읽지 못했습니다.</p>`;
-    });
+    .join("");
+}
+
+function lastRunShotFiles() {
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
+  const L = tc.latest || {};
+  const arts = L.artifacts || {};
+  const names = [];
+  const add = (s) => {
+    const n = String(s || "")
+      .split(/[/\\]/)
+      .pop();
+    if (n && /\.png$/i.test(n) && !isOcrWorkShot(n) && !names.includes(n)) names.push(n);
+  };
+  (L.shots || []).forEach(add);
+  (arts.shots || []).forEach(add);
+  (arts.notes || []).forEach((n) => {
+    const m = String(n).match(/([A-Za-z0-9._-]+\.png)/);
+    if (m) add(m[1]);
+  });
+  return names;
+}
+
+function lastRunShotName(matchers, fallback) {
+  const names = lastRunShotFiles();
+  for (const re of matchers) {
+    const hit = names.find((n) => re.test(n));
+    if (hit) return hit;
+  }
+  return fallback || "";
 }
 
 function fillProcessShots() {
-  fillShotBox("proc-step-1-shot-list", "data/process/goto-live/shots.json", "data/process/goto-live/", {
-    digit: "171 채널 입력",
-    "digit-0": "171 채널 입력",
-    ok: "[확인] 후 미니 EPG",
-    "mini-epg": "[확인] 후 미니 EPG",
-    ready: "시작 조건 완료",
-  });
-  fillShotBox("proc-step-2-shot-list", "data/process/open-right/shots.json", "data/process/open-right/", {
-    right: "[우] 후 우측 Wing",
-    epg: "미니 EPG",
-    "epg-right": "[우] 미니 EPG",
-    "ai-ok": "Ai 시청 설정 → 확인",
-    "epg-close": "미니 EPG 닫음",
-    retry: "[우] 재시도",
-    wing: "우측 Wing",
-    wake: "미니 EPG",
-    target: "[하]×4 음성 다중 설정",
-    "down-1": "[하] ×1",
-    "down-2": "[하] ×2",
-    "down-3": "[하] ×3",
-    "down-4": "[하] ×4 음성 다중 설정",
-  });
-  fillShotBox("proc-step-4-shot-list", "data/process/assert-layout/shots.json", "data/process/assert-layout/", {
-    ko: "한국어 기본 상세",
-  });
-  fillShotBox("proc-step-5-shot-list", "data/process/audio-multi/shots.json", "data/process/audio-multi/", {
-    body: "본문 슬롯 열림",
-    focus: "[확인] 후 한국어 하늘색 아웃라인",
-    down: "[하] 후 영어 아웃라인",
-    ko: "audio_multi(\"ko\") 한국어 설정",
-    en: "audio_multi(\"en\") 영어 설정",
-  });
+  fillStepPairs("proc-step-1-shot-list", [
+    {
+      label: "0→171 · 미니 EPG",
+      base: "data/process/goto-live/live-enter-01-ok.png",
+      lastFile: lastRunShotName([/live-enter-.*digit/, /live-enter-.*epg/, /live-enter-.*ok/], "live-enter-00-digit.png"),
+    },
+    {
+      label: "라이브 안내보기 · 편성표/맞춤 서비스",
+      base: "data/process/goto-live/live-enter-02-ready.png",
+      lastFile: lastRunShotName([/live-enter-.*guide/, /live-enter-.*ready/], "live-enter-01-guide.png"),
+    },
+    {
+      label: "팝업 해제 후 준비",
+      base: "data/process/goto-live/live-enter-02-ready.png",
+      lastFile: lastRunShotName([/live-enter-.*ready/, /live-enter-.*exit/], "live-enter-00-ready.png"),
+    },
+  ]);
+  fillStepPairs("proc-step-2-shot-list", [
+    {
+      label: "[우] 후 우측 Wing · 볼만한 콘텐츠",
+      base: "data/process/open-right/open-right-01-right.png",
+      lastFile: lastRunShotName([/open-right-.*right/, /open-right-00-right/], "open-right-00-right.png"),
+    },
+    {
+      label: "[하]×4 음성 다중 설정",
+      base: "data/process/open-right/open-right-02-target.png",
+      lastFile: lastRunShotName([/^live-249\.png$/, /open-right-.*down/, /open-right-.*target/], "live-249.png"),
+    },
+  ]);
+  fillStepPairs("proc-step-4-shot-list", [
+    {
+      label: "타이틀·본문 · 한국어 기본",
+      base: "data/process/baseline/body.png",
+      lastFile: lastRunShotName([/assert-layout-/, /^live-249\.png$/], "assert-layout-00-ko.png"),
+    },
+  ]);
+  fillStepPairs("proc-step-5-shot-list", [
+    {
+      label: "본문 슬롯 · 한국어 체크",
+      base: "data/process/baseline/body.png",
+      lastFile: lastRunShotName([/audio-multi-.*body/, /audio-multi-00-/], "audio-multi-00-body.png"),
+    },
+    {
+      label: "[확인] 후 한국어 하늘색 아웃라인",
+      base: "data/process/baseline/focus.png",
+      lastFile: lastRunShotName([/audio-multi-.*focus/, /audio-multi-01-/], "audio-multi-01-focus.png"),
+    },
+    {
+      label: "audio_multi(\"en\") 영어 체크",
+      base: "data/process/baseline/en.png",
+      lastFile: lastRunShotName([/audio-multi-.*en/, /audio-multi-0[34]-/], "audio-multi-03-en.png"),
+    },
+  ]);
 }
 
-function histRow(h, selected) {
-  const on = selected ? " on" : "";
-  return `<button type="button" class="hist-row${on}" data-hist-run="${escHtml(String(h.run_id))}"><span>${badge(h.verdict)} <b>회차 ${h.run_id}</b> ${when(h.started_at)}</span><span class="muted">${escHtml((h.message || "").slice(0, 80))}</span></button>`;
+function processCycleHtml() {
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
+  const L = tc.latest || {};
+  const arts = L.artifacts || {};
+  const ai = arts.ai_review || {};
+  const cmp = arts.compare || {};
+  const v = L.verdict || "";
+  const changeTalk =
+    v === "PASS_CHANGED" || v === "PASS(변경 감지)"
+      ? `<p><b>변경 감지</b> · AI가 UI 변경으로 확정 · ${escHtml(ai.opinion || "")}</p>`
+      : `<p class="muted">변경 감지는 PASS이고 AI가 변경이라고 한 뒤에만 표시합니다.</p>`;
+  const suspect = cmp.changed || cmp.suspect;
+  const timeoutTalk = /타임아웃/.test(String(L.message || ""))
+    ? `<p><b>타임아웃은 셋톱 실패가 아닙니다.</b> 키 입력이 끝난 뒤 화면 글자 읽기(EasyOCR)가 300초를 넘긴 것입니다. 모니터에서 영어가 바뀌었다면 기능은 수행된 겁니다.</p>`
+    : "";
+  const aiLine = cmp.skipped
+    ? `<p class="muted">PASS가 아니라 샷 비교·AI를 생략했습니다.</p>`
+    : ai.opinion
+    ? `<p>AI 의견 · ${ai.ok === false ? "미확정" : ai.changed ? "변경" : "변경 아님"} · ${escHtml(ai.opinion)}</p>`
+    : suspect
+      ? `<p class="muted">샷 불일치 의심. AI 결과가 아직 없습니다.</p>`
+      : `<p class="muted">샷 불일치 의심 없음.</p>`;
+  const notes = (arts.notes || []).slice(-8).map((n) => `<li>${escHtml(n)}</li>`).join("");
+  return `<section class="section proc-section" id="proc-cycle">
+      <h2>이번 회차 로그 · 판정</h2>
+      <p>${badge(v)} 회차 ${escHtml(String(L.run_id || "—"))} · ${escHtml(L.message || "")}</p>
+      ${timeoutTalk}
+      ${aiLine}
+      ${changeTalk}
+      ${notes ? `<ul class="howto-list">${notes}</ul>` : ""}
+    </section>`;
 }
 
 function renderProcess(id) {
@@ -1772,8 +1918,9 @@ function renderProcess(id) {
       <h1>[LiveTV] 우측 Wing UI &gt; 음성 다중 설정</h1>
       <div class="tcid">BTVTC-157249 · LiveWingPage · 신호 복구 팝업 샷은 판정에서 제외</div>
       ${note}
-      <p class="muted tip">1단계는 <code>goto_live("audio_multi")</code>로 171까지 갑니다. 2단계는 <code>open_right("audio_multi")</code>가 우측 Wing을 열고 메뉴 기준 <code>[하]</code> 횟수만큼 내립니다. 5번이 <code>audio_multi("ko"|"en")</code>입니다. 3번은 이번 회차에서 실행하지 않습니다.</p>
-      <p><button class="btn" type="button" data-go="/cases/BTVTC-157249">테스트케이스 보기</button></p>
+      ${processCycleHtml()}
+      <p class="muted tip">1단계는 <code>goto_live("audio_multi")</code>가 <b>0 → 171</b>로 들어갑니다. 도착 후 미니 EPG 5초, 이어서 <b>라이브 안내보기</b>(하단 좌측 편성표 · 우측 맞춤 서비스) 5초를 기다립니다. 안내보기가 꺼지기 1초 전에 신호 복구 팝업이 뜨면 꺼질 때까지 기다린 다음 <code>[우]</code>로 우측 Wing을 엽니다. 번호 토글을 열면 <b>왼쪽이 기준 사진</b>, <b>오른쪽이 마지막 실행 샷</b>입니다. 3번은 이번 회차에서 실행하지 않습니다.</p>
+      <p><a class="btn" href="#/cases/BTVTC-157249" data-go="/cases/BTVTC-157249">테스트케이스 보기</a></p>
 
       <nav class="proc-toc" aria-label="순서 목차">
         <p class="howto-label">순서 목차</p>
@@ -1836,12 +1983,12 @@ function renderProcess(id) {
                 </div>
               </td>
               <td><code>goto_live("audio_multi")</code></td>
-              <td class="proc-desc">음성 다중 채널 171로 실시간 진입. 신호 팝업이 꺼진 뒤에만 샷. 채널 목록<br>→ <code>[확인]</code> 후 미니 EPG(편성표·미니뷰·채널명)가 이동 확인<br>→ 하단 좌측 편성표·우측 맞춤 서비스면 시작 조건 완료. 이 화면에서 <code>[우]</code>가 우측 Wing을 연다.</td>
+              <td class="proc-desc">모든 채널 이동은 <b>0번을 한 번 거친 뒤</b> 171로 간다.<br>→ 도착 후 하단 미니 EPG 5초. 이어서 <b>라이브 안내보기</b>(좌측 편성표 · 우측 맞춤 서비스) 5초. 안내보기 설정에서 켜/끌 수 있다.<br>→ 안내보기가 꺼지기 1초 전에 신호 복구 팝업이 뜨면, 꺼질 때까지 기다린다. 이 구간에서는 전체 OCR 대기 루프를 돌리지 않는다.</td>
             </tr>
             <tr id="proc-step-1-shots" class="proc-shot-row" hidden>
               <td colspan="3">
-                <p class="howto-label">goto_live · UI 변경 샷</p>
-                <div id="proc-step-1-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+                <p class="howto-label">goto_live · 기준 (왼쪽) / 마지막 결과 (오른쪽)</p>
+                <div id="proc-step-1-shot-list" class="proc-pairs"><p class="muted">샷 목록을 불러오는 중…</p></div>
               </td>
             </tr>
             <tr>
@@ -1852,12 +1999,12 @@ function renderProcess(id) {
                 </div>
               </td>
               <td><code>open_right("audio_multi")</code></td>
-              <td class="proc-desc"><code>[우]</code>로 우측 Wing을 연다. 기본 포커스는 볼만한 콘텐츠.<br>→ DB <code>menu_rails</code>의 <code>audio_multi</code> <code>[하]</code> 횟수(4)만큼 내린다.<br>→ 미니 EPG만 뜨면 Ai 시청 설정까지 이동 후 <code>[확인]</code>.</td>
+              <td class="proc-desc">팝업이 꺼진 뒤에 <code>[우]</code>로 우측 Wing을 연다. 기본 포커스는 볼만한 콘텐츠.<br>→ DB <code>menu_rails</code>의 <code>audio_multi</code> <code>[하]</code> 횟수(4)만큼 내린다.<br>→ 우측 Wing은 5분 이상 유지되므로 닫힐 때까지 기다리지 않는다.</td>
             </tr>
             <tr id="proc-step-2-shots" class="proc-shot-row" hidden>
               <td colspan="3">
-                <p class="howto-label">open_right("audio_multi") · UI 변경 샷</p>
-                <div id="proc-step-2-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+                <p class="howto-label">open_right("audio_multi") · 기준 (왼쪽) / 마지막 결과 (오른쪽)</p>
+                <div id="proc-step-2-shot-list" class="proc-pairs"><p class="muted">샷 목록을 불러오는 중…</p></div>
               </td>
             </tr>
             <tr>
@@ -1877,8 +2024,8 @@ function renderProcess(id) {
             </tr>
             <tr id="proc-step-4-shots" class="proc-shot-row" hidden>
               <td colspan="3">
-                <p class="howto-label">assert_layout · 한국어 기본 상세</p>
-                <div id="proc-step-4-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+                <p class="howto-label">assert_layout · 기준 (왼쪽) / 마지막 결과 (오른쪽)</p>
+                <div id="proc-step-4-shot-list" class="proc-pairs"><p class="muted">샷 목록을 불러오는 중…</p></div>
               </td>
             </tr>
             <tr>
@@ -1893,8 +2040,8 @@ function renderProcess(id) {
             </tr>
             <tr id="proc-step-5-shots" class="proc-shot-row" hidden>
               <td colspan="3">
-                <p class="howto-label">audio_multi("ko"|"en") · 설정 샷</p>
-                <div id="proc-step-5-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+                <p class="howto-label">audio_multi("ko"|"en") · 기준 (왼쪽) / 마지막 결과 (오른쪽)</p>
+                <div id="proc-step-5-shot-list" class="proc-pairs"><p class="muted">샷 목록을 불러오는 중…</p></div>
               </td>
             </tr>
           </tbody>
@@ -1911,14 +2058,28 @@ body: ["한국어"]
   `;
 }
 
+function histRow(h, selected) {
+  if (!h) return "";
+  const on = selected ? " on" : "";
+  const rid = String(h.run_id == null ? "" : h.run_id);
+  return `<button type="button" class="hist-row${on}" data-hist-run="${escHtml(rid)}"><span>${badge(h.verdict)} <b>회차 ${escHtml(rid)}</b> ${when(h.started_at)}</span><span class="muted">${escHtml((h.message || "").slice(0, 80))}</span></button>`;
+}
+
+function findCase(id) {
+  const want = decodeURIComponent(String(id || ""));
+  return (CATALOG.cases || []).find((x) => x.id === want || String(x.id) === String(id));
+}
+
 function renderCase(id) {
-  const tc = caseList().find((x) => x.id === id);
+  const tc = findCase(id);
   if (!tc) return `<p>TC를 찾지 못했습니다.</p>`;
-  const hist = tc.history || [];
+  const hist = (tc.history || []).map((h) =>
+    tc.latest && String(h.run_id) === String(tc.latest.run_id) ? Object.assign({}, h, tc.latest) : h
+  );
   const selected =
     (CASE_HIST_RUN != null && hist.find((h) => String(h.run_id) === String(CASE_HIST_RUN))) ||
-    hist[0] ||
     tc.latest ||
+    hist[0] ||
     null;
   const L = selected || tc.latest;
   const fp = failPointOf(L && L.verdict, L && L.message) || (selected === tc.latest || !selected ? tc.fail_point : null);
@@ -1991,7 +2152,7 @@ function renderCase(id) {
           <div class="exec-split">
             <div class="exec-steps">
               <h2>수행 절차</h2>
-              ${stepsHtml(tc.steps, L && L.verdict)}
+              ${stepsHtml(tc.steps, L && L.verdict, L && L.message)}
             </div>
             <div class="exec-result">
               <h2>선택 회차 결과</h2>
@@ -2206,7 +2367,10 @@ function bootChat() {
 
 function bind() {
   document.querySelectorAll("[data-go]").forEach((el) => {
-    el.addEventListener("click", () => go(el.getAttribute("data-go")));
+    el.addEventListener("click", (e) => {
+      if (el.tagName === "A") e.preventDefault();
+      go(el.getAttribute("data-go"));
+    });
   });
   document.querySelectorAll("[data-toggle]").forEach((el) => {
     el.addEventListener("click", (e) => {
@@ -2399,9 +2563,7 @@ document.addEventListener("keydown", (e) => {
 
 if (document.getElementById("app")) {
   mountChat();
-  load()
-    .then(render)
-    .catch((err) => {
-      document.getElementById("app").innerHTML = `<p class="muted">${err.message}</p>`;
-    });
+  boot().catch((err) => {
+    document.getElementById("app").innerHTML = `<p class="muted">${err.message}</p>`;
+  });
 }

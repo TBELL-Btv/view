@@ -1868,6 +1868,9 @@ body.chat-open #chat-fab,
   background: var(--wash);
   padding: 12px 10px 16px;
 }
+.proc-pairs { display: grid; gap: var(--space-4) }
+.proc-shot-row .compare-block { margin: 0 }
+.proc-shot-row .compare { grid-template-columns: 1fr 32px 1fr }
 .proc-table td.proc-desc {
   line-height: 1.5;
 }
@@ -1888,5 +1891,6 @@ body.chat-open #chat-fab,
   .grid4 { grid-template-columns: 1fr 1fr }
   .runinfo { grid-template-columns: 1fr }
   .compare { grid-template-columns: 1fr }
+  .proc-shot-row .compare { grid-template-columns: 1fr 32px 1fr }
   .search { margin-left: 0; width: 100% }
 }

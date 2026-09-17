@@ -1,0 +1,30 @@
+{
+  "source": "lab capture 2026-09-17 음성 다중 설정",
+  "slots": [
+    "title",
+    "body"
+  ],
+  "exclude": [
+    "live",
+    "rail volume HUD",
+    "clock",
+    "signal popup"
+  ],
+  "shots": [
+    {
+      "file": "body.png",
+      "tag": "body",
+      "note": "레일 음성 다중 · 한국어 체크"
+    },
+    {
+      "file": "focus.png",
+      "tag": "focus",
+      "note": "한국어 하늘색 아웃라인"
+    },
+    {
+      "file": "en.png",
+      "tag": "en",
+      "note": "영어 체크"
+    }
+  ]
+}

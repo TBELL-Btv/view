@@ -3,23 +3,31 @@
   "channel": "171",
   "shots": [
     {
-      "file": "open-right-00-epg.png",
-      "tag": "epg",
-      "scene": "mini_epg"
-    },
-    {
-      "file": "open-right-01-right.png",
+      "file": "open-right-00-right.png",
       "tag": "right",
       "scene": "right"
     },
     {
-      "file": "open-right-02-target.png",
-      "tag": "target",
+      "file": "open-right-01-down-1.png",
+      "tag": "down-1",
       "scene": "right"
     }
   ],
   "notes": [
-    "[우] 우측 Wing",
-    "menu_rails audio_multi [하] x4"
+    "신호 팝업 대기 0",
+    "live-enter-00-digit.png:scene=mini_epg",
+    "goto_live(audio_multi): 171 진입 (unknown)",
+    "open_right: 오버레이 [나가기]",
+    "wake: 신호 팝업 — 샷 제외 2",
+    "wake: 신호 팝업 — 샷 제외 3",
+    "wake: 신호 팝업 — 샷 제외 4",
+    "wake: 신호 팝업 — 샷 제외 5",
+    "wake: 청정 샷 없음 last=unknown",
+    "RIGHT: 우측 Wing 시도",
+    "open-right-00-right.png:scene=right",
+    "우측 레일: 음성 다중 메뉴 있음",
+    "open_right(audio_multi): [하]×4",
+    "open-right-01-down-1.png:scene=right",
+    "assert-layout-00-ko.png:scene=right"
   ]
 }

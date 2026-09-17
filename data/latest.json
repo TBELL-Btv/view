@@ -1,10 +1,10 @@
 {
   "source": "snapshot",
   "run": {
-    "id": 12,
-    "started_at": "2026-09-16T07:04:13.904873+00:00",
-    "finished_at": "2026-09-16T07:04:13.979019+00:00",
-    "trigger": "테스트 진행:BTVTC-157249:mock",
+    "id": 31,
+    "started_at": "2026-09-17T07:45:54.624686+00:00",
+    "finished_at": "2026-09-17T07:47:32.458952+00:00",
+    "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
     "status": "done"
   },
   "counts": {
@@ -15,33 +15,125 @@
       "tc_id": "BTVTC-157249",
       "title": "음성 다중 설정을 확인한다",
       "verdict": "PASS",
-      "message": "슬롯 확인 ['title/음성', 'body/한국어'] · live-249.png",
-      "run_id": 12,
-      "started_at": "2026-09-16T07:04:13.904873+00:00",
-      "finished_at": "2026-09-16T07:04:13.979019+00:00",
-      "trigger": "테스트 진행:BTVTC-157249:mock",
+      "message": "슬롯 확인 ['title/음성', 'body/한국어'] · live-249.png · audio_multi(en)",
+      "run_id": 31,
+      "started_at": "2026-09-17T07:45:54.624686+00:00",
+      "finished_at": "2026-09-17T07:47:32.458952+00:00",
+      "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
       "shots": [
-        "data/shots/run-10/open-right.png",
-        "data/shots/run-10/live-249-up1-0.png",
-        "data/shots/run-10/live-249-up1-0-rail.png"
+        "data/shots/run-31/live-249.png",
+        "data/shots/run-31/assert-layout-00-ko.png",
+        "data/shots/run-31/audio-multi-00-body.png",
+        "data/shots/run-31/audio-multi-01-focus.png",
+        "data/shots/run-31/audio-multi-02-down.png",
+        "data/shots/run-31/audio-multi-03-en.png",
+        "data/shots/run-31/live-enter-00-hub.png",
+        "data/shots/run-31/live-enter-01-digit.png",
+        "data/shots/run-31/live-enter-02-guide.png",
+        "data/shots/run-31/live-enter-03-ready.png",
+        "data/shots/run-31/open-right-00-right.png",
+        "data/shots/run-31/open-right-01-down-1.png",
+        "data/shots/run-31/open-right-02-down-2.png",
+        "data/shots/run-31/open-right-03-down-3.png",
+        "data/shots/run-31/open-right-04-down-4.png"
       ],
       "artifacts": {
         "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
           "press:RIGHT:22",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
           "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\open-right.png",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\live-249-mock-0.png"
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "press:OK:23",
+          "wait:700",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
         ],
         "notes": [
+          "채널 이동 0 확정 후 171",
+          "live-enter-00-hub.png:scene=live",
+          "live-enter-01-digit.png:scene=live",
+          "미니 EPG 5초 대기",
+          "live-enter-02-guide.png:scene=live_guide",
+          "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
+          "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
+          "settle: 신호 팝업 대기 1/8",
+          "settle: 신호 팝업 대기 2/8",
+          "settle: 신호 팝업 대기 3/8",
+          "settle: 신호 팝업 해제",
+          "live-enter-03-ready.png:scene=live",
+          "goto_live(audio_multi): 0→171 진입 (live)",
           "RIGHT: 우측 Wing 시도",
-          "open-right.png:mock",
+          "open-right-00-right.png:scene=right",
           "우측 레일: 음성 다중 메뉴 있음",
-          "live-249-mock-0.png:mock",
-          "음성 다중 메뉴 mock i=0"
+          "open_right(audio_multi): [하]×4",
+          "down-1: 신호 팝업 대기 1/8",
+          "down-1: 신호 팝업 해제",
+          "open-right-01-down-1.png:scene=live",
+          "open-right-02-down-2.png:scene=live",
+          "open-right-03-down-3.png:scene=live",
+          "down-4: 신호 팝업 대기 1/8",
+          "down-4: 신호 팝업 대기 2/8",
+          "down-4: 신호 팝업 해제",
+          "open-right-04-down-4.png:scene=live",
+          "assert-layout-00-ko.png:scene=right",
+          "audio-multi-00-body.png:scene=live",
+          "audio-multi-01-focus.png:scene=live",
+          "audio-multi-02-down.png:scene=live",
+          "audio-set: 신호 팝업 대기 1/8",
+          "audio-set: 신호 팝업 대기 2/8",
+          "audio-set: 신호 팝업 대기 3/8",
+          "audio-set: 신호 팝업 해제",
+          "audio-multi-03-en.png:scene=live",
+          "audio_multi(en)"
         ],
         "shots": [
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\live-249-mock-0.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\live-249.png"
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-249.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-00-hub.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-01-digit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-02-guide.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-03-ready.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-00-right.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-01-down-1.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-02-down-2.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-03-down-3.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-04-down-4.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\assert-layout-00-ko.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-00-body.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-01-focus.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-02-down.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-03-en.png"
         ],
         "adb_scope": [
           "음성 다중 채널 전제",
@@ -67,19 +159,19 @@
             "slot": "body"
           }
         ],
-        "duration_s": 0.05,
-        "timeout_s": 180,
-        "mode": "mock",
-        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157249\n  Page: LiveWingPage\n\n  시나리오: 음성 다중 설정을 확인한다\n    조건   음성 다중 서비스가 있는 채널을 시청한다\n    만일   우측 Wing에서 음성 다중 메뉴를 찾는다\n    그러면 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다\n",
+        "duration_s": 92.88,
+        "timeout_s": 300,
+        "mode": "real",
+        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157249\n  Page: LiveWingPage\n\n  시나리오: 음성 다중 설정을 확인한다\n    조건   0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다\n    만일   우측 Wing을 열고 음성 다중 설정까지 이동한다\n    그러면 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다\n    그리고 영어로 설정한다\n",
         "bdd": {
           "tc_id": "BTVTC-157249",
           "feature": "우측 Wing UI",
           "scenario": "음성 다중 설정을 확인한다",
           "page": "LiveWingPage",
-          "given": "음성 다중 서비스가 있는 채널을 시청한다",
-          "when": "우측 Wing에서 음성 다중 메뉴를 찾는다",
+          "given": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
+          "when": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
           "then": "타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다",
-          "page_fn": "LiveWingPage.tc_157249 → assert_anchors",
+          "page_fn": "LiveWingPage.open_right → assert_layout → audio_multi",
           "method": "tc_157249"
         },
         "trace": {
@@ -97,15 +189,38 @@
           "steps": [
             {
               "kw": "조건",
-              "text": "음성 다중 서비스가 있는 채널을 시청한다",
-              "step_def": "ensure_live()",
-              "page": "LiveWingPage.ensure_live",
-              "keys": [],
+              "text": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
+              "step_def": "goto_live(\"audio_multi\")",
+              "page": "LiveWingPage.goto_live",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:0:7",
+                "wait:180",
+                "wait:2500",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:1:8",
+                "press:7:14",
+                "press:1:8",
+                "wait:180",
+                "wait:350",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:5000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:4000",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+              ],
               "reads": [],
               "devices": [
                 {
-                  "action": "ensure_live",
-                  "detail": "live 전체화면 대기"
+                  "action": "goto_live",
+                  "detail": "171 채널 실시간 진입"
                 }
               ],
               "status": "PASS",
@@ -113,55 +228,37 @@
             },
             {
               "kw": "만일",
-              "text": "우측 Wing에서 음성 다중 메뉴를 찾는다",
-              "step_def": "find_voice_menu()",
-              "page": "LiveWingPage.tc_157249 → assert_anchors",
+              "text": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
+              "step_def": "open_right(\"audio_multi\")",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi",
               "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
                 "press:RIGHT:22",
+                "wait:1200",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\open-right.png",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\live-249-mock-0.png"
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
               ],
-              "reads": [
-                {
-                  "kind": "read",
-                  "shot": "open-right.png",
-                  "ocr_text": "[title] 볼만한 콘텐츠\n[body] 재미있고 다양한 추천 콘텐츠를 즐겨보세요.\n[rail] 멀티뷰 볼만한 콘텐츠 무료 콘텐츠 AI 사운드 설정 자막/해설/수어 시청 환경 설정 음성 다중 설정 블루투스 연결",
-                  "boxes": [],
-                  "anchors": {},
-                  "metrics": {
-                    "kind": "mock",
-                    "overlay": false,
-                    "mock": true,
-                    "layout": "mock"
-                  },
-                  "note": "open-right.png"
-                },
-                {
-                  "kind": "read",
-                  "shot": "live-249-mock-0.png",
-                  "ocr_text": "[title] 음성 다중 설정\n[body] 한국어 영어\n[rail] 멀티뷰 볼만한 콘텐츠 무료 콘텐츠 AI 사운드 설정 자막/해설/수어 시청 환경 설정 음성 다중 설정 블루투스 연결 음성 다중 설정",
-                  "boxes": [],
-                  "anchors": {},
-                  "metrics": {
-                    "kind": "mock",
-                    "overlay": false,
-                    "mock": true,
-                    "layout": "mock"
-                  },
-                  "note": "live-249-mock-0.png"
-                }
-              ],
-              "devices": [
-                {
-                  "action": "screencap",
-                  "detail": "open-right.png"
-                },
-                {
-                  "action": "screencap",
-                  "detail": "live-249-mock-0.png"
-                }
-              ],
+              "reads": [],
+              "devices": [],
               "status": "PASS",
               "detail": ""
             },
@@ -169,13 +266,13 @@
               "kw": "그러면",
               "text": "타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다",
               "step_def": "assert_layout()",
-              "page": "LiveWingPage.tc_157249 → assert_anchors",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi",
               "keys": [],
               "reads": [
                 {
                   "kind": "read",
                   "shot": "live-249.png",
-                  "ocr_text": "scene_hint=right_wing · home_tabs=N, right_wing_ui=Y",
+                  "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
                   "boxes": [],
                   "anchors": {},
                   "metrics": {
@@ -183,11 +280,24 @@
                       "scene_hint": "right_wing",
                       "components": {
                         "home_tabs": false,
-                        "right_wing_ui": true
+                        "vod_overlay_ui": false,
+                        "progress_bar": false,
+                        "transport_ui": false,
+                        "time_labels": false,
+                        "right_wing_ui": true,
+                        "left_wing_ui": false,
+                        "vod_list_ui": true,
+                        "vod_detail_ui": false,
+                        "banner_panel_ui": false,
+                        "epg_bar": false
                       },
-                      "evidence": {},
+                      "evidence": {
+                        "vod_overlay": []
+                      },
                       "metrics": {
-                        "source": "mock_components"
+                        "progress_fill": 0.097,
+                        "live_luma": 1.1,
+                        "home_markers_top": 0
                       },
                       "required": [
                         "right_wing_ui"
@@ -202,21 +312,109 @@
                 {
                   "kind": "read",
                   "shot": "live-249.png",
-                  "ocr_text": "[title] 음성 다중 설정\n[body] 한국어 영어\n[rail] 멀티뷰 볼만한 콘텐츠 무료 콘텐츠 AI 사운드 설정 자막/해설/수어 시청 환경 설정 음성 다중 설정 블루투스 연결 음성 다중 설정\n[toast] (없음)",
-                  "boxes": [],
+                  "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 에이닷~ 뉴스 틀어쥐 버튼 클리 'MEWs\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
+                  "boxes": [
+                    {
+                      "text": "음성 다중 설정",
+                      "confidence": 0.7224839451597636,
+                      "box": null
+                    },
+                    {
+                      "text": "음성 다중 채널 언어름 설정활 수 있어요",
+                      "confidence": 0.610428446632984,
+                      "box": null
+                    },
+                    {
+                      "text": "한국어",
+                      "confidence": 0.999968615630954,
+                      "box": null
+                    },
+                    {
+                      "text": "영어",
+                      "confidence": 0.9999340829652656,
+                      "box": null
+                    },
+                    {
+                      "text": "멀티뷰",
+                      "confidence": 0.821296498146139,
+                      "box": null
+                    },
+                    {
+                      "text": "zen 키즈록",
+                      "confidence": 0.3491020115845624,
+                      "box": null
+                    },
+                    {
+                      "text": "불만한 근렌즈",
+                      "confidence": 0.13060750137063937,
+                      "box": null
+                    },
+                    {
+                      "text": "A 사운드 설정",
+                      "confidence": 0.5046625530259304,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 / 해설 / 수어",
+                      "confidence": 0.29575629483437604,
+                      "box": null
+                    },
+                    {
+                      "text": "시청 환경 설정",
+                      "confidence": 0.9556732558877193,
+                      "box": null
+                    },
+                    {
+                      "text": "음성 다중 설정",
+                      "confidence": 0.999675584260055,
+                      "box": null
+                    },
+                    {
+                      "text": "불루투스 연결",
+                      "confidence": 0.9356252144117474,
+                      "box": null
+                    },
+                    {
+                      "text": "에이닷~",
+                      "confidence": 0.7837284308116252,
+                      "box": null
+                    },
+                    {
+                      "text": "뉴스 틀어쥐",
+                      "confidence": 0.8405810434286992,
+                      "box": null
+                    },
+                    {
+                      "text": "버튼 클리",
+                      "confidence": 0.2994376615572044,
+                      "box": null
+                    },
+                    {
+                      "text": "'MEWs",
+                      "confidence": 0.25494576431799776,
+                      "box": null
+                    },
+                    {
+                      "text": "3분 미리보기 중입니다",
+                      "confidence": 0.8165363833605794,
+                      "box": null
+                    }
+                  ],
                   "anchors": {
                     "title/음성": true,
                     "body/한국어": true
                   },
                   "metrics": {
                     "layout": "right_wing",
-                    "template": null,
+                    "template": "layout=right_wing ui=25 dark=1",
                     "focus_band": null,
                     "slots": [
+                      "toast",
                       "title",
                       "body",
                       "rail",
-                      "toast"
+                      "panel",
+                      "live"
                     ]
                   },
                   "note": "슬롯 앵커 대조"
@@ -225,8 +423,97 @@
               "devices": [],
               "status": "PASS",
               "detail": ""
+            },
+            {
+              "kw": "그리고",
+              "text": "영어로 설정한다",
+              "step_def": "audio_multi(\"en\")",
+              "page": "LiveWingPage.audio_multi",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "press:OK:23",
+                "wait:700",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+              ],
+              "reads": [],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
             }
           ]
+        },
+        "compare": {
+          "prev_run": 30,
+          "curr_run": 31,
+          "changed": false,
+          "suspect": false,
+          "verdict": "MATCH",
+          "pairs": 7
+        },
+        "ai_review": null,
+        "process_log": {
+          "run_id": 31,
+          "tc_id": "BTVTC-157249",
+          "verdict": "PASS",
+          "message": "슬롯 확인 ['title/음성', 'body/한국어'] · live-249.png · audio_multi(en)",
+          "notes": [
+            "채널 이동 0 확정 후 171",
+            "live-enter-00-hub.png:scene=live",
+            "live-enter-01-digit.png:scene=live",
+            "미니 EPG 5초 대기",
+            "live-enter-02-guide.png:scene=live_guide",
+            "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
+            "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
+            "settle: 신호 팝업 대기 1/8",
+            "settle: 신호 팝업 대기 2/8",
+            "settle: 신호 팝업 대기 3/8",
+            "settle: 신호 팝업 해제",
+            "live-enter-03-ready.png:scene=live",
+            "goto_live(audio_multi): 0→171 진입 (live)",
+            "RIGHT: 우측 Wing 시도",
+            "open-right-00-right.png:scene=right",
+            "우측 레일: 음성 다중 메뉴 있음",
+            "open_right(audio_multi): [하]×4",
+            "down-1: 신호 팝업 대기 1/8",
+            "down-1: 신호 팝업 해제",
+            "open-right-01-down-1.png:scene=live",
+            "open-right-02-down-2.png:scene=live",
+            "open-right-03-down-3.png:scene=live",
+            "down-4: 신호 팝업 대기 1/8",
+            "down-4: 신호 팝업 대기 2/8",
+            "down-4: 신호 팝업 해제",
+            "open-right-04-down-4.png:scene=live",
+            "assert-layout-00-ko.png:scene=right",
+            "audio-multi-00-body.png:scene=live",
+            "audio-multi-01-focus.png:scene=live",
+            "audio-multi-02-down.png:scene=live",
+            "audio-set: 신호 팝업 대기 1/8",
+            "audio-set: 신호 팝업 대기 2/8",
+            "audio-set: 신호 팝업 대기 3/8",
+            "audio-set: 신호 팝업 해제",
+            "audio-multi-03-en.png:scene=live",
+            "audio_multi(en)"
+          ],
+          "compare": {
+            "suspect": false,
+            "verdict": "MATCH",
+            "prev_run": 30,
+            "curr_run": 31,
+            "pairs": 7
+          },
+          "ai_review": null
         }
       },
       "trace": {
@@ -244,15 +531,38 @@
         "steps": [
           {
             "kw": "조건",
-            "text": "음성 다중 서비스가 있는 채널을 시청한다",
-            "step_def": "ensure_live()",
-            "page": "LiveWingPage.ensure_live",
-            "keys": [],
+            "text": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
+            "step_def": "goto_live(\"audio_multi\")",
+            "page": "LiveWingPage.goto_live",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:0:7",
+              "wait:180",
+              "wait:2500",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:1:8",
+              "press:7:14",
+              "press:1:8",
+              "wait:180",
+              "wait:350",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:5000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:4000",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+            ],
             "reads": [],
             "devices": [
               {
-                "action": "ensure_live",
-                "detail": "live 전체화면 대기"
+                "action": "goto_live",
+                "detail": "171 채널 실시간 진입"
               }
             ],
             "status": "PASS",
@@ -260,57 +570,37 @@
           },
           {
             "kw": "만일",
-            "text": "우측 Wing에서 음성 다중 메뉴를 찾는다",
-            "step_def": "find_voice_menu()",
-            "page": "LiveWingPage.tc_157249 → assert_anchors",
+            "text": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
+            "step_def": "open_right(\"audio_multi\")",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi",
             "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
               "press:RIGHT:22",
+              "wait:1200",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\open-right.png",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-12\\live-249-mock-0.png"
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
             ],
-            "reads": [
-              {
-                "kind": "read",
-                "shot": "open-right.png",
-                "ocr_text": "[title] 볼만한 콘텐츠\n[body] 재미있고 다양한 추천 콘텐츠를 즐겨보세요.\n[rail] 멀티뷰 볼만한 콘텐츠 무료 콘텐츠 AI 사운드 설정 자막/해설/수어 시청 환경 설정 음성 다중 설정 블루투스 연결",
-                "boxes": [],
-                "anchors": {},
-                "metrics": {
-                  "kind": "mock",
-                  "overlay": false,
-                  "mock": true,
-                  "layout": "mock"
-                },
-                "note": "open-right.png",
-                "shot_url": "data/shots/run-10/open-right.png"
-              },
-              {
-                "kind": "read",
-                "shot": "live-249-mock-0.png",
-                "ocr_text": "[title] 음성 다중 설정\n[body] 한국어 영어\n[rail] 멀티뷰 볼만한 콘텐츠 무료 콘텐츠 AI 사운드 설정 자막/해설/수어 시청 환경 설정 음성 다중 설정 블루투스 연결 음성 다중 설정",
-                "boxes": [],
-                "anchors": {},
-                "metrics": {
-                  "kind": "mock",
-                  "overlay": false,
-                  "mock": true,
-                  "layout": "mock"
-                },
-                "note": "live-249-mock-0.png",
-                "shot_url": "data/shots/run-10/open-right.png"
-              }
-            ],
-            "devices": [
-              {
-                "action": "screencap",
-                "detail": "open-right.png"
-              },
-              {
-                "action": "screencap",
-                "detail": "live-249-mock-0.png"
-              }
-            ],
+            "reads": [],
+            "devices": [],
             "status": "PASS",
             "detail": ""
           },
@@ -318,13 +608,13 @@
             "kw": "그러면",
             "text": "타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다",
             "step_def": "assert_layout()",
-            "page": "LiveWingPage.tc_157249 → assert_anchors",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi",
             "keys": [],
             "reads": [
               {
                 "kind": "read",
                 "shot": "live-249.png",
-                "ocr_text": "scene_hint=right_wing · home_tabs=N, right_wing_ui=Y",
+                "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
                 "boxes": [],
                 "anchors": {},
                 "metrics": {
@@ -332,11 +622,24 @@
                     "scene_hint": "right_wing",
                     "components": {
                       "home_tabs": false,
-                      "right_wing_ui": true
+                      "vod_overlay_ui": false,
+                      "progress_bar": false,
+                      "transport_ui": false,
+                      "time_labels": false,
+                      "right_wing_ui": true,
+                      "left_wing_ui": false,
+                      "vod_list_ui": true,
+                      "vod_detail_ui": false,
+                      "banner_panel_ui": false,
+                      "epg_bar": false
                     },
-                    "evidence": {},
+                    "evidence": {
+                      "vod_overlay": []
+                    },
                     "metrics": {
-                      "source": "mock_components"
+                      "progress_fill": 0.097,
+                      "live_luma": 1.1,
+                      "home_markers_top": 0
                     },
                     "required": [
                       "right_wing_ui"
@@ -347,32 +650,148 @@
                   }
                 },
                 "note": "화면 전제 (extract)",
-                "shot_url": "data/shots/run-10/live-249-up1-0.png"
+                "shot_url": "data/shots/run-31/live-249.png"
               },
               {
                 "kind": "read",
                 "shot": "live-249.png",
-                "ocr_text": "[title] 음성 다중 설정\n[body] 한국어 영어\n[rail] 멀티뷰 볼만한 콘텐츠 무료 콘텐츠 AI 사운드 설정 자막/해설/수어 시청 환경 설정 음성 다중 설정 블루투스 연결 음성 다중 설정\n[toast] (없음)",
-                "boxes": [],
+                "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 에이닷~ 뉴스 틀어쥐 버튼 클리 'MEWs\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
+                "boxes": [
+                  {
+                    "text": "음성 다중 설정",
+                    "confidence": 0.7224839451597636,
+                    "box": null
+                  },
+                  {
+                    "text": "음성 다중 채널 언어름 설정활 수 있어요",
+                    "confidence": 0.610428446632984,
+                    "box": null
+                  },
+                  {
+                    "text": "한국어",
+                    "confidence": 0.999968615630954,
+                    "box": null
+                  },
+                  {
+                    "text": "영어",
+                    "confidence": 0.9999340829652656,
+                    "box": null
+                  },
+                  {
+                    "text": "멀티뷰",
+                    "confidence": 0.821296498146139,
+                    "box": null
+                  },
+                  {
+                    "text": "zen 키즈록",
+                    "confidence": 0.3491020115845624,
+                    "box": null
+                  },
+                  {
+                    "text": "불만한 근렌즈",
+                    "confidence": 0.13060750137063937,
+                    "box": null
+                  },
+                  {
+                    "text": "A 사운드 설정",
+                    "confidence": 0.5046625530259304,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 / 해설 / 수어",
+                    "confidence": 0.29575629483437604,
+                    "box": null
+                  },
+                  {
+                    "text": "시청 환경 설정",
+                    "confidence": 0.9556732558877193,
+                    "box": null
+                  },
+                  {
+                    "text": "음성 다중 설정",
+                    "confidence": 0.999675584260055,
+                    "box": null
+                  },
+                  {
+                    "text": "불루투스 연결",
+                    "confidence": 0.9356252144117474,
+                    "box": null
+                  },
+                  {
+                    "text": "에이닷~",
+                    "confidence": 0.7837284308116252,
+                    "box": null
+                  },
+                  {
+                    "text": "뉴스 틀어쥐",
+                    "confidence": 0.8405810434286992,
+                    "box": null
+                  },
+                  {
+                    "text": "버튼 클리",
+                    "confidence": 0.2994376615572044,
+                    "box": null
+                  },
+                  {
+                    "text": "'MEWs",
+                    "confidence": 0.25494576431799776,
+                    "box": null
+                  },
+                  {
+                    "text": "3분 미리보기 중입니다",
+                    "confidence": 0.8165363833605794,
+                    "box": null
+                  }
+                ],
                 "anchors": {
                   "title/음성": true,
                   "body/한국어": true
                 },
                 "metrics": {
                   "layout": "right_wing",
-                  "template": null,
+                  "template": "layout=right_wing ui=25 dark=1",
                   "focus_band": null,
                   "slots": [
+                    "toast",
                     "title",
                     "body",
                     "rail",
-                    "toast"
+                    "panel",
+                    "live"
                   ]
                 },
                 "note": "슬롯 앵커 대조",
-                "shot_url": "data/shots/run-10/live-249-up1-0.png"
+                "shot_url": "data/shots/run-31/live-249.png"
               }
             ],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그리고",
+            "text": "영어로 설정한다",
+            "step_def": "audio_multi(\"en\")",
+            "page": "LiveWingPage.audio_multi",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "press:OK:23",
+              "wait:700",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+            ],
+            "reads": [],
             "devices": [],
             "status": "PASS",
             "detail": ""
@@ -382,6 +801,50 @@
     }
   ],
   "history": [
+    {
+      "run": {
+        "id": 31,
+        "started_at": "2026-09-17T07:45:54.624686+00:00",
+        "finished_at": "2026-09-17T07:47:32.458952+00:00",
+        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 1
+      }
+    },
+    {
+      "run": {
+        "id": 30,
+        "started_at": "2026-09-17T07:43:26.586301+00:00",
+        "finished_at": null,
+        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
+        "status": "running"
+      },
+      "counts": {}
+    },
+    {
+      "run": {
+        "id": 29,
+        "started_at": "2026-09-17T07:41:51.592059+00:00",
+        "finished_at": null,
+        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
+        "status": "running"
+      },
+      "counts": {}
+    },
+    {
+      "run": {
+        "id": 28,
+        "started_at": "2026-09-17T07:35:55.325718+00:00",
+        "finished_at": "2026-09-17T07:37:38.426376+00:00",
+        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 1
+      }
+    },
     {
       "run": {
         "id": 12,
@@ -481,59 +944,6 @@
         "PASS": 5,
         "ERROR": 1,
         "FAIL": 3
-      }
-    },
-    {
-      "run": {
-        "id": 4,
-        "started_at": "2026-09-15T07:05:48.215510+00:00",
-        "finished_at": "2026-09-15T07:07:50.005711+00:00",
-        "trigger": "실시간 테스트 진행:LIVE",
-        "status": "done"
-      },
-      "counts": {
-        "FAIL": 8,
-        "ERROR": 1
-      }
-    },
-    {
-      "run": {
-        "id": 3,
-        "started_at": "2026-09-15T06:58:03.242272+00:00",
-        "finished_at": "2026-09-15T07:02:24.206384+00:00",
-        "trigger": "실시간 테스트 진행:LIVE",
-        "status": "done"
-      },
-      "counts": {
-        "FAIL": 8,
-        "ERROR": 1
-      }
-    },
-    {
-      "run": {
-        "id": 2,
-        "started_at": "2026-09-15T05:00:29.292673+00:00",
-        "finished_at": "2026-09-15T05:02:05.971874+00:00",
-        "trigger": "테스트 진행 VOD:VOD",
-        "status": "done"
-      },
-      "counts": {
-        "PASS": 5,
-        "FAIL": 5,
-        "ERROR": 1
-      }
-    },
-    {
-      "run": {
-        "id": 1,
-        "started_at": "2026-09-15T04:20:29.135913+00:00",
-        "finished_at": "2026-09-15T04:20:39.722028+00:00",
-        "trigger": "테스트 진행:BANNER",
-        "status": "done"
-      },
-      "counts": {
-        "FAIL": 1,
-        "ERROR": 1
       }
     }
   ]

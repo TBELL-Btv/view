@@ -5,20 +5,12 @@
     {
       "file": "live-enter-00-digit.png",
       "tag": "digit",
-      "scene": "zap"
-    },
-    {
-      "file": "live-enter-01-ok.png",
-      "tag": "ok",
       "scene": "mini_epg"
-    },
-    {
-      "file": "live-enter-02-ready.png",
-      "tag": "ready",
-      "scene": "live"
     }
   ],
   "notes": [
-    "audio_multi: 171 채널 입력 → 미니 EPG 확인 → 편성표·맞춤 서비스"
+    "신호 팝업 대기 0",
+    "live-enter-00-digit.png:scene=mini_epg",
+    "goto_live(audio_multi): 171 진입 (unknown)"
   ]
 }
