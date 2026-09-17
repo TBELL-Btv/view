@@ -150,6 +150,11 @@ function render() {
   else if (name === "cases") {
     if (!id) CASE_HIST_RUN = null;
     app.innerHTML = id ? renderCase(id) : renderCases();
+  }   else if (name === "process") {
+    app.innerHTML = renderProcess(id);
+    bind();
+    fillProcessShots();
+    return;
   } else if (name === "runs") app.innerHTML = id ? renderRun(id) : renderHome();
   else app.innerHTML = renderHome();
   bind();
@@ -1676,9 +1681,234 @@ ${(t.steps || []).map((s) => `    ${s.kw}   ${s.text}`).join("\n")}`;
   </section>`;
 }
 
+function fillShotBox(boxId, jsonUrl, dir, labels) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  fetch(jsonUrl, { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : { shots: [] }))
+    .then((data) => {
+      const shots = data.shots || [];
+      if (!shots.length) {
+        box.innerHTML = `<p class="muted">이 단계 실기 샷이 아직 없습니다.</p>`;
+        return;
+      }
+      const ch = data.channel ? ` · 채널 ${escHtml(data.channel)}` : "";
+      const result = data.result
+        ? `<p class="muted">결과 scene=<b>${escHtml(data.result)}</b>${ch}</p>`
+        : "";
+      const figs = shots
+        .map((s) => {
+          const src = dir + s.file;
+          const cap = `${labels[s.tag] || s.tag} · ${s.scene || ""}`;
+          return `<figure class="shot"><img src="${src}" alt="${escHtml(cap)}"><figcaption>${escHtml(cap)} · ${escHtml(s.file)}</figcaption></figure>`;
+        })
+        .join("");
+      box.innerHTML = result + `<div class="shots">${figs}</div>`;
+    })
+    .catch(() => {
+      box.innerHTML = `<p class="muted">샷 목록을 읽지 못했습니다.</p>`;
+    });
+}
+
+function fillProcessShots() {
+  fillShotBox("proc-step-1-shot-list", "data/process/goto-live/shots.json", "data/process/goto-live/", {
+    digit: "171 채널 입력",
+    "digit-0": "171 채널 입력",
+    ok: "[확인] 후 미니 EPG",
+    "mini-epg": "[확인] 후 미니 EPG",
+    ready: "시작 조건 완료",
+  });
+  fillShotBox("proc-step-2-shot-list", "data/process/open-right/shots.json", "data/process/open-right/", {
+    right: "[우] 후 우측 Wing",
+    epg: "미니 EPG",
+    "epg-right": "[우] 미니 EPG",
+    "ai-ok": "Ai 시청 설정 → 확인",
+    "epg-close": "미니 EPG 닫음",
+    retry: "[우] 재시도",
+    wing: "우측 Wing",
+    wake: "미니 EPG",
+    target: "[하]×4 음성 다중 설정",
+    "down-1": "[하] ×1",
+    "down-2": "[하] ×2",
+    "down-3": "[하] ×3",
+    "down-4": "[하] ×4 음성 다중 설정",
+  });
+  fillShotBox("proc-step-4-shot-list", "data/process/assert-layout/shots.json", "data/process/assert-layout/", {
+    ko: "한국어 기본 상세",
+  });
+  fillShotBox("proc-step-5-shot-list", "data/process/audio-multi/shots.json", "data/process/audio-multi/", {
+    body: "본문 슬롯 열림",
+    focus: "[확인] 후 한국어 하늘색 아웃라인",
+    down: "[하] 후 영어 아웃라인",
+    ko: "audio_multi(\"ko\") 한국어 설정",
+    en: "audio_multi(\"en\") 영어 설정",
+  });
+}
+
 function histRow(h, selected) {
   const on = selected ? " on" : "";
   return `<button type="button" class="hist-row${on}" data-hist-run="${escHtml(String(h.run_id))}"><span>${badge(h.verdict)} <b>회차 ${h.run_id}</b> ${when(h.started_at)}</span><span class="muted">${escHtml((h.message || "").slice(0, 80))}</span></button>`;
+}
+
+function renderProcess(id) {
+  const tcId = id || "BTVTC-157249";
+  const gherkin = `# language: ko
+기능: 우측 Wing UI
+  원 TC: BTVTC-157249
+  Page: LiveWingPage
+
+  시나리오: 음성 다중 설정을 확인한다
+    조건   음성 다중 채널(171) 실시간 라이브 화면에 진입한다
+    만일   우측 Wing을 열고 음성 다중 설정까지 이동한다
+    그러면 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다
+    그리고 영어로 설정한다`;
+  const note =
+    tcId !== "BTVTC-157249"
+      ? `<p class="muted">지금은 <b>BTVTC-157249</b>만 풀어 둡니다. 요청하신 TC는 ${escHtml(tcId)}입니다.</p>`
+      : "";
+  return `
+    <article class="card case-sheet proc-sheet">
+      <p class="eyebrow">프로세스 · BTVTC-157249</p>
+      <h1>[LiveTV] 우측 Wing UI &gt; 음성 다중 설정</h1>
+      <div class="tcid">BTVTC-157249 · LiveWingPage · 신호 복구 팝업 샷은 판정에서 제외</div>
+      ${note}
+      <p class="muted tip">1단계는 <code>goto_live("audio_multi")</code>로 171까지 갑니다. 2단계는 <code>open_right("audio_multi")</code>가 우측 Wing을 열고 메뉴 기준 <code>[하]</code> 횟수만큼 내립니다. 5번이 <code>audio_multi("ko"|"en")</code>입니다. 3번은 이번 회차에서 실행하지 않습니다.</p>
+      <p><button class="btn" type="button" data-go="/cases/BTVTC-157249">테스트케이스 보기</button></p>
+
+      <nav class="proc-toc" aria-label="순서 목차">
+        <p class="howto-label">순서 목차</p>
+        <ol>
+          <li><button type="button" data-jump="proc-bdd">BDD — Gherkin이 러너에 들어오는 경로</button></li>
+          <li><button type="button" data-jump="proc-page">Page — LiveWingPage가 하는 일</button></li>
+        </ol>
+      </nav>
+
+      <section class="section proc-section" id="proc-bdd">
+        <h2>1. BDD</h2>
+        <p>BDD는 Markdown TC가 아니라 <code>bdd_map.py</code>의 시나리오 표입니다. 랩이 켜지면 SQLite <code>bdd_scenarios</code>에 심고, <code>bdd_features/BTVTC-157249.feature</code>로 내보냅니다. LIVE 스위트는 그 표를 읽어 <code>run_live_mapped</code>가 문장 순서대로 Page를 부릅니다.</p>
+        <div class="bdd-layers">
+          <span class="flow-node">bdd_map</span><span class="flow-arrow">→</span>
+          <span class="flow-node">SQLite / .feature</span><span class="flow-arrow">→</span>
+          <span class="flow-node">run_live_mapped</span><span class="flow-arrow">→</span>
+          <span class="flow-node">LiveWingPage</span>
+        </div>
+        <p class="howto-label">이 TC의 Gherkin</p>
+        <pre class="gherkin-block">${escHtml(gherkin)}</pre>
+        <table class="proc-table">
+          <thead><tr><th>문장</th><th>Step Definition</th><th>Page</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>조건</b> 음성 다중 채널(171) 실시간 라이브 화면에 진입한다</td>
+              <td><code>goto_live("audio_multi")</code></td>
+              <td><code>LiveWingPage.goto_live</code></td>
+            </tr>
+            <tr>
+              <td><b>만일</b> 우측 Wing을 열고 음성 다중 설정까지 이동한다</td>
+              <td><code>open_right("audio_multi")</code></td>
+              <td><code>LiveWingPage.open_right</code></td>
+            </tr>
+            <tr>
+              <td><b>그러면</b> 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다</td>
+              <td><code>assert_layout()</code></td>
+              <td><code>LiveWingPage.assert_layout</code></td>
+            </tr>
+            <tr>
+              <td><b>그리고</b> 영어로 설정한다</td>
+              <td><code>audio_multi("en")</code></td>
+              <td><code>LiveWingPage.audio_multi</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="muted">매핑 파일: <code>dev/src/ste_btv/runner/bdd_map.py</code> · 실행 함수: <code>runner/bdd_run.py</code> <code>run_live_mapped</code>. 스위트가 <code>LIVE</code> 또는 <code>BTVTC-157249</code>일 때만 이 경로가 탑니다.</p>
+      </section>
+
+      <section class="section proc-section" id="proc-page">
+        <h2>2. Page</h2>
+        <p>페이지 객체는 <code>LiveWingPage</code> 하나입니다. <code>tc_157249</code>가 메뉴를 찾고, 이어서 <code>assert_layout</code>이 <code>live-249.png</code>를 슬롯 OCR로 대조합니다. 골든샷 전체 비교는 하지 않습니다.</p>
+        <table class="proc-table">
+          <thead><tr><th>순서</th><th>메서드</th><th>동작</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="proc-num">
+                  <button type="button" class="proc-toggle" data-toggle="proc-step-1-shots" aria-expanded="false" aria-label="goto_live 샷 펼치기">›</button>
+                  1
+                </div>
+              </td>
+              <td><code>goto_live("audio_multi")</code></td>
+              <td class="proc-desc">음성 다중 채널 171로 실시간 진입. 신호 팝업이 꺼진 뒤에만 샷. 채널 목록<br>→ <code>[확인]</code> 후 미니 EPG(편성표·미니뷰·채널명)가 이동 확인<br>→ 하단 좌측 편성표·우측 맞춤 서비스면 시작 조건 완료. 이 화면에서 <code>[우]</code>가 우측 Wing을 연다.</td>
+            </tr>
+            <tr id="proc-step-1-shots" class="proc-shot-row" hidden>
+              <td colspan="3">
+                <p class="howto-label">goto_live · UI 변경 샷</p>
+                <div id="proc-step-1-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="proc-num">
+                  <button type="button" class="proc-toggle" data-toggle="proc-step-2-shots" aria-expanded="false" aria-label="open_right 샷 펼치기">›</button>
+                  2
+                </div>
+              </td>
+              <td><code>open_right("audio_multi")</code></td>
+              <td class="proc-desc"><code>[우]</code>로 우측 Wing을 연다. 기본 포커스는 볼만한 콘텐츠.<br>→ DB <code>menu_rails</code>의 <code>audio_multi</code> <code>[하]</code> 횟수(4)만큼 내린다.<br>→ 미니 EPG만 뜨면 Ai 시청 설정까지 이동 후 <code>[확인]</code>.</td>
+            </tr>
+            <tr id="proc-step-2-shots" class="proc-shot-row" hidden>
+              <td colspan="3">
+                <p class="howto-label">open_right("audio_multi") · UI 변경 샷</p>
+                <div id="proc-step-2-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+              </td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><code>tc_157249()</code></td>
+              <td class="proc-desc">이번 회차에서는 실행하지 않음. 171에서 메뉴가 없으면 후보 188·987. 그래도 없으면 <b>ERROR</b>(전제 미충족).</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="proc-num">
+                  <button type="button" class="proc-toggle" data-toggle="proc-step-4-shots" aria-expanded="false" aria-label="assert_layout 샷 펼치기">›</button>
+                  4
+                </div>
+              </td>
+              <td><code>assert_layout("live-249.png")</code></td>
+              <td class="proc-desc">화면 종류 <code>right_wing</code>. 신호 팝업이면 ERROR.<br>→ 타이틀 슬롯 <code>음성</code>, 본문 슬롯 <code>한국어</code>. 상세가 걸리고 기본이 한국어인 샷 1장.</td>
+            </tr>
+            <tr id="proc-step-4-shots" class="proc-shot-row" hidden>
+              <td colspan="3">
+                <p class="howto-label">assert_layout · 한국어 기본 상세</p>
+                <div id="proc-step-4-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="proc-num">
+                  <button type="button" class="proc-toggle" data-toggle="proc-step-5-shots" aria-expanded="false" aria-label="audio_multi 샷 펼치기">›</button>
+                  5
+                </div>
+              </td>
+              <td><code>audio_multi("ko")</code><br><code>audio_multi("en")</code></td>
+              <td class="proc-desc">본문 슬롯이 열린 상태에서 <code>[확인]</code>으로 옵션에 들어간다. 한국어에 하늘색 아웃라인이 생긴다.<br>→ <code>ko</code>: <code>[확인]</code>으로 한국어를 설정한다.<br>→ <code>en</code>: <code>[하]</code> 후 <code>[확인]</code>으로 영어를 설정한다.<br>→ 본문 열린 샷 · 아웃라인 샷 · 설정 후 샷.</td>
+            </tr>
+            <tr id="proc-step-5-shots" class="proc-shot-row" hidden>
+              <td colspan="3">
+                <p class="howto-label">audio_multi("ko"|"en") · 설정 샷</p>
+                <div id="proc-step-5-shot-list" class="shots"><p class="muted">샷 목록을 불러오는 중…</p></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="howto-label">채택하는 판정 기준 (expects)</p>
+        <pre class="gherkin-block">layout: right_wing
+shot: live-249.png
+title: ["음성"]
+body: ["한국어"]
+제외: 채널명 · 프로그램명 · 시계 · 방송 본편 픽셀 · 신호 복구 팝업 프레임</pre>
+        <p class="muted">파일: <code>dev/src/ste_btv/pages/wing_live.py</code>. 슬롯 정의는 <code>vision/layout.py</code>의 <code>TEMPLATES["right_wing"]</code>입니다. 방송 영역 <code>live</code>는 화면 종류 확인만 하고 문구 비교에 넣지 않습니다.</p>
+      </section>
+    </article>
+  `;
 }
 
 function renderCase(id) {
@@ -1718,8 +1948,15 @@ function renderCase(id) {
     arts.duration_s || (arts.deferred && arts.deferred.length) || arts.mode
       ? `<p class="muted">시간 ${arts.duration_s ?? "—"}s · 모드 ${escHtml(arts.mode || "미기록")} · 보류 ${escHtml((arts.deferred || []).join(", ") || "없음")}</p>`
       : "";
+  const procLink =
+    tc.id === "BTVTC-157249"
+      ? `<button class="btn" type="button" data-go="/process/BTVTC-157249">프로세스</button>`
+      : "";
   return `
-    <button class="btn" type="button" data-go="/cases">← 테스트케이스</button>
+    <div class="tools">
+      <button class="btn" type="button" data-go="/cases">← 테스트케이스</button>
+      ${procLink}
+    </div>
     <article class="card case-sheet">
       <div class="case-head">
         <div>
@@ -1970,6 +2207,25 @@ function bootChat() {
 function bind() {
   document.querySelectorAll("[data-go]").forEach((el) => {
     el.addEventListener("click", () => go(el.getAttribute("data-go")));
+  });
+  document.querySelectorAll("[data-toggle]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const panel = document.getElementById(el.getAttribute("data-toggle") || "");
+      if (!panel) return;
+      const open = panel.hasAttribute("hidden");
+      if (open) panel.removeAttribute("hidden");
+      else panel.setAttribute("hidden", "");
+      el.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  });
+  document.querySelectorAll("[data-jump]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = document.getElementById(el.getAttribute("data-jump") || "");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   });
   document.querySelectorAll("[data-filter]").forEach((el) => {
     el.addEventListener("click", () => {

@@ -1,0 +1,14 @@
+{
+  "result": "ko",
+  "channel": "171",
+  "shots": [
+    {
+      "file": "assert-layout-00-ko.png",
+      "tag": "ko",
+      "scene": "right"
+    }
+  ],
+  "notes": [
+    "음성 다중 설정 상세 · 한국어 기본"
+  ]
+}

@@ -1777,6 +1777,108 @@ body.chat-open #chat-fab,
   flex-shrink: 0;
 }
 .chat-composer button:hover { filter: brightness(1.05) }
+.proc-sheet {
+  padding: 20px 22px 36px;
+  overflow: hidden;
+}
+.proc-sheet h1 {
+  font-size: 22px;
+  line-height: 28px;
+  margin: 4px 0 6px;
+}
+.proc-sheet .tcid { margin-bottom: 10px }
+.proc-sheet .tip { margin: 0 0 12px; font-size: 13px; line-height: 20px }
+.proc-sheet .bdd-layers { margin: 12px 0 16px }
+.proc-toc {
+  margin: 20px 0 8px;
+  padding: 14px 16px;
+  background: var(--wash);
+  border-radius: var(--radius);
+}
+.proc-toc ol {
+  margin: 6px 0 0;
+  padding-left: 22px;
+}
+.proc-toc li { margin: 4px 0 }
+.proc-toc button {
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.proc-toc button:hover { text-decoration: underline }
+.proc-section {
+  scroll-margin-top: 20px;
+  margin-top: 36px;
+  padding-top: 22px;
+  border-top: 1px solid var(--hairline);
+}
+.proc-section h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 24px;
+}
+.proc-section p { margin: 0 0 10px }
+.proc-table {
+  min-width: 0;
+  margin: 8px 0 14px;
+  font-size: 13px;
+  line-height: 20px;
+}
+.proc-table th,
+.proc-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hairline);
+  text-align: left;
+  vertical-align: top;
+}
+.proc-table th {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--wash);
+}
+.proc-num {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.proc-toggle {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 22px;
+  padding: 0;
+  cursor: pointer;
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+}
+.proc-toggle[aria-expanded="true"] { transform: rotate(90deg); }
+.proc-shot-row td {
+  background: var(--wash);
+  padding: 12px 10px 16px;
+}
+.proc-table td.proc-desc {
+  line-height: 1.5;
+}
+.shot-ph {
+  height: 120px;
+  border-radius: 8px;
+  background: var(--wash);
+  border: 1px dashed var(--hairline);
+}
+.shot-missing figcaption { color: var(--muted); }
+
 @media (max-width: 900px) {
   .layout { display: block }
   .side { position: relative; height: auto }

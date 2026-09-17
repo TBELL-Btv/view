@@ -1,0 +1,36 @@
+{
+  "result": "live",
+  "shots": [
+    {
+      "file": "live-enter-00-before.png",
+      "tag": "before",
+      "scene": "signal"
+    },
+    {
+      "file": "live-enter-01-digit-0.png",
+      "tag": "digit-0",
+      "scene": "live"
+    },
+    {
+      "file": "live-enter-02-ok.png",
+      "tag": "ok",
+      "scene": "signal"
+    },
+    {
+      "file": "live-enter-03-signal-0.png",
+      "tag": "signal-0",
+      "scene": "live"
+    }
+  ],
+  "notes": [
+    "live-enter-00-before.png:screencap",
+    "live-enter-00-before.png:scene=signal",
+    "live-enter-01-digit-0.png:screencap",
+    "live-enter-01-digit-0.png:scene=live",
+    "live-enter-02-ok.png:screencap",
+    "live-enter-02-ok.png:scene=signal",
+    "live-enter-03-signal-0.png:screencap",
+    "live-enter-03-signal-0.png:scene=live",
+    "ensure_live: 0번 진입 live"
+  ]
+}

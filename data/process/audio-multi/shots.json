@@ -1,0 +1,27 @@
+{
+  "result": "ko",
+  "channel": "171",
+  "shots": [
+    {
+      "file": "audio-multi-00-body.png",
+      "tag": "body",
+      "scene": "right"
+    },
+    {
+      "file": "audio-multi-01-focus.png",
+      "tag": "focus",
+      "scene": "right"
+    },
+    {
+      "file": "audio-multi-02-ko.png",
+      "tag": "ko",
+      "scene": "right"
+    }
+  ],
+  "notes": [
+    "본문 슬롯 열림(레일 포커스).",
+    "[확인] 후 한국어 하늘색 아웃라인.",
+    "audio_multi(\"ko\") 두번째 확인 후 한국어 설정.",
+    "en 샷은 본문 진입 후 아래+확인을 다시 캡처해야 함."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "result": "right",
+  "channel": "171",
+  "shots": [
+    {
+      "file": "open-right-00-epg.png",
+      "tag": "epg",
+      "scene": "mini_epg"
+    },
+    {
+      "file": "open-right-01-right.png",
+      "tag": "right",
+      "scene": "right"
+    },
+    {
+      "file": "open-right-02-target.png",
+      "tag": "target",
+      "scene": "right"
+    }
+  ],
+  "notes": [
+    "[우] 우측 Wing",
+    "menu_rails audio_multi [하] x4"
+  ]
+}
