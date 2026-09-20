@@ -815,26 +815,6 @@
     },
     {
       "run": {
-        "id": 30,
-        "started_at": "2026-09-17T07:43:26.586301+00:00",
-        "finished_at": null,
-        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
-        "status": "running"
-      },
-      "counts": {}
-    },
-    {
-      "run": {
-        "id": 29,
-        "started_at": "2026-09-17T07:41:51.592059+00:00",
-        "finished_at": null,
-        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
-        "status": "running"
-      },
-      "counts": {}
-    },
-    {
-      "run": {
         "id": 28,
         "started_at": "2026-09-17T07:35:55.325718+00:00",
         "finished_at": "2026-09-17T07:37:38.426376+00:00",
@@ -944,6 +924,32 @@
         "PASS": 5,
         "ERROR": 1,
         "FAIL": 3
+      }
+    },
+    {
+      "run": {
+        "id": 4,
+        "started_at": "2026-09-15T07:05:48.215510+00:00",
+        "finished_at": "2026-09-15T07:07:50.005711+00:00",
+        "trigger": "실시간 테스트 진행:LIVE",
+        "status": "done"
+      },
+      "counts": {
+        "FAIL": 8,
+        "ERROR": 1
+      }
+    },
+    {
+      "run": {
+        "id": 3,
+        "started_at": "2026-09-15T06:58:03.242272+00:00",
+        "finished_at": "2026-09-15T07:02:24.206384+00:00",
+        "trigger": "실시간 테스트 진행:LIVE",
+        "status": "done"
+      },
+      "counts": {
+        "FAIL": 8,
+        "ERROR": 1
       }
     }
   ]
