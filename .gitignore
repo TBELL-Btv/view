@@ -1,2 +1,6 @@
 .DS_Store
 Thumbs.db
+
+data/shots/**/_ocr/
+data/shots/**/discarded/
+

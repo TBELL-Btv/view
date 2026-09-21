@@ -4,35 +4,46 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Btv 셋톱 UI 자동화</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-  <link rel="stylesheet" href="styles.css?v=20260917y">
+  <link rel="stylesheet" href="styles.css?v=20260921f">
 </head>
 <body>
 <div class="layout">
   <aside class="side">
-    <div class="logo"><img src="favicon-32.png" width="28" height="28" alt="">Btv UI 자동화<small>한눈에 보는 랩 리포트</small></div>
+    <div class="logo"><img src="logo.svg" width="120" height="28" alt="TBELL"><small>Btv UI 자동화</small></div>
     <nav class="nav">
       <button type="button" data-page="home" class="on">홈</button>
       <button type="button" data-page="docs">기획</button>
       <button type="button" data-page="cases">테스트케이스</button>
       <button type="button" data-page="process">프로세스</button>
     </nav>
-    <div class="sidefoot" id="generated">catalog.json 로딩…</div>
+    <div class="sidefoot" id="generated">
+      <img class="sidefoot-img" src="side-footer.webp" width="72" height="auto" alt="">
+      <div class="sidefoot-copy">Copyright 2015-2026. TBELL Corp. All Rights Reserved.</div>
+    </div>
   </aside>
   <main class="main" id="app"></main>
 </div>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="화면 확대">
-  <img alt="">
-  <p class="lightbox-cap"></p>
+  <button type="button" class="lb-hit lb-hit-prev" aria-label="이전 사진" tabindex="-1"></button>
+  <button type="button" class="lb-nav lb-prev" id="lb-prev" aria-label="이전 사진">‹</button>
+  <div class="lb-stage">
+    <img alt="">
+    <p class="lightbox-cap"></p>
+    <p class="lightbox-idx" id="lb-idx" hidden></p>
+  </div>
+  <button type="button" class="lb-nav lb-next" id="lb-next" aria-label="다음 사진">›</button>
+  <button type="button" class="lb-hit lb-hit-next" aria-label="다음 사진" tabindex="-1"></button>
 </div>
 <div id="chat-widget">
   <div id="chat-pop" hidden role="dialog" aria-modal="true" aria-labelledby="chat-title">
     <header class="chat-head">
       <div class="chat-brand">
-        <img src="favicon-32.png" width="22" height="22" alt="">
+        <img src="favicon.svg" width="22" height="22" alt="">
         <div class="chat-brand-text">
           <strong id="chat-title">랩 어시스턴트</strong>
           <span class="chat-mode" id="chat-mode-label">모드를 골라 주세요</span>
@@ -47,11 +58,11 @@
     </form>
   </div>
   <button type="button" id="chat-fab" aria-label="챗봇 열기">
-    <img src="favicon-32.png" width="22" height="22" alt="">
+    <img src="favicon.svg" width="22" height="22" alt="">
     <span>질문</span>
   </button>
 </div>
   <script src="config.js"></script>
-  <script src="app.js?v=20260917y"></script>
+  <script src="app.js?v=20260921f"></script>
 </body>
 </html>

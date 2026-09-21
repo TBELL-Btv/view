@@ -13,6 +13,10 @@ let SEARCH = "";
 const PAGE_SIZE = 10;
 const CASE_PAGES = { home: 1, cases: 1 };
 let CASE_HIST_RUN = null;
+/** 홈 대시보드에 표시할 회차. null이면 최신 회차. */
+let HOME_RUN_ID = null;
+/** 테스트케이스 목록 회차 필터. null이면 최신 회차. */
+let CASES_RUN_ID = null;
 
 function badge(v) {
   if (!v) return `<span class="badge bn">미실행</span>`;
@@ -38,6 +42,58 @@ function countsOf(obj) {
     FAIL: c.FAIL || 0,
     ERROR: c.ERROR || 0,
   };
+}
+
+function latestRunId() {
+  const lr = (CATALOG && CATALOG.latest_run) || {};
+  if (lr.id != null) return String(lr.id);
+  const tl = (CATALOG && CATALOG.timeline) || [];
+  if (tl.length && tl[0].run && tl[0].run.id != null) return String(tl[0].run.id);
+  return "";
+}
+
+function timelineItem(runId) {
+  const want = String(runId || "");
+  return ((CATALOG && CATALOG.timeline) || []).find((x) => String((x.run || {}).id) === want) || null;
+}
+
+function selectedHomeItem() {
+  const want = HOME_RUN_ID != null ? String(HOME_RUN_ID) : latestRunId();
+  return timelineItem(want) || ((CATALOG && CATALOG.timeline) || [])[0] || null;
+}
+
+function selectedCasesItem() {
+  const want = CASES_RUN_ID != null ? String(CASES_RUN_ID) : latestRunId();
+  return timelineItem(want) || ((CATALOG && CATALOG.timeline) || [])[0] || null;
+}
+
+function countsFromResults(results) {
+  const out = { PASS: 0, CHANGE: 0, FAIL: 0, ERROR: 0 };
+  for (const r of results || []) {
+    const v = r.verdict || "";
+    if (v === "PASS_CHANGED" || v === "PASS(변경 감지)") out.CHANGE += 1;
+    else if (v === "PASS") out.PASS += 1;
+    else if (v === "FAIL") out.FAIL += 1;
+    else if (v === "ERROR") out.ERROR += 1;
+  }
+  return out;
+}
+
+function rowsFromRunResults(results) {
+  const byId = Object.fromEntries((caseList() || []).map((tc) => [tc.id, tc]));
+  return (results || []).map((r) => {
+    const base = byId[r.tc_id] || { id: r.tc_id, title: r.title || r.tc_id };
+    return {
+      ...base,
+      latest: {
+        verdict: r.verdict,
+        message: r.message,
+        run_id: r.run_id,
+        started_at: r.started_at,
+        finished_at: r.finished_at,
+      },
+    };
+  });
 }
 
 function verdictKey(v) {
@@ -166,10 +222,10 @@ function render() {
     document.querySelectorAll(".nav button").forEach((b) => {
       b.classList.toggle("on", b.dataset.page === name);
     });
-    const srcLabel = CATALOG && CATALOG.source === "sqlite" ? "랩 SQLite" : "스냅샷";
     const gen = document.getElementById("generated");
-    if (gen) {
-      gen.textContent = CATALOG ? `${srcLabel} · ${when(CATALOG.generated_at)}` : "";
+    if (gen && !gen.querySelector(".sidefoot-copy")) {
+      gen.innerHTML = `<img class="sidefoot-img" src="side-footer.webp" width="64" alt="">
+        <div class="sidefoot-copy">Copyright 2015-2026. TBELL Corp. All Rights Reserved.</div>`;
     }
     if (!CATALOG) {
       app.innerHTML = `<p class="muted">랩에서 publish_view 후 data/catalog.json 이 생깁니다.</p>`;
@@ -292,7 +348,7 @@ function trendChart(timeline) {
     </div>`;
 }
 
-function donutPanel(c) {
+function donutPanel(c, title) {
   const pass = c.PASS || 0;
   const change = c.CHANGE || 0;
   const fail = c.FAIL || 0;
@@ -316,7 +372,7 @@ function donutPanel(c) {
     .join(", ");
   const rate = Math.round(((pass + change) / total) * 100);
   return `<div class="donut-card">
-      <div class="chart-head"><b>최신 테스트 결과</b><span class="muted">통과율 ${rate}%</span></div>
+      <div class="chart-head"><b>${escHtml(title || "최신 테스트 결과")}</b><span class="muted">통과율 ${rate}%</span></div>
       <div class="donut-body">
         <div class="donut" style="background:conic-gradient(${segs || "var(--hairline) 0deg 360deg"})">
           <div class="donut-hole"><strong>${pass + change + fail + error}</strong><span>전체 TC</span></div>
@@ -331,9 +387,23 @@ function donutPanel(c) {
     </div>`;
 }
 
-function coverageTable() {
+function coverageTable(runResults) {
   const cov = CATALOG.coverage || {};
-  const rows = cov.rows || [];
+  let rows = cov.rows || [];
+  if (!rows.length) return "";
+  if (runResults && runResults.length) {
+    const byId = Object.fromEntries(runResults.map((r) => [r.tc_id, r]));
+    rows = rows
+      .filter((r) => byId[r.tc_id])
+      .map((r) => {
+        const hit = byId[r.tc_id];
+        return {
+          ...r,
+          real_judge: hit.verdict || r.real_judge,
+          evidence: hit.message || r.evidence,
+        };
+      });
+  }
   if (!rows.length) return "";
   return `<section class="section">
     <div class="sectionhead"><h2>구현·실기 현황</h2><div class="desc muted">${escHtml(cov.note || "mock PASS ≠ 실기 검증")}</div></div>
@@ -361,33 +431,36 @@ function coverageTable() {
 }
 
 function renderHome() {
-  const run = CATALOG.latest_run || {};
-  const c = tcTally();
+  const item = selectedHomeItem();
+  const run = (item && item.run) || CATALOG.latest_run || {};
+  const results = (item && item.results) || [];
+  const c = results.length ? countsFromResults(results) : countsOf(CATALOG.counts || {});
   const device = CATALOG.device || {};
   const timeline = CATALOG.timeline || [];
   const whenRun = when(run.started_at || CATALOG.generated_at);
-  const latestCounts = countsOf(CATALOG.counts || {});
-  const latestTotal = latestCounts.PASS + latestCounts.CHANGE + latestCounts.FAIL + latestCounts.ERROR;
-  const passShow = latestCounts.PASS + latestCounts.CHANGE;
+  const latestTotal = c.PASS + c.CHANGE + c.FAIL + c.ERROR;
+  const passShow = c.PASS + c.CHANGE;
+  const runLabel = run.id != null ? `#${run.id}회차` : "최신";
+  const homeRows = results.length ? rowsFromRunResults(results) : caseList();
   return `
     <header>
-      <div class="eyebrow">테스트케이스 ${c.total}건</div>
-      <h1>최신 판정</h1>
-      <p class="dash-summary">최근 실행 <b>#${run.id || "—"}</b> · 총 <b>${latestTotal || c.total}</b>건 · PASS <b>${passShow || c.PASS + c.CHANGE}</b>(변경 ${latestCounts.CHANGE || c.CHANGE}) · FAIL <b>${latestCounts.FAIL || c.FAIL}</b> · ERROR <b>${latestCounts.ERROR || c.ERROR}</b> · ${CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록"}</p>
+      <div class="eyebrow">테스트케이스 ${homeRows.length}건</div>
+      <h1>${escHtml(runLabel)} 테스트 결과</h1>
+      <p class="dash-summary">실행 <b>#${run.id || "—"}</b> · 총 <b>${latestTotal || homeRows.length}</b>건 · PASS <b>${passShow}</b>(변경 ${c.CHANGE}) · FAIL <b>${c.FAIL}</b> · ERROR <b>${c.ERROR}</b> · ${CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록"}</p>
     </header>
     <section class="dash-grid">
-      ${donutPanel(c)}
+      ${donutPanel(c, `${runLabel} 테스트 결과`)}
       ${trendChart(timeline)}
     </section>
     <div class="card runinfo">
-      <div class="kv"><span>최근 회차</span><b>#${run.id || "—"} · ${whenRun}${run.trigger ? " · " + run.trigger : ""}</b></div>
+      <div class="kv"><span>선택 회차</span><b>#${run.id || "—"} · ${whenRun}${run.trigger ? " · " + run.trigger : ""}</b></div>
       <div class="kv"><span>대상 단말</span><b>${device.model || "—"} · ${device.serial || ""}</b></div>
       <div class="kv"><span>연결 / 실기검증</span><b>${device.connected ? "연결됨" : "미확인"} / ${device.verified ? "실기 검증 완료" : "실기 미검증"}</b></div>
     </div>
-    ${coverageTable()}
+    ${coverageTable(results)}
     <section class="section">
-      <div class="sectionhead"><h2>테스트케이스</h2><div class="desc muted">${c.total}건 · 각 TC의 최신 판정</div></div>
-      ${caseTable(caseList(), { scope: "home" })}
+      <div class="sectionhead"><h2>테스트케이스</h2><div class="desc muted">${homeRows.length}건 · ${escHtml(runLabel)} 판정</div></div>
+      ${caseTable(homeRows, { scope: "home" })}
     </section>
   `;
 }
@@ -1434,7 +1507,11 @@ function caseList() {
 }
 
 function renderCases() {
-  const rows = caseList().filter((tc) => {
+  const item = selectedCasesItem();
+  const run = (item && item.run) || CATALOG.latest_run || {};
+  const runResults = (item && item.results) || [];
+  const baseRows = runResults.length ? rowsFromRunResults(runResults) : caseList();
+  const rows = baseRows.filter((tc) => {
     const v = (tc.latest && tc.latest.verdict) || "NONE";
     if (FILTER === "all") return true;
     if (FILTER === "NONE") return !tc.latest;
@@ -1450,8 +1527,18 @@ function renderCases() {
     const cls = screenOf(tc);
     return `${tc.id} ${tc.title} ${tc.steps || ""} ${cls.title} ${cls.id} ${tc.start || ""}`.toLowerCase().includes(q);
   });
-  const t = tcTally();
+  const tally = countsFromResults(runResults);
+  const t = {
+    total: baseRows.length,
+    PASS: tally.PASS,
+    CHANGE: tally.CHANGE,
+    FAIL: tally.FAIL,
+    ERROR: tally.ERROR,
+    NONE: Math.max(0, baseRows.length - (tally.PASS + tally.CHANGE + tally.FAIL + tally.ERROR)),
+  };
   const screens = screenOptions();
+  const timeline = CATALOG.timeline || [];
+  const activeRun = CASES_RUN_ID != null ? String(CASES_RUN_ID) : latestRunId();
   const verdictOpts = [
     ["all", `전체 (${t.total})`],
     ["PASS", `PASS (${t.PASS})`],
@@ -1464,9 +1551,21 @@ function renderCases() {
     <div class="page-compact">
     <header>
       <div class="eyebrow">테스트케이스 ${t.total}건</div>
-      <h1>항목과 최신 판정</h1>
+      <h1>#${escHtml(String(run.id || "—"))}회차 판정</h1>
     </header>
     <div class="tools compact-tools">
+      <label class="tool">회차
+        <select id="filter-run">
+          ${timeline
+            .map((x) => {
+              const rid = String((x.run || {}).id || "");
+              const c = countsOf(x.counts);
+              const n = c.PASS + c.CHANGE + c.FAIL + c.ERROR;
+              return `<option value="${escHtml(rid)}" ${activeRun === rid ? "selected" : ""}>#${escHtml(rid)} · ${when((x.run || {}).started_at)} · ${n}건</option>`;
+            })
+            .join("")}
+        </select>
+      </label>
       <label class="tool">판정
         <select id="filter-verdict">
           ${verdictOpts
@@ -1594,15 +1693,103 @@ function isOcrWorkShot(name) {
     .pop();
   if (!n || n.startsWith("_")) return true;
   const stem = n.replace(/\.png$/i, "");
-  if (/-(rail|title|lrail)$/i.test(stem)) return true;
+  if (/-(rail|title|lrail|ch)$/i.test(stem)) return true;
   if (/-body$/i.test(stem) && !/-\d{2}-body$/i.test(stem)) return true;
   return false;
+}
+
+function shotBaseName(src) {
+  return String(src || "")
+    .split(/[/\\]/)
+    .pop() || "";
+}
+
+function readShotUrl(rd, shots) {
+  if (rd.shot_preview === "mock-stub") return "";
+  if (rd.shot_url) return mediaSrc(rd.shot_url);
+  return shotUrlFor(rd.shot, shots);
+}
+
+function pickGalleryShot(st, shots) {
+  const list = (shots || []).filter((s) => !isOcrWorkShot(s));
+  if (!list.length) return "";
+  const blob = `${st.step_def || ""} ${st.page || ""} ${st.text || ""} ${st.kw || ""}`;
+  const pats = [];
+  if (/caption_toggles|자막|caption/i.test(blob)) {
+    pats.push(/caption-(changed|default|toggle|menu)/i, /live-242/i, /assert-layout/i);
+  } else if (/audio_multi|음성|audio/i.test(blob)) {
+    pats.push(/audio-multi/i, /voice-menu/i, /live-249/i, /assert-layout/i);
+  } else if (/assert_layout|타이틀|슬롯/i.test(blob)) {
+    pats.push(/assert-layout|focus/i, /live-24\d/i, /voice-menu|caption-menu/i);
+  } else if (/open_right/i.test(blob)) {
+    pats.push(/open-right/i, /voice-menu|caption-menu/i, /live-24\d/i);
+  } else if (/goto_live/i.test(blob)) {
+    pats.push(/live-enter-ready/i, /live-enter-guide/i, /live-enter/i);
+  }
+  for (const re of pats) {
+    const hits = list.filter((s) => re.test(shotBaseName(s)));
+    if (hits.length) return hits[hits.length - 1];
+  }
+  return list[list.length - 1];
+}
+
+function stepReadsHtml(st, shots) {
+  const reads = st.reads || [];
+  if (!reads.length) return "";
+  const usable = [];
+  const seen = new Set();
+  for (const rd of reads) {
+    const name = shotBaseName(rd.shot || rd.shot_url || "");
+    if (name && isOcrWorkShot(name)) continue;
+    const url = readShotUrl(rd, shots);
+    const key = name || url || String(rd.note || "");
+    if (!key) continue;
+    if (seen.has(key)) {
+      const i = usable.findIndex((x) => (shotBaseName(x.shot || x.shot_url || "") || readShotUrl(x, shots)) === key);
+      if (i >= 0) usable[i] = rd;
+      continue;
+    }
+    seen.add(key);
+    usable.push(rd);
+  }
+  let pick = null;
+  if (usable.length) {
+    pick =
+      [...usable].reverse().find((r) => /슬롯|앵커|대조|focus|hit|판정/i.test(String(r.note || ""))) ||
+      usable[usable.length - 1];
+  } else {
+    pick = reads[reads.length - 1];
+  }
+  const last = reads[reads.length - 1] || pick;
+  let url = pick ? readShotUrl(pick, shots) : "";
+  if (!url || isOcrWorkShot(shotBaseName(pick && (pick.shot || pick.shot_url)))) {
+    const alt = pickGalleryShot(st, shots);
+    if (alt) {
+      pick = {
+        ...(pick || last || {}),
+        shot: shotBaseName(alt),
+        shot_url: alt,
+        shot_preview: undefined,
+      };
+      url = mediaSrc(alt);
+    }
+  }
+  if (!pick) return "";
+  const merged = {
+    ...pick,
+    note: pick.note || last.note,
+    ocr_text: last.ocr_text || pick.ocr_text,
+    anchors: last.anchors || pick.anchors,
+    boxes: last.boxes && last.boxes.length ? last.boxes : pick.boxes,
+    metrics: last.metrics || pick.metrics,
+  };
+  return readCard(merged, shots);
 }
 
 function shotsHtml(paths, highlightLast) {
   const visible = (paths || []).filter((src) => !isOcrWorkShot(src));
   if (!visible.length) return `<p class="muted">첨부 화면 없음</p>`;
-  return `<div class="shots">${visible
+  return `<div class="shots" data-gallery="1">${visible
     .map((src, i) => {
       const name = src.split("/").pop();
       const mark = highlightLast && i === visible.length - 1 ? " · 실패 시점 후보" : "";
@@ -1612,7 +1799,7 @@ function shotsHtml(paths, highlightLast) {
         refGuess && refGuess !== primary
           ? ` onerror="this.onerror=null;this.src='${refGuess.replace(/'/g, "%27")}';"`
           : "";
-      return `<figure class="shot"><img src="${primary}" alt="${escHtml(name)}"${onerr}><figcaption>${escHtml(name)}${mark}</figcaption></figure>`;
+      return `<figure class="shot"><img src="${primary}" alt="${escHtml(name)}" data-lb-i="${i}"${onerr}><figcaption>${escHtml(name)}${mark}</figcaption></figure>`;
     })
     .join("")}</div>`;
 }
@@ -1651,17 +1838,17 @@ function anchorsHtml(anchors) {
 }
 
 function readCard(rd, shots) {
-  let url = rd.shot_url ? mediaSrc(rd.shot_url) : shotUrlFor(rd.shot, shots);
+  let url = readShotUrl(rd, shots);
+  if (isOcrWorkShot(rd.shot || rd.shot_url || url)) url = "";
   if (rd.shot_preview === "mock-stub") url = "";
   const mockBadge =
     rd.shot_preview === "mock-stub" || (rd.metrics && rd.metrics.mock)
       ? `<p class="muted mock-badge">mock 실행 · 슬롯/OCR 기준 (stub PNG는 표시하지 않음)</p>`
       : "";
+  const label = shotBaseName(rd.shot || rd.shot_url || "") || rd.note || "샷";
   const img = url
-    ? `<figure class="shot read-shot"><img src="${url}" alt="${escHtml(rd.shot || "")}"><figcaption>${escHtml(rd.shot || rd.note || "샷")}</figcaption></figure>`
-    : rd.shot
-      ? `<p class="muted read-shot-name">${escHtml(rd.shot)}</p>${mockBadge}`
-      : mockBadge;
+    ? `<figure class="shot read-shot"><img src="${url}" alt="${escHtml(label)}"></figure>`
+    : mockBadge;
   const boxes = (rd.boxes || [])
     .slice(0, 12)
     .map((b) => `${b.text || ""} (${b.confidence != null ? Number(b.confidence).toFixed(2) : "—"})`)
@@ -1676,6 +1863,7 @@ function readCard(rd, shots) {
       <pre class="ocr-text">${escHtml(rd.ocr_text || "(텍스트 없음)")}</pre>
       ${boxes ? `<p class="muted">박스 ${escHtml(boxes)}</p>` : ""}
       ${metrics}
+      ${!url ? mockBadge : ""}
     </div>
   </div>`;
 }
@@ -1701,7 +1889,7 @@ function bddFlowHtml(L, tc) {
   const steps = t.steps
     .map((st) => {
       const keys = (st.keys || []).filter((k) => String(k).startsWith("press")).slice(-10);
-      const reads = (st.reads || []).map((rd) => readCard(rd, shots)).join("");
+      const reads = stepReadsHtml(st, shots);
       const devices = (st.devices || []).map((d) => `${d.action || ""} ${d.detail || ""}`.trim()).join(" · ");
       const stBadge =
         st.status === "FAIL" ? badge("FAIL") : st.status === "ERROR" ? badge("ERROR") : st.status === "PASS" ? badge("PASS") : "";
@@ -1898,6 +2086,8 @@ function processCycleHtml() {
 
 function renderProcess(id) {
   const tcId = id || "BTVTC-157249";
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
+  const L = tc.latest || {};
   const gherkin = `# language: ko
 기능: 우측 Wing UI
   원 TC: BTVTC-157249
@@ -1906,7 +2096,7 @@ function renderProcess(id) {
   시나리오: 음성 다중 설정을 확인한다
     조건   음성 다중 채널(171) 실시간 라이브 화면에 진입한다
     만일   우측 Wing을 열고 음성 다중 설정까지 이동한다
-    그러면 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다
+    그러면 타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다
     그리고 영어로 설정한다`;
   const note =
     tcId !== "BTVTC-157249"
@@ -1919,6 +2109,7 @@ function renderProcess(id) {
       <div class="tcid">BTVTC-157249 · LiveWingPage · 신호 복구 팝업 샷은 판정에서 제외</div>
       ${note}
       ${processCycleHtml()}
+      ${bddFlowHtml(L, tc)}
       <p class="muted tip">1단계는 <code>goto_live("audio_multi")</code>가 <b>0 → 171</b>로 들어갑니다. 도착 후 미니 EPG 5초, 이어서 <b>라이브 안내보기</b>(하단 좌측 편성표 · 우측 맞춤 서비스) 5초를 기다립니다. 안내보기가 꺼지기 1초 전에 신호 복구 팝업이 뜨면 꺼질 때까지 기다린 다음 <code>[우]</code>로 우측 Wing을 엽니다. 번호 토글을 열면 <b>왼쪽이 기준 사진</b>, <b>오른쪽이 마지막 실행 샷</b>입니다. 3번은 이번 회차에서 실행하지 않습니다.</p>
       <p><a class="btn" href="#/cases/BTVTC-157249" data-go="/cases/BTVTC-157249">테스트케이스 보기</a></p>
 
@@ -1955,7 +2146,7 @@ function renderProcess(id) {
               <td><code>LiveWingPage.open_right</code></td>
             </tr>
             <tr>
-              <td><b>그러면</b> 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다</td>
+              <td><b>그러면</b> 타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다</td>
               <td><code>assert_layout()</code></td>
               <td><code>LiveWingPage.assert_layout</code></td>
             </tr>
@@ -2426,10 +2617,22 @@ function bind() {
       dot.addEventListener("click", (e) => {
         e.stopPropagation();
         const rid = dot.getAttribute("data-run");
-        if (rid) go(`/runs/${rid}`);
+        if (!rid) return;
+        HOME_RUN_ID = rid;
+        CASES_RUN_ID = rid;
+        go("/home");
       });
     });
     wrap.addEventListener("mouseleave", hideTips);
+  }
+  const runFilter = document.getElementById("filter-run");
+  if (runFilter) {
+    runFilter.addEventListener("change", () => {
+      CASES_RUN_ID = runFilter.value || null;
+      HOME_RUN_ID = CASES_RUN_ID;
+      CASE_PAGES.cases = 1;
+      render();
+    });
   }
   const verdict = document.getElementById("filter-verdict");
   if (verdict) {
@@ -2503,20 +2706,56 @@ function bind() {
   });
 }
 
+let LB_ITEMS = [];
+let LB_INDEX = 0;
+
 function lightbox() {
   return document.getElementById("lightbox");
 }
 
-function openLightbox(src, cap) {
+function showLightboxAt(i) {
   const box = lightbox();
-  if (!box || !src) return;
-  const img = box.querySelector("img");
-  img.src = src;
-  img.alt = cap || "";
-  box.querySelector(".lightbox-cap").textContent = cap || "";
+  if (!box || !LB_ITEMS.length) return;
+  LB_INDEX = ((i % LB_ITEMS.length) + LB_ITEMS.length) % LB_ITEMS.length;
+  const item = LB_ITEMS[LB_INDEX];
+  const img = box.querySelector(".lb-stage img") || box.querySelector("img");
+  img.src = item.src;
+  img.alt = item.cap || "";
+  const cap = box.querySelector(".lightbox-cap");
+  if (cap) cap.textContent = item.cap || "";
+  const idx = document.getElementById("lb-idx");
+  if (idx) {
+    idx.hidden = LB_ITEMS.length < 2;
+    idx.textContent = `${LB_INDEX + 1} / ${LB_ITEMS.length}`;
+  }
+  const multi = LB_ITEMS.length > 1;
+  ["lb-prev", "lb-next"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !multi;
+  });
+  box.querySelectorAll(".lb-hit").forEach((el) => {
+    el.style.pointerEvents = multi ? "auto" : "none";
+  });
   box.classList.add("on");
   box.removeAttribute("hidden");
   document.body.classList.add("lb-open");
+}
+
+function openLightbox(src, cap, gallery) {
+  if (!src) return;
+  if (Array.isArray(gallery) && gallery.length) {
+    LB_ITEMS = gallery;
+    const i = gallery.findIndex((g) => g.src === src);
+    showLightboxAt(i < 0 ? 0 : i);
+    return;
+  }
+  LB_ITEMS = [{ src, cap: cap || "" }];
+  showLightboxAt(0);
+}
+
+function stepLightbox(delta) {
+  if (!LB_ITEMS.length || LB_ITEMS.length < 2) return;
+  showLightboxAt(LB_INDEX + delta);
 }
 
 function closeLightbox() {
@@ -2524,8 +2763,11 @@ function closeLightbox() {
   if (!box || !box.classList.contains("on")) return;
   box.classList.remove("on");
   box.setAttribute("hidden", "");
-  box.querySelector("img").removeAttribute("src");
+  const img = box.querySelector(".lb-stage img") || box.querySelector("img");
+  if (img) img.removeAttribute("src");
   document.body.classList.remove("lb-open");
+  LB_ITEMS = [];
+  LB_INDEX = 0;
 }
 
 document.querySelectorAll(".nav button").forEach((b) => {
@@ -2538,6 +2780,19 @@ window.addEventListener("hashchange", () => {
 document.addEventListener("click", (e) => {
   const box = lightbox();
   if (box && box.classList.contains("on")) {
+    if (e.target.closest("#lb-prev") || e.target.closest(".lb-hit-prev")) {
+      e.preventDefault();
+      e.stopPropagation();
+      stepLightbox(-1);
+      return;
+    }
+    if (e.target.closest("#lb-next") || e.target.closest(".lb-hit-next")) {
+      e.preventDefault();
+      e.stopPropagation();
+      stepLightbox(1);
+      return;
+    }
+    if (e.target.closest(".lb-stage")) return;
     if (e.target === box) closeLightbox();
     return;
   }
@@ -2548,15 +2803,36 @@ document.addEventListener("click", (e) => {
   const img = e.target.closest(".shot img, .ui-shot img");
   if (!img) return;
   e.preventDefault();
-  openLightbox(img.currentSrc || img.src, img.alt || "");
+  const galleryRoot = img.closest("[data-gallery]");
+  let gallery = null;
+  if (galleryRoot) {
+    gallery = [...galleryRoot.querySelectorAll("img")].map((el) => ({
+      src: el.currentSrc || el.src,
+      cap: el.alt || "",
+    }));
+  }
+  openLightbox(img.currentSrc || img.src, img.alt || "", gallery);
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
   const lb = document.getElementById("lightbox");
-  if (lb && !lb.hidden) {
-    closeLightbox();
+  if (lb && !lb.hidden && lb.classList.contains("on")) {
+    if (e.key === "Escape") {
+      closeLightbox();
+      return;
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      stepLightbox(-1);
+      return;
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      stepLightbox(1);
+      return;
+    }
     return;
   }
+  if (e.key !== "Escape") return;
   const pop = document.getElementById("chat-pop");
   if (pop && !pop.hidden) closeChat();
 });

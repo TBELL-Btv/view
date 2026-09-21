@@ -1,143 +1,150 @@
 {
   "source": "snapshot",
   "run": {
-    "id": 31,
-    "started_at": "2026-09-17T07:45:54.624686+00:00",
-    "finished_at": "2026-09-17T07:47:32.458952+00:00",
-    "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
+    "id": 46,
+    "started_at": "2026-09-21T02:48:53.434253+00:00",
+    "finished_at": "2026-09-21T02:57:05.594164+00:00",
+    "trigger": "cycle:BTVTC-157249-CHANGED,BTVTC-157249-DEFAULT,BTVTC-157242-CHANGED,BTVTC-157242-DEFAULT:CUSTOM:real",
     "status": "done"
   },
   "counts": {
-    "PASS": 1
+    "PASS": 4
   },
   "results": [
     {
-      "tc_id": "BTVTC-157249",
-      "title": "음성 다중 설정을 확인한다",
+      "tc_id": "BTVTC-157249-CHANGED",
+      "title": "음성 다중 설정을 영어(변경)로 확인한다",
       "verdict": "PASS",
-      "message": "슬롯 확인 ['title/음성', 'body/한국어'] · live-249.png · audio_multi(en)",
-      "run_id": 31,
-      "started_at": "2026-09-17T07:45:54.624686+00:00",
-      "finished_at": "2026-09-17T07:47:32.458952+00:00",
-      "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
+      "message": "슬롯 확인 ['title/음성'] · live-249.png · audio_multi(en)",
+      "run_id": 46,
+      "started_at": "2026-09-21T02:48:53.434253+00:00",
+      "finished_at": "2026-09-21T02:57:05.594164+00:00",
+      "trigger": "cycle:BTVTC-157249-CHANGED,BTVTC-157249-DEFAULT,BTVTC-157242-CHANGED,BTVTC-157242-DEFAULT:CUSTOM:real",
       "shots": [
-        "data/shots/run-31/live-249.png",
-        "data/shots/run-31/assert-layout-00-ko.png",
-        "data/shots/run-31/audio-multi-00-body.png",
-        "data/shots/run-31/audio-multi-01-focus.png",
-        "data/shots/run-31/audio-multi-02-down.png",
-        "data/shots/run-31/audio-multi-03-en.png",
-        "data/shots/run-31/live-enter-00-hub.png",
-        "data/shots/run-31/live-enter-01-digit.png",
-        "data/shots/run-31/live-enter-02-guide.png",
-        "data/shots/run-31/live-enter-03-ready.png",
-        "data/shots/run-31/open-right-00-right.png",
-        "data/shots/run-31/open-right-01-down-1.png",
-        "data/shots/run-31/open-right-02-down-2.png",
-        "data/shots/run-31/open-right-03-down-3.png",
-        "data/shots/run-31/open-right-04-down-4.png"
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-00-live-enter-hub.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-01-live-enter-digit.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-02-live-enter-guide.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-03-live-enter-ready.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-04-open-right-right.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-05-open-right-down-1.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-06-open-right-down-2.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-07-open-right-down-3.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-08-open-right-down-4.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-09-voice-menu-hit.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-10-assert-layout-focus.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/live-249.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-11-audio-multi-body.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-12-audio-multi-focus.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-13-audio-multi-down.png",
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-14-audio-multi-en.png"
       ],
       "artifacts": {
         "keys": [
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "press:RIGHT:22",
-          "wait:1200",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "press:DOWN:20",
           "wait:450",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "press:DOWN:20",
           "wait:450",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "press:DOWN:20",
-          "wait:450",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "press:DOWN:20",
-          "wait:450",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "press:OK:23",
           "wait:600",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "press:DOWN:20",
           "wait:450",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
           "press:OK:23",
           "wait:700",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-          "wait:1000",
-          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
         ],
         "notes": [
           "채널 이동 0 확정 후 171",
-          "live-enter-00-hub.png:scene=live",
-          "live-enter-01-digit.png:scene=live",
+          "BTVTC-157249-CHANGED-00-live-enter-hub.png:scene=live",
+          "BTVTC-157249-CHANGED-01-live-enter-digit.png:scene=live",
           "미니 EPG 5초 대기",
-          "live-enter-02-guide.png:scene=live_guide",
+          "BTVTC-157249-CHANGED-02-live-enter-guide.png:scene=live_guide",
           "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
           "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
           "settle: 신호 팝업 대기 1/8",
           "settle: 신호 팝업 대기 2/8",
           "settle: 신호 팝업 대기 3/8",
           "settle: 신호 팝업 해제",
-          "live-enter-03-ready.png:scene=live",
+          "BTVTC-157249-CHANGED-03-live-enter-ready.png:scene=live",
+          "채널 확인 171 tokens=['171']",
           "goto_live(audio_multi): 0→171 진입 (live)",
           "RIGHT: 우측 Wing 시도",
-          "open-right-00-right.png:scene=right",
-          "우측 레일: 음성 다중 메뉴 있음",
-          "open_right(audio_multi): [하]×4",
+          "BTVTC-157249-CHANGED-04-open-right-right.png:scene=right",
           "down-1: 신호 팝업 대기 1/8",
           "down-1: 신호 팝업 해제",
-          "open-right-01-down-1.png:scene=live",
-          "open-right-02-down-2.png:scene=live",
-          "open-right-03-down-3.png:scene=live",
+          "BTVTC-157249-CHANGED-05-open-right-down-1.png:scene=live",
+          "down-2: 신호 팝업 대기 1/8",
+          "down-2: 신호 팝업 대기 2/8",
+          "down-2: 신호 팝업 해제",
+          "BTVTC-157249-CHANGED-06-open-right-down-2.png:scene=live",
+          "BTVTC-157249-CHANGED-07-open-right-down-3.png:scene=live",
           "down-4: 신호 팝업 대기 1/8",
-          "down-4: 신호 팝업 대기 2/8",
           "down-4: 신호 팝업 해제",
-          "open-right-04-down-4.png:scene=live",
-          "assert-layout-00-ko.png:scene=right",
-          "audio-multi-00-body.png:scene=live",
-          "audio-multi-01-focus.png:scene=live",
-          "audio-multi-02-down.png:scene=live",
-          "audio-set: 신호 팝업 대기 1/8",
-          "audio-set: 신호 팝업 대기 2/8",
-          "audio-set: 신호 팝업 대기 3/8",
-          "audio-set: 신호 팝업 해제",
-          "audio-multi-03-en.png:scene=live",
+          "BTVTC-157249-CHANGED-08-open-right-down-4.png:scene=live",
+          "BTVTC-157249-CHANGED-09-voice-menu-hit.png:scene=right",
+          "BTVTC-157249-CHANGED-10-assert-layout-focus.png:scene=right",
+          "body: 신호 팝업 대기 1/8",
+          "body: 신호 팝업 대기 2/8",
+          "body: 신호 팝업 대기 3/8",
+          "body: 신호 팝업 해제",
+          "BTVTC-157249-CHANGED-11-audio-multi-body.png:scene=live",
+          "focus: 신호 팝업 대기 1/8",
+          "focus: 신호 팝업 해제",
+          "BTVTC-157249-CHANGED-12-audio-multi-focus.png:scene=live",
+          "BTVTC-157249-CHANGED-13-audio-multi-down.png:scene=live",
+          "BTVTC-157249-CHANGED-14-audio-multi-en.png:scene=live",
           "audio_multi(en)"
         ],
         "shots": [
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-249.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-00-hub.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-01-digit.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-02-guide.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\live-enter-03-ready.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-00-right.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-01-down-1.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-02-down-2.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-03-down-3.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\open-right-04-down-4.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\assert-layout-00-ko.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-00-body.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-01-focus.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-02-down.png",
-          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\audio-multi-03-en.png"
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-00-live-enter-hub.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-01-live-enter-digit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-02-live-enter-guide.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-03-live-enter-ready.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-04-open-right-right.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-05-open-right-down-1.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-06-open-right-down-2.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-07-open-right-down-3.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-08-open-right-down-4.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-09-voice-menu-hit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-10-assert-layout-focus.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\live-249.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-11-audio-multi-body.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-12-audio-multi-focus.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-13-audio-multi-down.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\BTVTC-157249-CHANGED-14-audio-multi-en.png"
         ],
         "adb_scope": [
           "음성 다중 채널 전제",
-          "타이틀·본문 슬롯"
+          "타이틀·본문 슬롯",
+          "영어 변경"
         ],
         "deferred": [],
         "judges": [
@@ -153,31 +160,31 @@
             "slot": "title"
           },
           {
-            "target": "한국어 옵션",
+            "target": "영어 옵션",
             "method": "slot OCR body",
             "on_fail": "FAIL",
             "slot": "body"
           }
         ],
-        "duration_s": 92.88,
+        "duration_s": 132.44,
         "timeout_s": 300,
         "mode": "real",
-        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157249\n  Page: LiveWingPage\n\n  시나리오: 음성 다중 설정을 확인한다\n    조건   0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다\n    만일   우측 Wing을 열고 음성 다중 설정까지 이동한다\n    그러면 타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다\n    그리고 영어로 설정한다\n",
+        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157249-CHANGED\n  Page: LiveWingPage\n\n  시나리오: 음성 다중 설정을 영어(변경)로 확인한다\n    조건   0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다\n    만일   우측 Wing을 열고 음성 다중 설정까지 이동한다\n    그러면 타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다\n    그리고 영어로 설정한다\n",
         "bdd": {
-          "tc_id": "BTVTC-157249",
+          "tc_id": "BTVTC-157249-CHANGED",
           "feature": "우측 Wing UI",
-          "scenario": "음성 다중 설정을 확인한다",
+          "scenario": "음성 다중 설정을 영어(변경)로 확인한다",
           "page": "LiveWingPage",
           "given": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
           "when": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
-          "then": "타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다",
-          "page_fn": "LiveWingPage.open_right → assert_layout → audio_multi",
+          "then": "타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다",
+          "page_fn": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
           "method": "tc_157249"
         },
         "trace": {
-          "tc_id": "BTVTC-157249",
+          "tc_id": "BTVTC-157249-CHANGED",
           "feature": "우측 Wing UI",
-          "scenario": "음성 다중 설정을 확인한다",
+          "scenario": "음성 다중 설정을 영어(변경)로 확인한다",
           "page": "LiveWingPage",
           "flow": [
             "Gherkin",
@@ -193,30 +200,40 @@
               "step_def": "goto_live(\"audio_multi\")",
               "page": "LiveWingPage.goto_live",
               "keys": [
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:0:7",
                 "wait:180",
                 "wait:2500",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:1:8",
                 "press:7:14",
                 "press:1:8",
                 "wait:180",
                 "wait:350",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:5000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:4000",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
               ],
-              "reads": [],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "BTVTC-157249-CHANGED-01-live-enter-digit-ch.png",
+                  "ocr_text": "171카토네트위크프로방송신호가고르지않아자동복구름시도중입니다.복구가완료되면이메시지논사라집니다",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "live_mini_epg.channel_info"
+                }
+              ],
               "devices": [
                 {
                   "action": "goto_live",
@@ -230,32 +247,35 @@
               "kw": "만일",
               "text": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
               "step_def": "open_right(\"audio_multi\")",
-              "page": "LiveWingPage.open_right → assert_layout → audio_multi",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
               "keys": [
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:RIGHT:22",
                 "wait:1200",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:DOWN:20",
                 "wait:450",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:DOWN:20",
                 "wait:450",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "press:DOWN:20",
-                "wait:450",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "press:DOWN:20",
-                "wait:450",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
               ],
               "reads": [],
               "devices": [],
@@ -264,9 +284,9 @@
             },
             {
               "kw": "그러면",
-              "text": "타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다",
+              "text": "타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다",
               "step_def": "assert_layout()",
-              "page": "LiveWingPage.open_right → assert_layout → audio_multi",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
               "keys": [],
               "reads": [
                 {
@@ -295,7 +315,7 @@
                         "vod_overlay": []
                       },
                       "metrics": {
-                        "progress_fill": 0.097,
+                        "progress_fill": 0.0,
                         "live_luma": 1.1,
                         "home_markers_top": 0
                       },
@@ -312,7 +332,7 @@
                 {
                   "kind": "read",
                   "shot": "live-249.png",
-                  "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 에이닷~ 뉴스 틀어쥐 버튼 클리 'MEWs\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
+                  "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
                   "boxes": [
                     {
                       "text": "음성 다중 설정",
@@ -375,23 +395,18 @@
                       "box": null
                     },
                     {
-                      "text": "에이닷~",
-                      "confidence": 0.7837284308116252,
+                      "text": "불루키누르면",
+                      "confidence": 0.729084519582041,
                       "box": null
                     },
                     {
-                      "text": "뉴스 틀어쥐",
-                      "confidence": 0.8405810434286992,
+                      "text": "선물이광평",
+                      "confidence": 0.4374408327450115,
                       "box": null
                     },
                     {
-                      "text": "버튼 클리",
-                      "confidence": 0.2994376615572044,
-                      "box": null
-                    },
-                    {
-                      "text": "'MEWs",
-                      "confidence": 0.25494576431799776,
+                      "text": "불무키 클렉",
+                      "confidence": 0.49578115628372704,
                       "box": null
                     },
                     {
@@ -401,12 +416,11 @@
                     }
                   ],
                   "anchors": {
-                    "title/음성": true,
-                    "body/한국어": true
+                    "title/음성": true
                   },
                   "metrics": {
                     "layout": "right_wing",
-                    "template": "layout=right_wing ui=25 dark=1",
+                    "template": "layout=right_wing ui=29 dark=1",
                     "focus_band": null,
                     "slots": [
                       "toast",
@@ -428,26 +442,38 @@
               "kw": "그리고",
               "text": "영어로 설정한다",
               "step_def": "audio_multi(\"en\")",
-              "page": "LiveWingPage.audio_multi",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
               "keys": [
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:OK:23",
                 "wait:600",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:DOWN:20",
                 "wait:450",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
                 "press:OK:23",
                 "wait:700",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-                "wait:1000",
-                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
               ],
-              "reads": [],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "한국어영어",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                }
+              ],
               "devices": [],
               "status": "PASS",
               "detail": ""
@@ -455,71 +481,87 @@
           ]
         },
         "compare": {
-          "prev_run": 30,
-          "curr_run": 31,
-          "changed": false,
-          "suspect": false,
-          "verdict": "MATCH",
-          "pairs": 7
+          "prev_run": 42,
+          "curr_run": 46,
+          "changed": true,
+          "suspect": true,
+          "verdict": "SUSPECT",
+          "pairs": 11
         },
-        "ai_review": null,
+        "ai_review": {
+          "ok": false,
+          "changed": false,
+          "opinion": "AI 응답 없음",
+          "pairs": 1,
+          "model": "gemini-2.0-flash"
+        },
         "process_log": {
-          "run_id": 31,
-          "tc_id": "BTVTC-157249",
+          "run_id": 46,
+          "tc_id": "BTVTC-157249-CHANGED",
           "verdict": "PASS",
-          "message": "슬롯 확인 ['title/음성', 'body/한국어'] · live-249.png · audio_multi(en)",
+          "message": "슬롯 확인 ['title/음성'] · live-249.png · audio_multi(en)",
           "notes": [
             "채널 이동 0 확정 후 171",
-            "live-enter-00-hub.png:scene=live",
-            "live-enter-01-digit.png:scene=live",
+            "BTVTC-157249-CHANGED-00-live-enter-hub.png:scene=live",
+            "BTVTC-157249-CHANGED-01-live-enter-digit.png:scene=live",
             "미니 EPG 5초 대기",
-            "live-enter-02-guide.png:scene=live_guide",
+            "BTVTC-157249-CHANGED-02-live-enter-guide.png:scene=live_guide",
             "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
             "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
             "settle: 신호 팝업 대기 1/8",
             "settle: 신호 팝업 대기 2/8",
             "settle: 신호 팝업 대기 3/8",
             "settle: 신호 팝업 해제",
-            "live-enter-03-ready.png:scene=live",
+            "BTVTC-157249-CHANGED-03-live-enter-ready.png:scene=live",
+            "채널 확인 171 tokens=['171']",
             "goto_live(audio_multi): 0→171 진입 (live)",
             "RIGHT: 우측 Wing 시도",
-            "open-right-00-right.png:scene=right",
-            "우측 레일: 음성 다중 메뉴 있음",
-            "open_right(audio_multi): [하]×4",
+            "BTVTC-157249-CHANGED-04-open-right-right.png:scene=right",
             "down-1: 신호 팝업 대기 1/8",
             "down-1: 신호 팝업 해제",
-            "open-right-01-down-1.png:scene=live",
-            "open-right-02-down-2.png:scene=live",
-            "open-right-03-down-3.png:scene=live",
+            "BTVTC-157249-CHANGED-05-open-right-down-1.png:scene=live",
+            "down-2: 신호 팝업 대기 1/8",
+            "down-2: 신호 팝업 대기 2/8",
+            "down-2: 신호 팝업 해제",
+            "BTVTC-157249-CHANGED-06-open-right-down-2.png:scene=live",
+            "BTVTC-157249-CHANGED-07-open-right-down-3.png:scene=live",
             "down-4: 신호 팝업 대기 1/8",
-            "down-4: 신호 팝업 대기 2/8",
             "down-4: 신호 팝업 해제",
-            "open-right-04-down-4.png:scene=live",
-            "assert-layout-00-ko.png:scene=right",
-            "audio-multi-00-body.png:scene=live",
-            "audio-multi-01-focus.png:scene=live",
-            "audio-multi-02-down.png:scene=live",
-            "audio-set: 신호 팝업 대기 1/8",
-            "audio-set: 신호 팝업 대기 2/8",
-            "audio-set: 신호 팝업 대기 3/8",
-            "audio-set: 신호 팝업 해제",
-            "audio-multi-03-en.png:scene=live",
+            "BTVTC-157249-CHANGED-08-open-right-down-4.png:scene=live",
+            "BTVTC-157249-CHANGED-09-voice-menu-hit.png:scene=right",
+            "BTVTC-157249-CHANGED-10-assert-layout-focus.png:scene=right",
+            "body: 신호 팝업 대기 1/8",
+            "body: 신호 팝업 대기 2/8",
+            "body: 신호 팝업 대기 3/8",
+            "body: 신호 팝업 해제",
+            "BTVTC-157249-CHANGED-11-audio-multi-body.png:scene=live",
+            "focus: 신호 팝업 대기 1/8",
+            "focus: 신호 팝업 해제",
+            "BTVTC-157249-CHANGED-12-audio-multi-focus.png:scene=live",
+            "BTVTC-157249-CHANGED-13-audio-multi-down.png:scene=live",
+            "BTVTC-157249-CHANGED-14-audio-multi-en.png:scene=live",
             "audio_multi(en)"
           ],
           "compare": {
-            "suspect": false,
-            "verdict": "MATCH",
-            "prev_run": 30,
-            "curr_run": 31,
-            "pairs": 7
+            "suspect": true,
+            "verdict": "SUSPECT",
+            "prev_run": 42,
+            "curr_run": 46,
+            "pairs": 11
           },
-          "ai_review": null
+          "ai_review": {
+            "ok": false,
+            "changed": false,
+            "opinion": "AI 응답 없음",
+            "pairs": 1,
+            "model": "gemini-2.0-flash"
+          }
         }
       },
       "trace": {
-        "tc_id": "BTVTC-157249",
+        "tc_id": "BTVTC-157249-CHANGED",
         "feature": "우측 Wing UI",
-        "scenario": "음성 다중 설정을 확인한다",
+        "scenario": "음성 다중 설정을 영어(변경)로 확인한다",
         "page": "LiveWingPage",
         "flow": [
           "Gherkin",
@@ -535,30 +577,41 @@
             "step_def": "goto_live(\"audio_multi\")",
             "page": "LiveWingPage.goto_live",
             "keys": [
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:0:7",
               "wait:180",
               "wait:2500",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:1:8",
               "press:7:14",
               "press:1:8",
               "wait:180",
               "wait:350",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:5000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:4000",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
             ],
-            "reads": [],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "BTVTC-157249-CHANGED-01-live-enter-digit-ch.png",
+                "ocr_text": "171카토네트위크프로방송신호가고르지않아자동복구름시도중입니다.복구가완료되면이메시지논사라집니다",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "live_mini_epg.channel_info",
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
+              }
+            ],
             "devices": [
               {
                 "action": "goto_live",
@@ -572,32 +625,35 @@
             "kw": "만일",
             "text": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
             "step_def": "open_right(\"audio_multi\")",
-            "page": "LiveWingPage.open_right → assert_layout → audio_multi",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
             "keys": [
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:RIGHT:22",
               "wait:1200",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:DOWN:20",
               "wait:450",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:DOWN:20",
               "wait:450",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-              "press:DOWN:20",
-              "wait:450",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-              "press:DOWN:20",
-              "wait:450",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
             ],
             "reads": [],
             "devices": [],
@@ -606,9 +662,9 @@
           },
           {
             "kw": "그러면",
-            "text": "타이틀·본문 슬롯에서 음성 다중 또는 한국어 옵션이 확인된다",
+            "text": "타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다",
             "step_def": "assert_layout()",
-            "page": "LiveWingPage.open_right → assert_layout → audio_multi",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
             "keys": [],
             "reads": [
               {
@@ -637,7 +693,7 @@
                       "vod_overlay": []
                     },
                     "metrics": {
-                      "progress_fill": 0.097,
+                      "progress_fill": 0.0,
                       "live_luma": 1.1,
                       "home_markers_top": 0
                     },
@@ -650,12 +706,12 @@
                   }
                 },
                 "note": "화면 전제 (extract)",
-                "shot_url": "data/shots/run-31/live-249.png"
+                "shot_url": "data/shots/run-46/BTVTC-157249-CHANGED/live-249.png"
               },
               {
                 "kind": "read",
                 "shot": "live-249.png",
-                "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 에이닷~ 뉴스 틀어쥐 버튼 클리 'MEWs\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
+                "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
                 "boxes": [
                   {
                     "text": "음성 다중 설정",
@@ -718,23 +774,18 @@
                     "box": null
                   },
                   {
-                    "text": "에이닷~",
-                    "confidence": 0.7837284308116252,
+                    "text": "불루키누르면",
+                    "confidence": 0.729084519582041,
                     "box": null
                   },
                   {
-                    "text": "뉴스 틀어쥐",
-                    "confidence": 0.8405810434286992,
+                    "text": "선물이광평",
+                    "confidence": 0.4374408327450115,
                     "box": null
                   },
                   {
-                    "text": "버튼 클리",
-                    "confidence": 0.2994376615572044,
-                    "box": null
-                  },
-                  {
-                    "text": "'MEWs",
-                    "confidence": 0.25494576431799776,
+                    "text": "불무키 클렉",
+                    "confidence": 0.49578115628372704,
                     "box": null
                   },
                   {
@@ -744,12 +795,11 @@
                   }
                 ],
                 "anchors": {
-                  "title/음성": true,
-                  "body/한국어": true
+                  "title/음성": true
                 },
                 "metrics": {
                   "layout": "right_wing",
-                  "template": "layout=right_wing ui=25 dark=1",
+                  "template": "layout=right_wing ui=29 dark=1",
                   "focus_band": null,
                   "slots": [
                     "toast",
@@ -761,7 +811,7 @@
                   ]
                 },
                 "note": "슬롯 앵커 대조",
-                "shot_url": "data/shots/run-31/live-249.png"
+                "shot_url": "data/shots/run-46/BTVTC-157249-CHANGED/live-249.png"
               }
             ],
             "devices": [],
@@ -772,26 +822,2577 @@
             "kw": "그리고",
             "text": "영어로 설정한다",
             "step_def": "audio_multi(\"en\")",
-            "page": "LiveWingPage.audio_multi",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi(en)",
             "keys": [
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:OK:23",
               "wait:600",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:DOWN:20",
               "wait:450",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png",
               "press:OK:23",
               "wait:700",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-CHANGED\\_frame.png"
+            ],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "한국어영어",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
+              }
+            ],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          }
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-157249-DEFAULT",
+      "title": "음성 다중 설정을 한국어(기본)로 확인한다",
+      "verdict": "PASS",
+      "message": "슬롯 확인 ['title/음성'] · live-249.png · audio_multi(ko)",
+      "run_id": 46,
+      "started_at": "2026-09-21T02:48:53.434253+00:00",
+      "finished_at": "2026-09-21T02:57:05.594164+00:00",
+      "trigger": "cycle:BTVTC-157249-CHANGED,BTVTC-157249-DEFAULT,BTVTC-157242-CHANGED,BTVTC-157242-DEFAULT:CUSTOM:real",
+      "shots": [
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-00-live-enter-hub.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-01-live-enter-digit.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-02-live-enter-guide.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-03-live-enter-ready.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-04-open-right-right.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-05-open-right-down-1.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-06-open-right-down-2.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-07-open-right-down-3.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-08-open-right-down-4.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-09-voice-menu-hit.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-10-assert-layout-focus.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/live-249.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-11-audio-multi-body.png",
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-12-audio-multi-ko.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "press:1:8",
+          "press:7:14",
+          "press:1:8",
+          "wait:180",
+          "wait:350",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:5000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:4000",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "press:RIGHT:22",
+          "wait:1200",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
+        ],
+        "notes": [
+          "채널 이동 0 확정 후 171",
+          "BTVTC-157249-DEFAULT-00-live-enter-hub.png:scene=live",
+          "BTVTC-157249-DEFAULT-01-live-enter-digit.png:scene=live",
+          "미니 EPG 5초 대기",
+          "BTVTC-157249-DEFAULT-02-live-enter-guide.png:scene=live_guide",
+          "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
+          "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
+          "settle: 신호 팝업 대기 1/8",
+          "settle: 신호 팝업 대기 2/8",
+          "settle: 신호 팝업 대기 3/8",
+          "settle: 신호 팝업 해제",
+          "BTVTC-157249-DEFAULT-03-live-enter-ready.png:scene=live",
+          "채널 확인 171 tokens=['171']",
+          "goto_live(audio_multi): 0→171 진입 (live)",
+          "RIGHT: 우측 Wing 시도",
+          "BTVTC-157249-DEFAULT-04-open-right-right.png:scene=right",
+          "BTVTC-157249-DEFAULT-05-open-right-down-1.png:scene=live",
+          "BTVTC-157249-DEFAULT-06-open-right-down-2.png:scene=live",
+          "BTVTC-157249-DEFAULT-07-open-right-down-3.png:scene=live",
+          "down-4: 신호 팝업 대기 1/8",
+          "down-4: 신호 팝업 대기 2/8",
+          "down-4: 신호 팝업 해제",
+          "BTVTC-157249-DEFAULT-08-open-right-down-4.png:scene=live",
+          "BTVTC-157249-DEFAULT-09-voice-menu-hit.png:scene=right",
+          "BTVTC-157249-DEFAULT-10-assert-layout-focus.png:scene=right",
+          "BTVTC-157249-DEFAULT-11-audio-multi-body.png:scene=live",
+          "BTVTC-157249-DEFAULT-12-audio-multi-ko.png:scene=right",
+          "audio_multi(ko) 이미 설정 — OK 생략"
+        ],
+        "shots": [
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-00-live-enter-hub.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-01-live-enter-digit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-02-live-enter-guide.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-03-live-enter-ready.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-04-open-right-right.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-05-open-right-down-1.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-06-open-right-down-2.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-07-open-right-down-3.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-08-open-right-down-4.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-09-voice-menu-hit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-10-assert-layout-focus.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\live-249.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-11-audio-multi-body.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\BTVTC-157249-DEFAULT-12-audio-multi-ko.png"
+        ],
+        "adb_scope": [
+          "음성 다중 채널 전제",
+          "한국어 기본"
+        ],
+        "deferred": [],
+        "judges": [
+          {
+            "target": "채널 전제",
+            "method": "tune + 메뉴 탐색",
+            "on_fail": "ERROR"
+          },
+          {
+            "target": "타이틀",
+            "method": "slot OCR title",
+            "on_fail": "FAIL",
+            "slot": "title"
+          },
+          {
+            "target": "한국어 설정",
+            "method": "audio_multi ko",
+            "on_fail": "FAIL",
+            "slot": "body"
+          }
+        ],
+        "duration_s": 52.89,
+        "timeout_s": 300,
+        "mode": "real",
+        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157249-DEFAULT\n  Page: LiveWingPage\n\n  시나리오: 음성 다중 설정을 한국어(기본)로 확인한다\n    조건   0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다\n    만일   우측 Wing을 열고 음성 다중 설정까지 이동한다\n    그러면 타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다\n    그리고 한국어(기본)로 설정한다\n",
+        "bdd": {
+          "tc_id": "BTVTC-157249-DEFAULT",
+          "feature": "우측 Wing UI",
+          "scenario": "음성 다중 설정을 한국어(기본)로 확인한다",
+          "page": "LiveWingPage",
+          "given": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
+          "when": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
+          "then": "타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다",
+          "page_fn": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+          "method": "tc_157249"
+        },
+        "trace": {
+          "tc_id": "BTVTC-157249-DEFAULT",
+          "feature": "우측 Wing UI",
+          "scenario": "음성 다중 설정을 한국어(기본)로 확인한다",
+          "page": "LiveWingPage",
+          "flow": [
+            "Gherkin",
+            "Step Definition",
+            "Page 메서드",
+            "ADB·OCR",
+            "판정"
+          ],
+          "steps": [
+            {
+              "kw": "조건",
+              "text": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
+              "step_def": "goto_live(\"audio_multi\")",
+              "page": "LiveWingPage.goto_live",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:0:7",
+                "wait:180",
+                "wait:2500",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:1:8",
+                "press:7:14",
+                "press:1:8",
+                "wait:180",
+                "wait:350",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:5000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:4000",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
+              ],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "BTVTC-157249-DEFAULT-01-live-enter-digit-ch.png",
+                  "ocr_text": "171카춘네트위크프로그램정보없음",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "live_mini_epg.channel_info"
+                }
+              ],
+              "devices": [
+                {
+                  "action": "goto_live",
+                  "detail": "171 채널 실시간 진입"
+                }
+              ],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "만일",
+              "text": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
+              "step_def": "open_right(\"audio_multi\")",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:RIGHT:22",
+                "wait:1200",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
+              ],
+              "reads": [],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "그러면",
+              "text": "타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다",
+              "step_def": "assert_layout()",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+              "keys": [],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "live-249.png",
+                  "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {
+                    "extract": {
+                      "scene_hint": "right_wing",
+                      "components": {
+                        "home_tabs": false,
+                        "vod_overlay_ui": false,
+                        "progress_bar": false,
+                        "transport_ui": false,
+                        "time_labels": false,
+                        "right_wing_ui": true,
+                        "left_wing_ui": false,
+                        "vod_list_ui": true,
+                        "vod_detail_ui": false,
+                        "banner_panel_ui": false,
+                        "epg_bar": false
+                      },
+                      "evidence": {
+                        "vod_overlay": []
+                      },
+                      "metrics": {
+                        "progress_fill": 0.0,
+                        "live_luma": 1.1,
+                        "home_markers_top": 0
+                      },
+                      "required": [
+                        "right_wing_ui"
+                      ],
+                      "forbidden": [
+                        "home_tabs"
+                      ]
+                    }
+                  },
+                  "note": "화면 전제 (extract)"
+                },
+                {
+                  "kind": "read",
+                  "shot": "live-249.png",
+                  "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
+                  "boxes": [
+                    {
+                      "text": "음성 다중 설정",
+                      "confidence": 0.7224839451597636,
+                      "box": null
+                    },
+                    {
+                      "text": "음성 다중 채널 언어름 설정활 수 있어요",
+                      "confidence": 0.610428446632984,
+                      "box": null
+                    },
+                    {
+                      "text": "한국어",
+                      "confidence": 0.999968615630954,
+                      "box": null
+                    },
+                    {
+                      "text": "영어",
+                      "confidence": 0.9999340829652656,
+                      "box": null
+                    },
+                    {
+                      "text": "멀티뷰",
+                      "confidence": 0.821296498146139,
+                      "box": null
+                    },
+                    {
+                      "text": "zen 키즈록",
+                      "confidence": 0.3491020115845624,
+                      "box": null
+                    },
+                    {
+                      "text": "불만한 근렌즈",
+                      "confidence": 0.13060750137063937,
+                      "box": null
+                    },
+                    {
+                      "text": "A 사운드 설정",
+                      "confidence": 0.5046625530259304,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 / 해설 / 수어",
+                      "confidence": 0.29575629483437604,
+                      "box": null
+                    },
+                    {
+                      "text": "시청 환경 설정",
+                      "confidence": 0.9556732558877193,
+                      "box": null
+                    },
+                    {
+                      "text": "음성 다중 설정",
+                      "confidence": 0.999675584260055,
+                      "box": null
+                    },
+                    {
+                      "text": "불루투스 연결",
+                      "confidence": 0.9356252144117474,
+                      "box": null
+                    },
+                    {
+                      "text": "불루키누르면",
+                      "confidence": 0.729084519582041,
+                      "box": null
+                    },
+                    {
+                      "text": "선물이광평",
+                      "confidence": 0.4374408327450115,
+                      "box": null
+                    },
+                    {
+                      "text": "불무키 클렉",
+                      "confidence": 0.49578115628372704,
+                      "box": null
+                    },
+                    {
+                      "text": "3분 미리보기 중입니다",
+                      "confidence": 0.8165363833605794,
+                      "box": null
+                    }
+                  ],
+                  "anchors": {
+                    "title/음성": true
+                  },
+                  "metrics": {
+                    "layout": "right_wing",
+                    "template": "layout=right_wing ui=29 dark=1",
+                    "focus_band": null,
+                    "slots": [
+                      "toast",
+                      "title",
+                      "body",
+                      "rail",
+                      "panel",
+                      "live"
+                    ]
+                  },
+                  "note": "슬롯 앵커 대조"
+                }
+              ],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "그리고",
+              "text": "한국어(기본)로 설정한다",
+              "step_def": "audio_multi(\"ko\")",
+              "page": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
+              ],
+              "reads": [],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            }
+          ]
+        }
+      },
+      "trace": {
+        "tc_id": "BTVTC-157249-DEFAULT",
+        "feature": "우측 Wing UI",
+        "scenario": "음성 다중 설정을 한국어(기본)로 확인한다",
+        "page": "LiveWingPage",
+        "flow": [
+          "Gherkin",
+          "Step Definition",
+          "Page 메서드",
+          "ADB·OCR",
+          "판정"
+        ],
+        "steps": [
+          {
+            "kw": "조건",
+            "text": "0번을 거쳐 음성 다중 채널(171) 실시간 라이브에 진입한다",
+            "step_def": "goto_live(\"audio_multi\")",
+            "page": "LiveWingPage.goto_live",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:0:7",
+              "wait:180",
+              "wait:2500",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:1:8",
+              "press:7:14",
+              "press:1:8",
+              "wait:180",
+              "wait:350",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "wait:5000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "wait:4000",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
               "wait:1000",
-              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-31\\_frame.png"
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
+            ],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "BTVTC-157249-DEFAULT-01-live-enter-digit-ch.png",
+                "ocr_text": "171카춘네트위크프로그램정보없음",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "live_mini_epg.channel_info",
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
+              }
+            ],
+            "devices": [
+              {
+                "action": "goto_live",
+                "detail": "171 채널 실시간 진입"
+              }
+            ],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "만일",
+            "text": "우측 Wing을 열고 음성 다중 설정까지 이동한다",
+            "step_def": "open_right(\"audio_multi\")",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:RIGHT:22",
+              "wait:1200",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
             ],
             "reads": [],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그러면",
+            "text": "타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다",
+            "step_def": "assert_layout()",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+            "keys": [],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "live-249.png",
+                "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {
+                  "extract": {
+                    "scene_hint": "right_wing",
+                    "components": {
+                      "home_tabs": false,
+                      "vod_overlay_ui": false,
+                      "progress_bar": false,
+                      "transport_ui": false,
+                      "time_labels": false,
+                      "right_wing_ui": true,
+                      "left_wing_ui": false,
+                      "vod_list_ui": true,
+                      "vod_detail_ui": false,
+                      "banner_panel_ui": false,
+                      "epg_bar": false
+                    },
+                    "evidence": {
+                      "vod_overlay": []
+                    },
+                    "metrics": {
+                      "progress_fill": 0.0,
+                      "live_luma": 1.1,
+                      "home_markers_top": 0
+                    },
+                    "required": [
+                      "right_wing_ui"
+                    ],
+                    "forbidden": [
+                      "home_tabs"
+                    ]
+                  }
+                },
+                "note": "화면 전제 (extract)",
+                "shot_url": "data/shots/run-46/BTVTC-157249-DEFAULT/live-249.png"
+              },
+              {
+                "kind": "read",
+                "shot": "live-249.png",
+                "ocr_text": "[toast] (없음)\n[title] 음성 다중 설정 음성 다중 채널 언어름 설정활 수 있어요\n[body] 한국어 영어\n[rail] 멀티뷰 zen 키즈록 불만한 근렌즈 A 사운드 설정 자막 / 해설 / 수어 시청 환경 설정 음성 다중 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] 3분 미리보기 중입니다",
+                "boxes": [
+                  {
+                    "text": "음성 다중 설정",
+                    "confidence": 0.7224839451597636,
+                    "box": null
+                  },
+                  {
+                    "text": "음성 다중 채널 언어름 설정활 수 있어요",
+                    "confidence": 0.610428446632984,
+                    "box": null
+                  },
+                  {
+                    "text": "한국어",
+                    "confidence": 0.999968615630954,
+                    "box": null
+                  },
+                  {
+                    "text": "영어",
+                    "confidence": 0.9999340829652656,
+                    "box": null
+                  },
+                  {
+                    "text": "멀티뷰",
+                    "confidence": 0.821296498146139,
+                    "box": null
+                  },
+                  {
+                    "text": "zen 키즈록",
+                    "confidence": 0.3491020115845624,
+                    "box": null
+                  },
+                  {
+                    "text": "불만한 근렌즈",
+                    "confidence": 0.13060750137063937,
+                    "box": null
+                  },
+                  {
+                    "text": "A 사운드 설정",
+                    "confidence": 0.5046625530259304,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 / 해설 / 수어",
+                    "confidence": 0.29575629483437604,
+                    "box": null
+                  },
+                  {
+                    "text": "시청 환경 설정",
+                    "confidence": 0.9556732558877193,
+                    "box": null
+                  },
+                  {
+                    "text": "음성 다중 설정",
+                    "confidence": 0.999675584260055,
+                    "box": null
+                  },
+                  {
+                    "text": "불루투스 연결",
+                    "confidence": 0.9356252144117474,
+                    "box": null
+                  },
+                  {
+                    "text": "불루키누르면",
+                    "confidence": 0.729084519582041,
+                    "box": null
+                  },
+                  {
+                    "text": "선물이광평",
+                    "confidence": 0.4374408327450115,
+                    "box": null
+                  },
+                  {
+                    "text": "불무키 클렉",
+                    "confidence": 0.49578115628372704,
+                    "box": null
+                  },
+                  {
+                    "text": "3분 미리보기 중입니다",
+                    "confidence": 0.8165363833605794,
+                    "box": null
+                  }
+                ],
+                "anchors": {
+                  "title/음성": true
+                },
+                "metrics": {
+                  "layout": "right_wing",
+                  "template": "layout=right_wing ui=29 dark=1",
+                  "focus_band": null,
+                  "slots": [
+                    "toast",
+                    "title",
+                    "body",
+                    "rail",
+                    "panel",
+                    "live"
+                  ]
+                },
+                "note": "슬롯 앵커 대조",
+                "shot_url": "data/shots/run-46/BTVTC-157249-DEFAULT/live-249.png"
+              }
+            ],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그리고",
+            "text": "한국어(기본)로 설정한다",
+            "step_def": "audio_multi(\"ko\")",
+            "page": "LiveWingPage.open_right → assert_layout → audio_multi(ko)",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157249-DEFAULT\\_frame.png"
+            ],
+            "reads": [],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          }
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-157242-CHANGED",
+      "title": "자막/해설/수어 설정을 켜짐(변경)으로 확인한다",
+      "verdict": "PASS",
+      "message": "슬롯 확인 ['title/자막'] · live-242.png · caption_toggles(on) · 보류(캡처보드): 자막 번인 영상",
+      "run_id": 46,
+      "started_at": "2026-09-21T02:48:53.434253+00:00",
+      "finished_at": "2026-09-21T02:57:05.594164+00:00",
+      "trigger": "cycle:BTVTC-157249-CHANGED,BTVTC-157249-DEFAULT,BTVTC-157242-CHANGED,BTVTC-157242-DEFAULT:CUSTOM:real",
+      "shots": [
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-00-live-enter-hub.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-01-live-enter-digit.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-02-live-enter-guide.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-03-live-enter-ready.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-04-open-right-right.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-05-open-right-down-1.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-06-open-right-down-2.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-07-open-right-down-3.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-08-caption-menu-hit.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-09-assert-layout-focus.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/live-242.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-10-caption-changed-panel.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-11-caption-changed-subtitle.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-12-caption-changed-desc.png",
+        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-13-caption-changed-sign.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "wait:1000",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "press:LEFT:21",
+          "wait:500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "press:DOWN:20",
+          "wait:450",
+          "press:DOWN:20",
+          "wait:450",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+        ],
+        "notes": [
+          "채널 이동 0 확정 후 1",
+          "BTVTC-157242-CHANGED-00-live-enter-hub.png:scene=live",
+          "BTVTC-157242-CHANGED-01-live-enter-digit.png:scene=live",
+          "미니 EPG 5초 대기",
+          "BTVTC-157242-CHANGED-02-live-enter-guide.png:scene=live_guide",
+          "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
+          "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
+          "settle: 신호 팝업 대기 1/8",
+          "settle: 신호 팝업 대기 2/8",
+          "settle: 신호 팝업 대기 3/8",
+          "settle: 신호 팝업 해제",
+          "BTVTC-157242-CHANGED-03-live-enter-ready.png:scene=live",
+          "채널 확인 1 tokens=['001']",
+          "goto_live(live): 0→1 진입 (live)",
+          "RIGHT: 우측 Wing 시도",
+          "BTVTC-157242-CHANGED-04-open-right-right.png:scene=right",
+          "down-1: 신호 팝업 대기 1/8",
+          "down-1: 신호 팝업 대기 2/8",
+          "down-1: 신호 팝업 대기 3/8",
+          "down-1: 신호 팝업 대기 4/8",
+          "down-1: 신호 팝업 대기 5/8",
+          "down-1: 신호 팝업 대기 6/8",
+          "down-1: 신호 팝업 대기 7/8",
+          "down-1: 신호 팝업 대기 8/8",
+          "down-1: 팝업 잔존 차선 샷",
+          "BTVTC-157242-CHANGED-05-open-right-down-1.png:scene=right",
+          "down-2: 신호 팝업 대기 1/8",
+          "down-2: 신호 팝업 해제",
+          "BTVTC-157242-CHANGED-06-open-right-down-2.png:scene=live",
+          "BTVTC-157242-CHANGED-07-open-right-down-3.png:scene=live",
+          "BTVTC-157242-CHANGED-08-caption-menu-hit.png:scene=right",
+          "BTVTC-157242-CHANGED-09-assert-layout-focus.png:scene=right",
+          "BTVTC-157242-CHANGED-10-caption-changed-panel.png:scene=live",
+          "BTVTC-157242-CHANGED-11-caption-changed-subtitle.png:scene=live",
+          "caption_toggles subtitle on",
+          "desc: 신호 팝업 대기 1/8",
+          "desc: 신호 팝업 대기 2/8",
+          "desc: 신호 팝업 대기 3/8",
+          "desc: 신호 팝업 해제",
+          "BTVTC-157242-CHANGED-12-caption-changed-desc.png:scene=live",
+          "caption_toggles desc on",
+          "BTVTC-157242-CHANGED-13-caption-changed-sign.png:scene=live",
+          "caption_toggles sign on"
+        ],
+        "shots": [
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-00-live-enter-hub.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-01-live-enter-digit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-02-live-enter-guide.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-03-live-enter-ready.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-04-open-right-right.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-05-open-right-down-1.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-06-open-right-down-2.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-07-open-right-down-3.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-08-caption-menu-hit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-09-assert-layout-focus.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\live-242.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-10-caption-changed-panel.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-11-caption-changed-subtitle.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-12-caption-changed-desc.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\BTVTC-157242-CHANGED-13-caption-changed-sign.png"
+        ],
+        "adb_scope": [
+          "자막 설정 타이틀",
+          "자막·해설·수어 켜짐"
+        ],
+        "deferred": [
+          "자막 번인 영상"
+        ],
+        "judges": [
+          {
+            "target": "타이틀",
+            "method": "slot OCR title",
+            "on_fail": "FAIL",
+            "slot": "title"
+          },
+          {
+            "target": "자막 보기",
+            "method": "caption_toggles subtitle",
+            "on_fail": "FAIL"
+          },
+          {
+            "target": "화면 해설",
+            "method": "caption_toggles desc",
+            "on_fail": "FAIL"
+          },
+          {
+            "target": "수어 방송",
+            "method": "caption_toggles sign",
+            "on_fail": "FAIL"
+          }
+        ],
+        "duration_s": 143.88,
+        "timeout_s": 300,
+        "mode": "real",
+        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157242-CHANGED\n  Page: LiveWingPage\n\n  시나리오: 자막/해설/수어 설정을 켜짐(변경)으로 확인한다\n    조건   0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다\n    만일   우측 Wing을 열고 자막/해설/수어까지 이동한다\n    그러면 타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다\n    그리고 자막 보기·화면 해설·수어 방송을 켠다\n",
+        "bdd": {
+          "tc_id": "BTVTC-157242-CHANGED",
+          "feature": "우측 Wing UI",
+          "scenario": "자막/해설/수어 설정을 켜짐(변경)으로 확인한다",
+          "page": "LiveWingPage",
+          "given": "0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다",
+          "when": "우측 Wing을 열고 자막/해설/수어까지 이동한다",
+          "then": "타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다",
+          "page_fn": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+          "method": "tc_157242"
+        },
+        "trace": {
+          "tc_id": "BTVTC-157242-CHANGED",
+          "feature": "우측 Wing UI",
+          "scenario": "자막/해설/수어 설정을 켜짐(변경)으로 확인한다",
+          "page": "LiveWingPage",
+          "flow": [
+            "Gherkin",
+            "Step Definition",
+            "Page 메서드",
+            "ADB·OCR",
+            "판정"
+          ],
+          "steps": [
+            {
+              "kw": "조건",
+              "text": "0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다",
+              "step_def": "goto_live()",
+              "page": "LiveWingPage.goto_live",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:0:7",
+                "wait:180",
+                "wait:2500",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:0:7",
+                "press:0:7",
+                "press:1:8",
+                "wait:180",
+                "wait:350",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:5000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:4000",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+              ],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "BTVTC-157242-CHANGED-01-live-enter-digit-ch.png",
+                  "ocr_text": "001채널S프로그램정보없음",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "live_mini_epg.channel_info"
+                }
+              ],
+              "devices": [
+                {
+                  "action": "goto_live",
+                  "detail": "1 채널 실시간 진입"
+                }
+              ],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "만일",
+              "text": "우측 Wing을 열고 자막/해설/수어까지 이동한다",
+              "step_def": "open_right(\"caption\")",
+              "page": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+              "keys": [
+                "wait:1200",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+              ],
+              "reads": [],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "그러면",
+              "text": "타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다",
+              "step_def": "assert_layout()",
+              "page": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+              "keys": [],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "live-242.png",
+                  "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {
+                    "extract": {
+                      "scene_hint": "right_wing",
+                      "components": {
+                        "home_tabs": false,
+                        "vod_overlay_ui": false,
+                        "progress_bar": false,
+                        "transport_ui": false,
+                        "time_labels": false,
+                        "right_wing_ui": true,
+                        "left_wing_ui": false,
+                        "vod_list_ui": true,
+                        "vod_detail_ui": false,
+                        "banner_panel_ui": false,
+                        "epg_bar": false
+                      },
+                      "evidence": {
+                        "vod_overlay": []
+                      },
+                      "metrics": {
+                        "progress_fill": 0.0,
+                        "live_luma": 0.0,
+                        "home_markers_top": 0
+                      },
+                      "required": [
+                        "right_wing_ui"
+                      ],
+                      "forbidden": [
+                        "home_tabs"
+                      ]
+                    }
+                  },
+                  "note": "화면 전제 (extract)"
+                },
+                {
+                  "kind": "read",
+                  "shot": "live-242.png",
+                  "ocr_text": "[toast] (없음)\n[title] 자막 /해설/수어 설정 자막 / 화면 해설/ 수어 방송올 켜고 골수 있어요 채널에 따라 미지원하는 설정 기능이\n[body] 있을 수 있어요 자막 보기 꺼짐 자막 스타일 음소거 시 자막 보기 꺼짐 화면 해설 듣기 꺼짐 수어 방송 보기 꺼짐\n[rail] 멀티뷰 불만한 근렌즈 무료 군렌츠 AI 사운드 설정 자막  해설/수어 시청 환경 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] (없음)",
+                  "boxes": [
+                    {
+                      "text": "자막 /해설/수어 설정",
+                      "confidence": 0.6276848829586033,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 / 화면 해설/ 수어 방송올 켜고 골수",
+                      "confidence": 0.35772162318765305,
+                      "box": null
+                    },
+                    {
+                      "text": "있어요 채널에 따라 미지원하는 설정 기능이",
+                      "confidence": 0.8635508726765692,
+                      "box": null
+                    },
+                    {
+                      "text": "있을 수 있어요",
+                      "confidence": 0.45374817059513856,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 보기",
+                      "confidence": 0.5617789571013407,
+                      "box": null
+                    },
+                    {
+                      "text": "꺼짐",
+                      "confidence": 0.9437117482523464,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 스타일",
+                      "confidence": 0.997175176753736,
+                      "box": null
+                    },
+                    {
+                      "text": "음소거 시 자막 보기",
+                      "confidence": 0.7007958578051233,
+                      "box": null
+                    },
+                    {
+                      "text": "꺼짐",
+                      "confidence": 0.9437117482523464,
+                      "box": null
+                    },
+                    {
+                      "text": "화면 해설 듣기",
+                      "confidence": 0.5076610068917191,
+                      "box": null
+                    },
+                    {
+                      "text": "꺼짐",
+                      "confidence": 0.940205128747911,
+                      "box": null
+                    },
+                    {
+                      "text": "수어 방송 보기",
+                      "confidence": 0.9823370526879539,
+                      "box": null
+                    },
+                    {
+                      "text": "꺼짐",
+                      "confidence": 0.9273047251978592,
+                      "box": null
+                    },
+                    {
+                      "text": "멀티뷰",
+                      "confidence": 0.5597360060469623,
+                      "box": null
+                    },
+                    {
+                      "text": "불만한 근렌즈",
+                      "confidence": 0.13060750137063937,
+                      "box": null
+                    },
+                    {
+                      "text": "무료 군렌츠",
+                      "confidence": 0.08358742408250275,
+                      "box": null
+                    },
+                    {
+                      "text": "AI 사운드 설정",
+                      "confidence": 0.4415118544193329,
+                      "box": null
+                    },
+                    {
+                      "text": "자막  해설/수어",
+                      "confidence": 0.51645397411262,
+                      "box": null
+                    },
+                    {
+                      "text": "시청 환경 설정",
+                      "confidence": 0.5818178279015829,
+                      "box": null
+                    },
+                    {
+                      "text": "불루투스 연결",
+                      "confidence": 0.9356252144117474,
+                      "box": null
+                    },
+                    {
+                      "text": "불루키누르면",
+                      "confidence": 0.729084519582041,
+                      "box": null
+                    },
+                    {
+                      "text": "선물이광평",
+                      "confidence": 0.4374408327450115,
+                      "box": null
+                    },
+                    {
+                      "text": "불무키 클렉",
+                      "confidence": 0.49578115628372704,
+                      "box": null
+                    }
+                  ],
+                  "anchors": {
+                    "title/자막": true
+                  },
+                  "metrics": {
+                    "layout": "right_wing",
+                    "template": "layout=right_wing ui=29 dark=0",
+                    "focus_band": null,
+                    "slots": [
+                      "toast",
+                      "title",
+                      "body",
+                      "rail",
+                      "panel",
+                      "live"
+                    ]
+                  },
+                  "note": "슬롯 앵커 대조"
+                }
+              ],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "그리고",
+              "text": "자막 보기·화면 해설·수어 방송을 켠다",
+              "step_def": "caption_toggles(\"on\")",
+              "page": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+              "keys": [
+                "press:LEFT:21",
+                "wait:500",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "press:DOWN:20",
+                "wait:450",
+                "press:DOWN:20",
+                "wait:450",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+              ],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기꺼짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                },
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기꺼짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                },
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기꺼짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                },
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기켜짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                }
+              ],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            }
+          ]
+        }
+      },
+      "trace": {
+        "tc_id": "BTVTC-157242-CHANGED",
+        "feature": "우측 Wing UI",
+        "scenario": "자막/해설/수어 설정을 켜짐(변경)으로 확인한다",
+        "page": "LiveWingPage",
+        "flow": [
+          "Gherkin",
+          "Step Definition",
+          "Page 메서드",
+          "ADB·OCR",
+          "판정"
+        ],
+        "steps": [
+          {
+            "kw": "조건",
+            "text": "0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다",
+            "step_def": "goto_live()",
+            "page": "LiveWingPage.goto_live",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:0:7",
+              "wait:180",
+              "wait:2500",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:0:7",
+              "press:0:7",
+              "press:1:8",
+              "wait:180",
+              "wait:350",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:5000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:4000",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+            ],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "BTVTC-157242-CHANGED-01-live-enter-digit-ch.png",
+                "ocr_text": "001채널S프로그램정보없음",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "live_mini_epg.channel_info",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              }
+            ],
+            "devices": [
+              {
+                "action": "goto_live",
+                "detail": "1 채널 실시간 진입"
+              }
+            ],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "만일",
+            "text": "우측 Wing을 열고 자막/해설/수어까지 이동한다",
+            "step_def": "open_right(\"caption\")",
+            "page": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+            "keys": [
+              "wait:1200",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+            ],
+            "reads": [],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그러면",
+            "text": "타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다",
+            "step_def": "assert_layout()",
+            "page": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+            "keys": [],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "live-242.png",
+                "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {
+                  "extract": {
+                    "scene_hint": "right_wing",
+                    "components": {
+                      "home_tabs": false,
+                      "vod_overlay_ui": false,
+                      "progress_bar": false,
+                      "transport_ui": false,
+                      "time_labels": false,
+                      "right_wing_ui": true,
+                      "left_wing_ui": false,
+                      "vod_list_ui": true,
+                      "vod_detail_ui": false,
+                      "banner_panel_ui": false,
+                      "epg_bar": false
+                    },
+                    "evidence": {
+                      "vod_overlay": []
+                    },
+                    "metrics": {
+                      "progress_fill": 0.0,
+                      "live_luma": 0.0,
+                      "home_markers_top": 0
+                    },
+                    "required": [
+                      "right_wing_ui"
+                    ],
+                    "forbidden": [
+                      "home_tabs"
+                    ]
+                  }
+                },
+                "note": "화면 전제 (extract)",
+                "shot_url": "data/shots/run-46/BTVTC-157242-CHANGED/live-242.png"
+              },
+              {
+                "kind": "read",
+                "shot": "live-242.png",
+                "ocr_text": "[toast] (없음)\n[title] 자막 /해설/수어 설정 자막 / 화면 해설/ 수어 방송올 켜고 골수 있어요 채널에 따라 미지원하는 설정 기능이\n[body] 있을 수 있어요 자막 보기 꺼짐 자막 스타일 음소거 시 자막 보기 꺼짐 화면 해설 듣기 꺼짐 수어 방송 보기 꺼짐\n[rail] 멀티뷰 불만한 근렌즈 무료 군렌츠 AI 사운드 설정 자막  해설/수어 시청 환경 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] (없음)",
+                "boxes": [
+                  {
+                    "text": "자막 /해설/수어 설정",
+                    "confidence": 0.6276848829586033,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 / 화면 해설/ 수어 방송올 켜고 골수",
+                    "confidence": 0.35772162318765305,
+                    "box": null
+                  },
+                  {
+                    "text": "있어요 채널에 따라 미지원하는 설정 기능이",
+                    "confidence": 0.8635508726765692,
+                    "box": null
+                  },
+                  {
+                    "text": "있을 수 있어요",
+                    "confidence": 0.45374817059513856,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 보기",
+                    "confidence": 0.5617789571013407,
+                    "box": null
+                  },
+                  {
+                    "text": "꺼짐",
+                    "confidence": 0.9437117482523464,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 스타일",
+                    "confidence": 0.997175176753736,
+                    "box": null
+                  },
+                  {
+                    "text": "음소거 시 자막 보기",
+                    "confidence": 0.7007958578051233,
+                    "box": null
+                  },
+                  {
+                    "text": "꺼짐",
+                    "confidence": 0.9437117482523464,
+                    "box": null
+                  },
+                  {
+                    "text": "화면 해설 듣기",
+                    "confidence": 0.5076610068917191,
+                    "box": null
+                  },
+                  {
+                    "text": "꺼짐",
+                    "confidence": 0.940205128747911,
+                    "box": null
+                  },
+                  {
+                    "text": "수어 방송 보기",
+                    "confidence": 0.9823370526879539,
+                    "box": null
+                  },
+                  {
+                    "text": "꺼짐",
+                    "confidence": 0.9273047251978592,
+                    "box": null
+                  },
+                  {
+                    "text": "멀티뷰",
+                    "confidence": 0.5597360060469623,
+                    "box": null
+                  },
+                  {
+                    "text": "불만한 근렌즈",
+                    "confidence": 0.13060750137063937,
+                    "box": null
+                  },
+                  {
+                    "text": "무료 군렌츠",
+                    "confidence": 0.08358742408250275,
+                    "box": null
+                  },
+                  {
+                    "text": "AI 사운드 설정",
+                    "confidence": 0.4415118544193329,
+                    "box": null
+                  },
+                  {
+                    "text": "자막  해설/수어",
+                    "confidence": 0.51645397411262,
+                    "box": null
+                  },
+                  {
+                    "text": "시청 환경 설정",
+                    "confidence": 0.5818178279015829,
+                    "box": null
+                  },
+                  {
+                    "text": "불루투스 연결",
+                    "confidence": 0.9356252144117474,
+                    "box": null
+                  },
+                  {
+                    "text": "불루키누르면",
+                    "confidence": 0.729084519582041,
+                    "box": null
+                  },
+                  {
+                    "text": "선물이광평",
+                    "confidence": 0.4374408327450115,
+                    "box": null
+                  },
+                  {
+                    "text": "불무키 클렉",
+                    "confidence": 0.49578115628372704,
+                    "box": null
+                  }
+                ],
+                "anchors": {
+                  "title/자막": true
+                },
+                "metrics": {
+                  "layout": "right_wing",
+                  "template": "layout=right_wing ui=29 dark=0",
+                  "focus_band": null,
+                  "slots": [
+                    "toast",
+                    "title",
+                    "body",
+                    "rail",
+                    "panel",
+                    "live"
+                  ]
+                },
+                "note": "슬롯 앵커 대조",
+                "shot_url": "data/shots/run-46/BTVTC-157242-CHANGED/live-242.png"
+              }
+            ],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그리고",
+            "text": "자막 보기·화면 해설·수어 방송을 켠다",
+            "step_def": "caption_toggles(\"on\")",
+            "page": "LiveWingPage.open_right → assert_layout → caption_toggles(on)",
+            "keys": [
+              "press:LEFT:21",
+              "wait:500",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "press:DOWN:20",
+              "wait:450",
+              "press:DOWN:20",
+              "wait:450",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-CHANGED\\_frame.png"
+            ],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기꺼짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              },
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기꺼짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              },
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기꺼짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              },
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기켜짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              }
+            ],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          }
+        ]
+      }
+    },
+    {
+      "tc_id": "BTVTC-157242-DEFAULT",
+      "title": "자막/해설/수어 설정을 꺼짐(기본)으로 확인한다",
+      "verdict": "PASS",
+      "message": "슬롯 확인 ['title/자막'] · live-242.png · caption_toggles(off) · 보류(캡처보드): 자막 번인 영상",
+      "run_id": 46,
+      "started_at": "2026-09-21T02:48:53.434253+00:00",
+      "finished_at": "2026-09-21T02:57:05.594164+00:00",
+      "trigger": "cycle:BTVTC-157249-CHANGED,BTVTC-157249-DEFAULT,BTVTC-157242-CHANGED,BTVTC-157242-DEFAULT:CUSTOM:real",
+      "shots": [
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-00-live-enter-hub.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-01-live-enter-digit.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-02-live-enter-guide.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-03-live-enter-ready.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-04-open-right-right.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-05-open-right-down-1.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-06-open-right-down-2.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-07-open-right-down-3.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-08-caption-menu-hit.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-09-assert-layout-focus.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/live-242.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-10-caption-default-panel.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-11-caption-default-subtitle.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-12-caption-default-desc.png",
+        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-13-caption-default-sign.png"
+      ],
+      "artifacts": {
+        "keys": [
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "wait:1000",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "press:LEFT:21",
+          "wait:500",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "wait:1000",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "press:DOWN:20",
+          "wait:450",
+          "press:DOWN:20",
+          "wait:450",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+          "press:DOWN:20",
+          "wait:450",
+          "press:OK:23",
+          "wait:600",
+          "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+        ],
+        "notes": [
+          "채널 이동 0 확정 후 1",
+          "BTVTC-157242-DEFAULT-00-live-enter-hub.png:scene=live",
+          "BTVTC-157242-DEFAULT-01-live-enter-digit.png:scene=live",
+          "미니 EPG 5초 대기",
+          "BTVTC-157242-DEFAULT-02-live-enter-guide.png:scene=live_guide",
+          "라이브 안내보기(편성표·맞춤 서비스) 5초 대기",
+          "라이브 안내보기 종료 1초 전 · 신호 팝업 등장",
+          "settle: 신호 팝업 대기 1/8",
+          "settle: 신호 팝업 대기 2/8",
+          "settle: 신호 팝업 해제",
+          "BTVTC-157242-DEFAULT-03-live-enter-ready.png:scene=live",
+          "채널 확인 1 tokens=['001']",
+          "goto_live(live): 0→1 진입 (live)",
+          "RIGHT: 우측 Wing 시도",
+          "BTVTC-157242-DEFAULT-04-open-right-right.png:scene=right",
+          "down-1: 신호 팝업 대기 1/8",
+          "down-1: 신호 팝업 대기 2/8",
+          "down-1: 신호 팝업 대기 3/8",
+          "down-1: 신호 팝업 대기 4/8",
+          "down-1: 신호 팝업 대기 5/8",
+          "down-1: 신호 팝업 대기 6/8",
+          "down-1: 신호 팝업 대기 7/8",
+          "down-1: 신호 팝업 대기 8/8",
+          "down-1: 팝업 잔존 차선 샷",
+          "BTVTC-157242-DEFAULT-05-open-right-down-1.png:scene=right",
+          "down-2: 신호 팝업 대기 1/8",
+          "down-2: 신호 팝업 해제",
+          "BTVTC-157242-DEFAULT-06-open-right-down-2.png:scene=live",
+          "BTVTC-157242-DEFAULT-07-open-right-down-3.png:scene=live",
+          "BTVTC-157242-DEFAULT-08-caption-menu-hit.png:scene=right",
+          "BTVTC-157242-DEFAULT-09-assert-layout-focus.png:scene=right",
+          "BTVTC-157242-DEFAULT-10-caption-default-panel.png:scene=live",
+          "subtitle: 신호 팝업 대기 1/8",
+          "subtitle: 신호 팝업 대기 2/8",
+          "subtitle: 신호 팝업 해제",
+          "BTVTC-157242-DEFAULT-11-caption-default-subtitle.png:scene=live",
+          "caption_toggles subtitle off",
+          "BTVTC-157242-DEFAULT-12-caption-default-desc.png:scene=live",
+          "caption_toggles desc off",
+          "BTVTC-157242-DEFAULT-13-caption-default-sign.png:scene=live",
+          "caption_toggles sign off"
+        ],
+        "shots": [
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-00-live-enter-hub.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-01-live-enter-digit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-02-live-enter-guide.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-03-live-enter-ready.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-04-open-right-right.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-05-open-right-down-1.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-06-open-right-down-2.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-07-open-right-down-3.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-08-caption-menu-hit.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-09-assert-layout-focus.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\live-242.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-10-caption-default-panel.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-11-caption-default-subtitle.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-12-caption-default-desc.png",
+          "C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\BTVTC-157242-DEFAULT-13-caption-default-sign.png"
+        ],
+        "adb_scope": [
+          "자막 설정 타이틀",
+          "자막·해설·수어 꺼짐(기본)"
+        ],
+        "deferred": [
+          "자막 번인 영상"
+        ],
+        "judges": [
+          {
+            "target": "타이틀",
+            "method": "slot OCR title",
+            "on_fail": "FAIL",
+            "slot": "title"
+          },
+          {
+            "target": "자막 보기",
+            "method": "caption_toggles subtitle off",
+            "on_fail": "FAIL"
+          },
+          {
+            "target": "화면 해설",
+            "method": "caption_toggles desc off",
+            "on_fail": "FAIL"
+          },
+          {
+            "target": "수어 방송",
+            "method": "caption_toggles sign off",
+            "on_fail": "FAIL"
+          }
+        ],
+        "duration_s": 143.53,
+        "timeout_s": 300,
+        "mode": "real",
+        "gherkin": "# language: ko\n기능: 우측 Wing UI\n  원 TC: BTVTC-157242-DEFAULT\n  Page: LiveWingPage\n\n  시나리오: 자막/해설/수어 설정을 꺼짐(기본)으로 확인한다\n    조건   0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다\n    만일   우측 Wing을 열고 자막/해설/수어까지 이동한다\n    그러면 타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다\n    그리고 자막 보기·화면 해설·수어 방송을 꺼짐(기본)으로 둔다\n",
+        "bdd": {
+          "tc_id": "BTVTC-157242-DEFAULT",
+          "feature": "우측 Wing UI",
+          "scenario": "자막/해설/수어 설정을 꺼짐(기본)으로 확인한다",
+          "page": "LiveWingPage",
+          "given": "0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다",
+          "when": "우측 Wing을 열고 자막/해설/수어까지 이동한다",
+          "then": "타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다",
+          "page_fn": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+          "method": "tc_157242"
+        },
+        "trace": {
+          "tc_id": "BTVTC-157242-DEFAULT",
+          "feature": "우측 Wing UI",
+          "scenario": "자막/해설/수어 설정을 꺼짐(기본)으로 확인한다",
+          "page": "LiveWingPage",
+          "flow": [
+            "Gherkin",
+            "Step Definition",
+            "Page 메서드",
+            "ADB·OCR",
+            "판정"
+          ],
+          "steps": [
+            {
+              "kw": "조건",
+              "text": "0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다",
+              "step_def": "goto_live()",
+              "page": "LiveWingPage.goto_live",
+              "keys": [
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:0:7",
+                "wait:180",
+                "wait:2500",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:0:7",
+                "press:0:7",
+                "press:1:8",
+                "wait:180",
+                "wait:350",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:5000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:4000",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+              ],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "BTVTC-157242-DEFAULT-01-live-enter-digit-ch.png",
+                  "ocr_text": "001채널S프로램정보없음",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "live_mini_epg.channel_info"
+                }
+              ],
+              "devices": [
+                {
+                  "action": "goto_live",
+                  "detail": "1 채널 실시간 진입"
+                }
+              ],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "만일",
+              "text": "우측 Wing을 열고 자막/해설/수어까지 이동한다",
+              "step_def": "open_right(\"caption\")",
+              "page": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+              "keys": [
+                "wait:1200",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+              ],
+              "reads": [],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "그러면",
+              "text": "타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다",
+              "step_def": "assert_layout()",
+              "page": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+              "keys": [],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "live-242.png",
+                  "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {
+                    "extract": {
+                      "scene_hint": "right_wing",
+                      "components": {
+                        "home_tabs": false,
+                        "vod_overlay_ui": false,
+                        "progress_bar": false,
+                        "transport_ui": false,
+                        "time_labels": false,
+                        "right_wing_ui": true,
+                        "left_wing_ui": false,
+                        "vod_list_ui": true,
+                        "vod_detail_ui": false,
+                        "banner_panel_ui": false,
+                        "epg_bar": false
+                      },
+                      "evidence": {
+                        "vod_overlay": []
+                      },
+                      "metrics": {
+                        "progress_fill": 0.0,
+                        "live_luma": 0.0,
+                        "home_markers_top": 0
+                      },
+                      "required": [
+                        "right_wing_ui"
+                      ],
+                      "forbidden": [
+                        "home_tabs"
+                      ]
+                    }
+                  },
+                  "note": "화면 전제 (extract)"
+                },
+                {
+                  "kind": "read",
+                  "shot": "live-242.png",
+                  "ocr_text": "[toast] (없음)\n[title] 자막 /해설/수어 설정 자막 / 화면 해설/ 수어 방송올 켜고 골수 있어요 채널에 따라 미지원하는 설정 기능이\n[body] 있을 수 있어요 자막 보기 켜짐 자막 스타일 음소거 시 자막 보기 꺼짐 화면 해설 듣기 켜짐 수어 방송 보기 켜짐\n[rail] 멀티뷰 불만한 근렌즈 무료 군렌츠 AI 사운드 설정 자막  해설/수어 시청 환경 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] (없음)",
+                  "boxes": [
+                    {
+                      "text": "자막 /해설/수어 설정",
+                      "confidence": 0.6276848829586033,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 / 화면 해설/ 수어 방송올 켜고 골수",
+                      "confidence": 0.35772162318765305,
+                      "box": null
+                    },
+                    {
+                      "text": "있어요 채널에 따라 미지원하는 설정 기능이",
+                      "confidence": 0.888565103103918,
+                      "box": null
+                    },
+                    {
+                      "text": "있을 수 있어요",
+                      "confidence": 0.45374817059513856,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 보기",
+                      "confidence": 0.5617789571013407,
+                      "box": null
+                    },
+                    {
+                      "text": "켜짐",
+                      "confidence": 0.9814601904058246,
+                      "box": null
+                    },
+                    {
+                      "text": "자막 스타일",
+                      "confidence": 0.997175176753736,
+                      "box": null
+                    },
+                    {
+                      "text": "음소거 시 자막 보기",
+                      "confidence": 0.7007958578051233,
+                      "box": null
+                    },
+                    {
+                      "text": "꺼짐",
+                      "confidence": 0.9437117482523464,
+                      "box": null
+                    },
+                    {
+                      "text": "화면 해설 듣기",
+                      "confidence": 0.5076610068917191,
+                      "box": null
+                    },
+                    {
+                      "text": "켜짐",
+                      "confidence": 0.9767719941188855,
+                      "box": null
+                    },
+                    {
+                      "text": "수어 방송 보기",
+                      "confidence": 0.9823370526879539,
+                      "box": null
+                    },
+                    {
+                      "text": "켜짐",
+                      "confidence": 0.9814601904058246,
+                      "box": null
+                    },
+                    {
+                      "text": "멀티뷰",
+                      "confidence": 0.5597360060469623,
+                      "box": null
+                    },
+                    {
+                      "text": "불만한 근렌즈",
+                      "confidence": 0.13060750137063937,
+                      "box": null
+                    },
+                    {
+                      "text": "무료 군렌츠",
+                      "confidence": 0.08358742408250275,
+                      "box": null
+                    },
+                    {
+                      "text": "AI 사운드 설정",
+                      "confidence": 0.4415118544193329,
+                      "box": null
+                    },
+                    {
+                      "text": "자막  해설/수어",
+                      "confidence": 0.51645397411262,
+                      "box": null
+                    },
+                    {
+                      "text": "시청 환경 설정",
+                      "confidence": 0.5818178279015829,
+                      "box": null
+                    },
+                    {
+                      "text": "불루투스 연결",
+                      "confidence": 0.9356252144117474,
+                      "box": null
+                    },
+                    {
+                      "text": "불루키누르면",
+                      "confidence": 0.729084519582041,
+                      "box": null
+                    },
+                    {
+                      "text": "선물이광평",
+                      "confidence": 0.4374408327450115,
+                      "box": null
+                    },
+                    {
+                      "text": "불무키 클렉",
+                      "confidence": 0.49578115628372704,
+                      "box": null
+                    }
+                  ],
+                  "anchors": {
+                    "title/자막": true
+                  },
+                  "metrics": {
+                    "layout": "right_wing",
+                    "template": "layout=right_wing ui=29 dark=0",
+                    "focus_band": null,
+                    "slots": [
+                      "toast",
+                      "title",
+                      "body",
+                      "rail",
+                      "panel",
+                      "live"
+                    ]
+                  },
+                  "note": "슬롯 앵커 대조"
+                }
+              ],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            },
+            {
+              "kw": "그리고",
+              "text": "자막 보기·화면 해설·수어 방송을 꺼짐(기본)으로 둔다",
+              "step_def": "caption_toggles(\"off\")",
+              "page": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+              "keys": [
+                "press:LEFT:21",
+                "wait:500",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "wait:1000",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "press:DOWN:20",
+                "wait:450",
+                "press:DOWN:20",
+                "wait:450",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+                "press:DOWN:20",
+                "wait:450",
+                "press:OK:23",
+                "wait:600",
+                "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+              ],
+              "reads": [
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기켜짐않아자동복구름시도중입니다",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                },
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기켜짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                },
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기켜짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                },
+                {
+                  "kind": "read",
+                  "shot": "_frame.png",
+                  "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기꺼짐",
+                  "boxes": [],
+                  "anchors": {},
+                  "metrics": {},
+                  "note": "right_wing.body"
+                }
+              ],
+              "devices": [],
+              "status": "PASS",
+              "detail": ""
+            }
+          ]
+        }
+      },
+      "trace": {
+        "tc_id": "BTVTC-157242-DEFAULT",
+        "feature": "우측 Wing UI",
+        "scenario": "자막/해설/수어 설정을 꺼짐(기본)으로 확인한다",
+        "page": "LiveWingPage",
+        "flow": [
+          "Gherkin",
+          "Step Definition",
+          "Page 메서드",
+          "ADB·OCR",
+          "판정"
+        ],
+        "steps": [
+          {
+            "kw": "조건",
+            "text": "0번을 거쳐 1번 채널 실시간 라이브 화면에 진입한다",
+            "step_def": "goto_live()",
+            "page": "LiveWingPage.goto_live",
+            "keys": [
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:0:7",
+              "wait:180",
+              "wait:2500",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:0:7",
+              "press:0:7",
+              "press:1:8",
+              "wait:180",
+              "wait:350",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:5000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:4000",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+            ],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "BTVTC-157242-DEFAULT-01-live-enter-digit-ch.png",
+                "ocr_text": "001채널S프로램정보없음",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "live_mini_epg.channel_info",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              }
+            ],
+            "devices": [
+              {
+                "action": "goto_live",
+                "detail": "1 채널 실시간 진입"
+              }
+            ],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "만일",
+            "text": "우측 Wing을 열고 자막/해설/수어까지 이동한다",
+            "step_def": "open_right(\"caption\")",
+            "page": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+            "keys": [
+              "wait:1200",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+            ],
+            "reads": [],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그러면",
+            "text": "타이틀 슬롯에서 자막/해설/수어 설정 포커스를 확인한다",
+            "step_def": "assert_layout()",
+            "page": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+            "keys": [],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "live-242.png",
+                "ocr_text": "scene_hint=right_wing · home_tabs=N, vod_overlay_ui=N, right_wing_ui=Y, left_wing_ui=N, vod_list_ui=Y",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {
+                  "extract": {
+                    "scene_hint": "right_wing",
+                    "components": {
+                      "home_tabs": false,
+                      "vod_overlay_ui": false,
+                      "progress_bar": false,
+                      "transport_ui": false,
+                      "time_labels": false,
+                      "right_wing_ui": true,
+                      "left_wing_ui": false,
+                      "vod_list_ui": true,
+                      "vod_detail_ui": false,
+                      "banner_panel_ui": false,
+                      "epg_bar": false
+                    },
+                    "evidence": {
+                      "vod_overlay": []
+                    },
+                    "metrics": {
+                      "progress_fill": 0.0,
+                      "live_luma": 0.0,
+                      "home_markers_top": 0
+                    },
+                    "required": [
+                      "right_wing_ui"
+                    ],
+                    "forbidden": [
+                      "home_tabs"
+                    ]
+                  }
+                },
+                "note": "화면 전제 (extract)",
+                "shot_url": "data/shots/run-46/BTVTC-157242-DEFAULT/live-242.png"
+              },
+              {
+                "kind": "read",
+                "shot": "live-242.png",
+                "ocr_text": "[toast] (없음)\n[title] 자막 /해설/수어 설정 자막 / 화면 해설/ 수어 방송올 켜고 골수 있어요 채널에 따라 미지원하는 설정 기능이\n[body] 있을 수 있어요 자막 보기 켜짐 자막 스타일 음소거 시 자막 보기 꺼짐 화면 해설 듣기 켜짐 수어 방송 보기 켜짐\n[rail] 멀티뷰 불만한 근렌즈 무료 군렌츠 AI 사운드 설정 자막  해설/수어 시청 환경 설정 불루투스 연결 불루키누르면 선물이광평 불무키 클렉\n[panel] (없음)\n[live] (없음)",
+                "boxes": [
+                  {
+                    "text": "자막 /해설/수어 설정",
+                    "confidence": 0.6276848829586033,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 / 화면 해설/ 수어 방송올 켜고 골수",
+                    "confidence": 0.35772162318765305,
+                    "box": null
+                  },
+                  {
+                    "text": "있어요 채널에 따라 미지원하는 설정 기능이",
+                    "confidence": 0.888565103103918,
+                    "box": null
+                  },
+                  {
+                    "text": "있을 수 있어요",
+                    "confidence": 0.45374817059513856,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 보기",
+                    "confidence": 0.5617789571013407,
+                    "box": null
+                  },
+                  {
+                    "text": "켜짐",
+                    "confidence": 0.9814601904058246,
+                    "box": null
+                  },
+                  {
+                    "text": "자막 스타일",
+                    "confidence": 0.997175176753736,
+                    "box": null
+                  },
+                  {
+                    "text": "음소거 시 자막 보기",
+                    "confidence": 0.7007958578051233,
+                    "box": null
+                  },
+                  {
+                    "text": "꺼짐",
+                    "confidence": 0.9437117482523464,
+                    "box": null
+                  },
+                  {
+                    "text": "화면 해설 듣기",
+                    "confidence": 0.5076610068917191,
+                    "box": null
+                  },
+                  {
+                    "text": "켜짐",
+                    "confidence": 0.9767719941188855,
+                    "box": null
+                  },
+                  {
+                    "text": "수어 방송 보기",
+                    "confidence": 0.9823370526879539,
+                    "box": null
+                  },
+                  {
+                    "text": "켜짐",
+                    "confidence": 0.9814601904058246,
+                    "box": null
+                  },
+                  {
+                    "text": "멀티뷰",
+                    "confidence": 0.5597360060469623,
+                    "box": null
+                  },
+                  {
+                    "text": "불만한 근렌즈",
+                    "confidence": 0.13060750137063937,
+                    "box": null
+                  },
+                  {
+                    "text": "무료 군렌츠",
+                    "confidence": 0.08358742408250275,
+                    "box": null
+                  },
+                  {
+                    "text": "AI 사운드 설정",
+                    "confidence": 0.4415118544193329,
+                    "box": null
+                  },
+                  {
+                    "text": "자막  해설/수어",
+                    "confidence": 0.51645397411262,
+                    "box": null
+                  },
+                  {
+                    "text": "시청 환경 설정",
+                    "confidence": 0.5818178279015829,
+                    "box": null
+                  },
+                  {
+                    "text": "불루투스 연결",
+                    "confidence": 0.9356252144117474,
+                    "box": null
+                  },
+                  {
+                    "text": "불루키누르면",
+                    "confidence": 0.729084519582041,
+                    "box": null
+                  },
+                  {
+                    "text": "선물이광평",
+                    "confidence": 0.4374408327450115,
+                    "box": null
+                  },
+                  {
+                    "text": "불무키 클렉",
+                    "confidence": 0.49578115628372704,
+                    "box": null
+                  }
+                ],
+                "anchors": {
+                  "title/자막": true
+                },
+                "metrics": {
+                  "layout": "right_wing",
+                  "template": "layout=right_wing ui=29 dark=0",
+                  "focus_band": null,
+                  "slots": [
+                    "toast",
+                    "title",
+                    "body",
+                    "rail",
+                    "panel",
+                    "live"
+                  ]
+                },
+                "note": "슬롯 앵커 대조",
+                "shot_url": "data/shots/run-46/BTVTC-157242-DEFAULT/live-242.png"
+              }
+            ],
+            "devices": [],
+            "status": "PASS",
+            "detail": ""
+          },
+          {
+            "kw": "그리고",
+            "text": "자막 보기·화면 해설·수어 방송을 꺼짐(기본)으로 둔다",
+            "step_def": "caption_toggles(\"off\")",
+            "page": "LiveWingPage.open_right → assert_layout → caption_toggles(off)",
+            "keys": [
+              "press:LEFT:21",
+              "wait:500",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "wait:1000",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "press:DOWN:20",
+              "wait:450",
+              "press:DOWN:20",
+              "wait:450",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png",
+              "press:DOWN:20",
+              "wait:450",
+              "press:OK:23",
+              "wait:600",
+              "screencap:C:\\develop_folder\\STE-Btv_server\\dev\\artifacts\\run-46\\BTVTC-157242-DEFAULT\\_frame.png"
+            ],
+            "reads": [
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기켜짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기켜짐않아자동복구름시도중입니다",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              },
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기켜짐수어방송보기켜짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              },
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기켜짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              },
+              {
+                "kind": "read",
+                "shot": "_frame.png",
+                "ocr_text": "있어요채널에따라미지원하는설정기능이있을있어요자막보기꺼짐자막스타일음소거시자막보기꺼짐화면해설듣기꺼짐수어방송보기꺼짐",
+                "boxes": [],
+                "anchors": {},
+                "metrics": {},
+                "note": "right_wing.body",
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
+              }
+            ],
             "devices": [],
             "status": "PASS",
             "detail": ""
@@ -803,34 +3404,22 @@
   "history": [
     {
       "run": {
+        "id": 46,
+        "started_at": "2026-09-21T02:48:53.434253+00:00",
+        "finished_at": "2026-09-21T02:57:05.594164+00:00",
+        "trigger": "cycle:BTVTC-157249-CHANGED,BTVTC-157249-DEFAULT,BTVTC-157242-CHANGED,BTVTC-157242-DEFAULT:CUSTOM:real",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 4
+      }
+    },
+    {
+      "run": {
         "id": 31,
         "started_at": "2026-09-17T07:45:54.624686+00:00",
         "finished_at": "2026-09-17T07:47:32.458952+00:00",
         "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
-        "status": "done"
-      },
-      "counts": {
-        "PASS": 1
-      }
-    },
-    {
-      "run": {
-        "id": 28,
-        "started_at": "2026-09-17T07:35:55.325718+00:00",
-        "finished_at": "2026-09-17T07:37:38.426376+00:00",
-        "trigger": "cycle:BTVTC-157249:BTVTC-157249:real",
-        "status": "done"
-      },
-      "counts": {
-        "PASS": 1
-      }
-    },
-    {
-      "run": {
-        "id": 12,
-        "started_at": "2026-09-16T07:04:13.904873+00:00",
-        "finished_at": "2026-09-16T07:04:13.979019+00:00",
-        "trigger": "테스트 진행:BTVTC-157249:mock",
         "status": "done"
       },
       "counts": {
@@ -949,6 +3538,20 @@
       },
       "counts": {
         "FAIL": 8,
+        "ERROR": 1
+      }
+    },
+    {
+      "run": {
+        "id": 2,
+        "started_at": "2026-09-15T05:00:29.292673+00:00",
+        "finished_at": "2026-09-15T05:02:05.971874+00:00",
+        "trigger": "테스트 진행 VOD:VOD",
+        "status": "done"
+      },
+      "counts": {
+        "PASS": 5,
+        "FAIL": 5,
         "ERROR": 1
       }
     }

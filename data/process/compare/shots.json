@@ -1,12 +1,43 @@
 {
-  "verdict": "MATCH",
-  "suspect": false,
+  "verdict": "SUSPECT",
+  "suspect": true,
   "method": "기존 메서드가 남긴 단계 json 샷만, 같은 태그끼리 이전 회차와 비교. mock 스텁·open-right.png 별칭·같은 파일 복제는 넣지 않음. 타이틀·본문 슬롯 OCR + 본문 크롭 밝기. 방송 본편·레일 볼륨 HUD·시계·신호 팝업 제외.",
-  "changed": false,
+  "changed": true,
   "pairs": [
     {
+      "base": "assert-layout-00-focus.png",
+      "run": "BTVTC-157249-CHANGED-10-assert-layout-focus.png",
+      "slots": {
+        "title": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 5.61,
+          "pixel_ok": true
+        },
+        "body": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 5.01,
+          "pixel_ok": true,
+          "lang_base": "ko",
+          "lang_run": "ko",
+          "lang_ok": true
+        }
+      },
+      "changed": false,
+      "popup_ignored": false,
+      "tag": "assert-layout-focus",
+      "label": "assert-layout · focus",
+      "base_file": "assert-layout-focus-base.png",
+      "base_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\assert-layout-focus-base.png",
+      "run_file": "assert-layout-focus-run.png",
+      "run_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\assert-layout-focus-run.png"
+    },
+    {
       "base": "audio-multi-03-down.png",
-      "run": "audio-multi-02-down.png",
+      "run": "BTVTC-157249-CHANGED-13-audio-multi-down.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -37,7 +68,7 @@
     },
     {
       "base": "audio-multi-04-en.png",
-      "run": "audio-multi-03-en.png",
+      "run": "BTVTC-157249-CHANGED-14-audio-multi-en.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -68,7 +99,7 @@
     },
     {
       "base": "live-enter-01-digit.png",
-      "run": "live-enter-01-digit.png",
+      "run": "BTVTC-157249-CHANGED-01-live-enter-digit.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -100,7 +131,7 @@
     },
     {
       "base": "live-enter-02-guide.png",
-      "run": "live-enter-02-guide.png",
+      "run": "BTVTC-157249-CHANGED-02-live-enter-guide.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -131,7 +162,7 @@
     },
     {
       "base": "live-enter-00-hub.png",
-      "run": "live-enter-00-hub.png",
+      "run": "BTVTC-157249-CHANGED-00-live-enter-hub.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -144,7 +175,7 @@
           "ocr_base": "",
           "ocr_run": "",
           "text_ok": true,
-          "mean_delta": 0.0,
+          "mean_delta": 0.13,
           "pixel_ok": true,
           "lang_base": "ko",
           "lang_run": "ko",
@@ -163,7 +194,7 @@
     },
     {
       "base": "live-enter-03-ready.png",
-      "run": "live-enter-03-ready.png",
+      "run": "BTVTC-157249-CHANGED-03-live-enter-ready.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -193,8 +224,102 @@
       "run_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\goto-live-ready-run.png"
     },
     {
-      "base": "open-right-01-right.png",
-      "run": "open-right-00-right.png",
+      "base": "open-right-01-down-1.png",
+      "run": "BTVTC-157249-CHANGED-05-open-right-down-1.png",
+      "slots": {
+        "title": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 5.4,
+          "pixel_ok": true
+        },
+        "body": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 30.95,
+          "pixel_ok": false,
+          "lang_base": "ko",
+          "lang_run": "ko",
+          "lang_ok": true
+        }
+      },
+      "changed": true,
+      "popup_ignored": true,
+      "note": "신호 팝업 유무는 UI 변경으로 확정하지 않음",
+      "tag": "open-right-down-1",
+      "label": "open-right · down-1",
+      "base_file": "open-right-down-1-base.png",
+      "base_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-down-1-base.png",
+      "run_file": "open-right-down-1-run.png",
+      "run_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-down-1-run.png"
+    },
+    {
+      "base": "open-right-02-down-2.png",
+      "run": "BTVTC-157249-CHANGED-06-open-right-down-2.png",
+      "slots": {
+        "title": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 0.94,
+          "pixel_ok": true
+        },
+        "body": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 1.2,
+          "pixel_ok": true,
+          "lang_base": "ko",
+          "lang_run": "ko",
+          "lang_ok": true
+        }
+      },
+      "changed": false,
+      "popup_ignored": false,
+      "tag": "open-right-down-2",
+      "label": "open-right · down-2",
+      "base_file": "open-right-down-2-base.png",
+      "base_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-down-2-base.png",
+      "run_file": "open-right-down-2-run.png",
+      "run_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-down-2-run.png"
+    },
+    {
+      "base": "open-right-03-down-3.png",
+      "run": "BTVTC-157249-CHANGED-07-open-right-down-3.png",
+      "slots": {
+        "title": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 3.93,
+          "pixel_ok": true
+        },
+        "body": {
+          "ocr_base": "",
+          "ocr_run": "",
+          "text_ok": true,
+          "mean_delta": 0.96,
+          "pixel_ok": true,
+          "lang_base": "ko",
+          "lang_run": "ko",
+          "lang_ok": true
+        }
+      },
+      "changed": false,
+      "popup_ignored": false,
+      "tag": "open-right-down-3",
+      "label": "open-right · down-3",
+      "base_file": "open-right-down-3-base.png",
+      "base_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-down-3-base.png",
+      "run_file": "open-right-down-3-run.png",
+      "run_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-down-3-run.png"
+    },
+    {
+      "base": "open-right-00-right.png",
+      "run": "BTVTC-157249-CHANGED-04-open-right-right.png",
       "slots": {
         "title": {
           "ocr_base": "",
@@ -207,7 +332,7 @@
           "ocr_base": "",
           "ocr_run": "",
           "text_ok": true,
-          "mean_delta": 0.0,
+          "mean_delta": 3.54,
           "pixel_ok": true,
           "lang_base": "ko",
           "lang_run": "ko",
@@ -215,7 +340,8 @@
         }
       },
       "changed": false,
-      "popup_ignored": false,
+      "popup_ignored": true,
+      "note": "신호 팝업 유무는 UI 변경으로 확정하지 않음",
       "tag": "open-right-right",
       "label": "open-right · right",
       "base_file": "open-right-right-base.png",
@@ -224,6 +350,6 @@
       "run_path": "C:\\develop_folder\\STE-Btv_server\\view\\data\\process\\compare\\open-right-right-run.png"
     }
   ],
-  "prev_run": 30,
-  "curr_run": 31
+  "prev_run": 42,
+  "curr_run": 46
 }
