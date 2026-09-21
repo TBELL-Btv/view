@@ -333,6 +333,32 @@ header + .section, header + .chart { margin-top: 10px }
 }
 .compact-tools .search { margin-left: 0; flex: 1; min-width: 180px }
 .tablewrap { overflow: auto; border-radius: var(--radius) }
+.cov-table th:nth-child(2),
+.cov-table th:nth-child(3),
+.cov-table td.cov-cell {
+  text-align: center;
+  width: 4.5rem;
+}
+.cov-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+.cov-ico svg {
+  display: block;
+}
+.cov-ico.on {
+  color: var(--brand, #0064ff);
+  background: #eef4ff;
+}
+.cov-ico.off {
+  color: #9aa0a6;
+  background: var(--wash, #f5f6f8);
+}
 table { border-collapse: collapse; width: 100%; min-width: 720px }
 .pager {
   display: flex;

@@ -387,6 +387,22 @@ function donutPanel(c, title) {
     </div>`;
 }
 
+function covIcon(ok, labelOk, labelNo) {
+  if (ok) {
+    return `<span class="cov-ico on" title="${escHtml(labelOk || "완료")}" aria-label="${escHtml(labelOk || "완료")}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    </span>`;
+  }
+  return `<span class="cov-ico off" title="${escHtml(labelNo || "없음")}" aria-label="${escHtml(labelNo || "없음")}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+  </span>`;
+}
+
+function covDone(v) {
+  const s = String(v || "").trim();
+  return s === "완료" || s === "Y" || s === "yes" || s === "true" || s === "1";
+}
+
 function coverageTable(runResults) {
   const cov = CATALOG.coverage || {};
   let rows = cov.rows || [];
@@ -407,18 +423,16 @@ function coverageTable(runResults) {
   if (!rows.length) return "";
   return `<section class="section">
     <div class="sectionhead"><h2>구현·실기 현황</h2><div class="desc muted">${escHtml(cov.note || "mock PASS ≠ 실기 검증")}</div></div>
-    <div class="card tablewrap"><table>
-      <thead><tr><th>TC</th><th>BDD</th><th>Step</th><th>Page</th><th>Mock</th><th>실기 조작</th><th>실기 판정</th><th>10회</th><th>판정 근거</th></tr></thead>
+    <div class="card tablewrap"><table class="cov-table">
+      <thead><tr><th>TC</th><th>BDD</th><th>Step</th><th>Page</th><th>실기 판정</th><th>10회</th><th>판정 근거</th></tr></thead>
       <tbody>
         ${rows
           .map(
             (r) => `<tr data-go="/cases/${encodeURIComponent(r.tc_id)}">
               <td class="tcid">${escHtml(r.tc_id)}</td>
-              <td>${escHtml(r.bdd)}</td>
-              <td>${escHtml(r.step)}</td>
+              <td class="cov-cell">${covIcon(covDone(r.bdd))}</td>
+              <td class="cov-cell">${covIcon(covDone(r.step))}</td>
               <td>${escHtml(r.page)}</td>
-              <td>${badge(r.mock === "미실행" ? "" : r.mock)}</td>
-              <td>${escHtml(r.real_nav)}</td>
               <td>${badge(r.real_judge === "미검증" ? "" : r.real_judge)}</td>
               <td>${escHtml(r.repeat10)}</td>
               <td class="muted">${escHtml(r.evidence || "")}${r.deferred && r.deferred.length ? " · 보류 " + escHtml(r.deferred.join(", ")) : ""}</td>
