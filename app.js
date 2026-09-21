@@ -1787,12 +1787,29 @@ function stepReadsHtml(st, shots) {
 }
 
 function shotsHtml(paths, highlightLast) {
-  const visible = (paths || []).filter((src) => !isOcrWorkShot(src));
-  if (!visible.length) return `<p class="muted">첨부 화면 없음</p>`;
-  return `<div class="shots" data-gallery="1">${visible
+  const visible = (paths || []).filter((src) => {
+    const n = String(src || "")
+      .split(/[/\\]/)
+      .pop();
+    if (!n || isOcrWorkShot(n)) return false;
+    if (/^live-\d{3}\.png$/i.test(n)) return false;
+    if (n === "open-right.png" || n === "open-left.png") return false;
+    return true;
+  });
+  // 동일 파일명만 1회
+  const seen = new Set();
+  const uniq = [];
+  for (const src of visible) {
+    const n = src.split(/[/\\]/).pop();
+    if (seen.has(n)) continue;
+    seen.add(n);
+    uniq.push(src);
+  }
+  if (!uniq.length) return `<p class="muted">첨부 화면 없음</p>`;
+  return `<div class="shots" data-gallery="1">${uniq
     .map((src, i) => {
       const name = src.split("/").pop();
-      const mark = highlightLast && i === visible.length - 1 ? " · 실패 시점 후보" : "";
+      const mark = highlightLast && i === uniq.length - 1 ? " · 실패 시점 후보" : "";
       const primary = mediaSrc(src);
       const refGuess = shotSrc(name);
       const onerr =

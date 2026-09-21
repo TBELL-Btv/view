@@ -29,14 +29,9 @@
         "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-05-open-right-down-1.png",
         "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-06-open-right-down-2.png",
         "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-07-open-right-down-3.png",
-        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-08-open-right-down-4.png",
-        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-09-voice-menu-hit.png",
-        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-10-assert-layout-focus.png",
-        "data/shots/run-46/BTVTC-157249-CHANGED/live-249.png",
         "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-11-audio-multi-body.png",
         "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-12-audio-multi-focus.png",
-        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-13-audio-multi-down.png",
-        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-14-audio-multi-en.png"
+        "data/shots/run-46/BTVTC-157249-CHANGED/BTVTC-157249-CHANGED-13-audio-multi-down.png"
       ],
       "artifacts": {
         "keys": [
@@ -706,7 +701,7 @@
                   }
                 },
                 "note": "화면 전제 (extract)",
-                "shot_url": "data/shots/run-46/BTVTC-157249-CHANGED/live-249.png"
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
               },
               {
                 "kind": "read",
@@ -811,7 +806,7 @@
                   ]
                 },
                 "note": "슬롯 앵커 대조",
-                "shot_url": "data/shots/run-46/BTVTC-157249-CHANGED/live-249.png"
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
               }
             ],
             "devices": [],
@@ -880,12 +875,7 @@
         "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-05-open-right-down-1.png",
         "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-06-open-right-down-2.png",
         "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-07-open-right-down-3.png",
-        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-08-open-right-down-4.png",
-        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-09-voice-menu-hit.png",
-        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-10-assert-layout-focus.png",
-        "data/shots/run-46/BTVTC-157249-DEFAULT/live-249.png",
-        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-11-audio-multi-body.png",
-        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-12-audio-multi-ko.png"
+        "data/shots/run-46/BTVTC-157249-DEFAULT/BTVTC-157249-DEFAULT-11-audio-multi-body.png"
       ],
       "artifacts": {
         "keys": [
@@ -1424,7 +1414,7 @@
                   }
                 },
                 "note": "화면 전제 (extract)",
-                "shot_url": "data/shots/run-46/BTVTC-157249-DEFAULT/live-249.png"
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
               },
               {
                 "kind": "read",
@@ -1529,7 +1519,7 @@
                   ]
                 },
                 "note": "슬롯 앵커 대조",
-                "shot_url": "data/shots/run-46/BTVTC-157249-DEFAULT/live-249.png"
+                "shot_url": "data/ref-shots/wing-right-panel-voice.png"
               }
             ],
             "devices": [],
@@ -1569,10 +1559,7 @@
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-04-open-right-right.png",
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-05-open-right-down-1.png",
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-06-open-right-down-2.png",
-        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-07-open-right-down-3.png",
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-08-caption-menu-hit.png",
-        "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-09-assert-layout-focus.png",
-        "data/shots/run-46/BTVTC-157242-CHANGED/live-242.png",
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-10-caption-changed-panel.png",
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-11-caption-changed-subtitle.png",
         "data/shots/run-46/BTVTC-157242-CHANGED/BTVTC-157242-CHANGED-12-caption-changed-desc.png",
@@ -2252,7 +2239,7 @@
                   }
                 },
                 "note": "화면 전제 (extract)",
-                "shot_url": "data/shots/run-46/BTVTC-157242-CHANGED/live-242.png"
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
               },
               {
                 "kind": "read",
@@ -2392,7 +2379,7 @@
                   ]
                 },
                 "note": "슬롯 앵커 대조",
-                "shot_url": "data/shots/run-46/BTVTC-157242-CHANGED/live-242.png"
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
               }
             ],
             "devices": [],
@@ -2498,10 +2485,7 @@
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-04-open-right-right.png",
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-05-open-right-down-1.png",
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-06-open-right-down-2.png",
-        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-07-open-right-down-3.png",
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-08-caption-menu-hit.png",
-        "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-09-assert-layout-focus.png",
-        "data/shots/run-46/BTVTC-157242-DEFAULT/live-242.png",
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-10-caption-default-panel.png",
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-11-caption-default-subtitle.png",
         "data/shots/run-46/BTVTC-157242-DEFAULT/BTVTC-157242-DEFAULT-12-caption-default-desc.png",
@@ -3173,7 +3157,7 @@
                   }
                 },
                 "note": "화면 전제 (extract)",
-                "shot_url": "data/shots/run-46/BTVTC-157242-DEFAULT/live-242.png"
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
               },
               {
                 "kind": "read",
@@ -3313,7 +3297,7 @@
                   ]
                 },
                 "note": "슬롯 앵커 대조",
-                "shot_url": "data/shots/run-46/BTVTC-157242-DEFAULT/live-242.png"
+                "shot_url": "data/ref-shots/wing-right-panel-caption.png"
               }
             ],
             "devices": [],
