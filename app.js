@@ -172,7 +172,11 @@ function shotSrc(name) {
 function fetchJson(url, timeoutMs) {
   const ctrl = timeoutMs ? new AbortController() : null;
   const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
-  return fetch(url, { cache: "no-store", signal: ctrl ? ctrl.signal : undefined })
+  return fetch(url, {
+    cache: "no-store",
+    credentials: "include",
+    signal: ctrl ? ctrl.signal : undefined,
+  })
     .then((res) => {
       if (!res.ok) throw new Error(url + " " + res.status);
       return res.json();
@@ -219,6 +223,10 @@ function render() {
   const app = document.getElementById("app");
   try {
     const { name, id } = page();
+    if (name !== "run" && LAB_RUN_POLL) {
+      clearInterval(LAB_RUN_POLL);
+      LAB_RUN_POLL = null;
+    }
     document.querySelectorAll(".nav button").forEach((b) => {
       b.classList.toggle("on", b.dataset.page === name);
     });
@@ -244,6 +252,13 @@ function render() {
       app.innerHTML = renderProcess(id);
       bind();
       fillProcessShots();
+      window.scrollTo(0, 0);
+      return;
+    } else if (name === "stack") app.innerHTML = renderStack();
+    else if (name === "run") {
+      app.innerHTML = renderLabRun();
+      bind();
+      bindLabRun();
       window.scrollTo(0, 0);
       return;
     } else if (name === "runs") app.innerHTML = id ? renderRun(id) : renderHome();
@@ -403,45 +418,717 @@ function covDone(v) {
   return s === "완료" || s === "Y" || s === "yes" || s === "true" || s === "1";
 }
 
-function coverageTable(runResults) {
-  const cov = CATALOG.coverage || {};
-  let rows = cov.rows || [];
-  if (!rows.length) return "";
-  if (runResults && runResults.length) {
-    const byId = Object.fromEntries(runResults.map((r) => [r.tc_id, r]));
-    rows = rows
-      .filter((r) => byId[r.tc_id])
-      .map((r) => {
-        const hit = byId[r.tc_id];
-        return {
-          ...r,
-          real_judge: hit.verdict || r.real_judge,
-          evidence: hit.message || r.evidence,
-        };
-      });
+/** CHANGED/DEFAULT/CLEAR/VOLUME 변형을 패밀리 TC로 묶는다. */
+function familyIdOf(tcId) {
+  const id = String(tcId || "");
+  const m = id.match(/^(BTVTC-\d+)-(CHANGED|DEFAULT|CLEAR|VOLUME)$/i);
+  return m ? m[1] : id;
+}
+
+const VARIANT_SUFFIX_LABEL = {
+  CHANGED: "변경",
+  DEFAULT: "기본",
+  CLEAR: "클리어 보이스",
+  VOLUME: "자동 볼륨",
+};
+
+/** publish 전 스냅샷에도 Wing이 갈리도록 패밀리 기본 feature. */
+const FEATURE_BY_FAMILY = {
+  "BTVTC-157215": "좌측 Wing UI",
+  "BTVTC-157217": "좌측 Wing UI",
+  "BTVTC-157214": "좌측 Wing UI",
+  "BTVTC-157233": "우측 Wing UI",
+  "BTVTC-157255": "우측 Wing UI",
+  "BTVTC-157249": "우측 Wing UI",
+  "BTVTC-157242": "우측 Wing UI",
+  "BTVTC-157261": "우측 Wing UI",
+  "BTVTC-157265": "우측 Wing UI",
+};
+
+const TITLE_BY_FAMILY = {
+  "BTVTC-157215": "좌측 Wing 메뉴",
+  "BTVTC-157217": "인기채널 / AI 추천",
+  "BTVTC-157214": "선호 채널",
+  "BTVTC-157233": "볼만한 콘텐츠",
+  "BTVTC-157255": "AI 사운드 설정",
+  "BTVTC-157249": "음성 다중 설정",
+  "BTVTC-157242": "자막/해설/수어 설정",
+  "BTVTC-157261": "시청 환경 설정",
+  "BTVTC-157265": "마케팅 배너 제어",
+};
+
+function suiteLabelOf(suite) {
+  const s = String(suite || "").toUpperCase();
+  if (s === "LIVE") return "Live TV";
+  if (s === "VOD") return "VOD";
+  return suite || "기타";
+}
+
+function featureOfRow(r, familyId) {
+  const raw = String(r.feature || "").trim();
+  if (raw && raw !== "LIVE" && raw !== "VOD" && raw !== suiteLabelOf(r.suite)) return raw;
+  if (FEATURE_BY_FAMILY[familyId]) return FEATURE_BY_FAMILY[familyId];
+  const suite = String(r.suite || "").toUpperCase();
+  if (suite === "VOD") return "VOD Player";
+  return suiteLabelOf(suite);
+}
+
+function featureOrderKey(name) {
+  const n = String(name || "");
+  if (n.includes("좌측")) return "0";
+  if (n.includes("우측")) return "1";
+  return "9" + n;
+}
+
+function variantLabelOf(tcId, scenario) {
+  const sc = String(scenario || "");
+  let m = sc.match(/을\s+(.+?)(?:로|으로)\s*확인/);
+  if (m) return m[1].trim();
+  m = sc.match(/을\s+(.+?)한다$/);
+  if (m && m[1].length < 40) return m[1].trim();
+  const up = String(tcId || "").split("-").pop().toUpperCase();
+  if (VARIANT_SUFFIX_LABEL[up]) return VARIANT_SUFFIX_LABEL[up];
+  return sc || tcId;
+}
+
+function familyTitleOf(scenario, feature, familyId) {
+  const sc = String(scenario || "");
+  let m = sc.match(/^(.+?)을\s+/);
+  if (m) return m[1].trim();
+  m = sc.match(/^(.+?)를\s+/);
+  if (m) return m[1].trim();
+  if (TITLE_BY_FAMILY[familyId]) return TITLE_BY_FAMILY[familyId];
+  if (sc) return sc;
+  return feature || familyId;
+}
+
+function verdictRank(v) {
+  const s = String(v || "");
+  if (s === "FAIL") return 4;
+  if (s === "ERROR") return 3;
+  if (s === "PASS_CHANGED" || s === "PASS(변경 감지)") return 2;
+  if (s === "PASS") return 1;
+  return 0;
+}
+
+function pickWorseVerdict(a, b) {
+  return verdictRank(a) >= verdictRank(b) ? a : b;
+}
+
+/** 회차 결과 + coverage 메타로 트리용 행을 만든다(실행분만). */
+function coverageRowsForRun(runResults) {
+  const covById = Object.fromEntries(((CATALOG.coverage && CATALOG.coverage.rows) || []).map((r) => [r.tc_id, r]));
+  const caseById = Object.fromEntries((caseList() || []).map((tc) => [tc.id, tc]));
+  return (runResults || []).map((r) => {
+    const cov = covById[r.tc_id] || {};
+    const tc = caseById[r.tc_id] || {};
+    const fid = familyIdOf(r.tc_id);
+    let suite = String(cov.suite || "").toUpperCase();
+    if (!suite) {
+      suite = FEATURE_BY_FAMILY[fid] ? "LIVE" : /^BTVTC-(134|145)/.test(r.tc_id) ? "VOD" : "LIVE";
+    }
+    return {
+      tc_id: r.tc_id,
+      suite,
+      feature: cov.feature || "",
+      scenario: cov.scenario || tc.title || r.title || "",
+      bdd: cov.bdd || (tc.given ? "완료" : "없음"),
+      step: cov.step || (tc.method || tc.page ? "완료" : "없음"),
+      page: cov.page || tc.page || "",
+      real_judge: r.verdict || "",
+      evidence: r.message || cov.evidence || "",
+      deferred: Array.isArray(cov.deferred) ? cov.deferred : [],
+    };
+  });
+}
+
+/** suite → feature(Wing) → family → variants (입력 행만 포함). */
+function coverageTreeFromRows(rawRows) {
+  const asList = (v) => (Array.isArray(v) ? v : []);
+  const byFamily = new Map();
+  for (const r of rawRows || []) {
+    const fid = familyIdOf(r.tc_id);
+    const suite = String(r.suite || "").toUpperCase() || "LIVE";
+    const feature = featureOfRow(r, fid);
+    let fam = byFamily.get(fid);
+    if (!fam) {
+      fam = {
+        family_id: fid,
+        title: TITLE_BY_FAMILY[fid] || familyTitleOf(r.scenario, feature, fid),
+        suite,
+        feature,
+        bdd: r.bdd,
+        step: r.step,
+        page: r.page,
+        real_judge: "",
+        evidence: "",
+        deferred: asList(r.deferred),
+        variants: [],
+      };
+      byFamily.set(fid, fam);
+    }
+    if (covDone(r.bdd)) fam.bdd = "완료";
+    if (covDone(r.step)) fam.step = "완료";
+    if (!fam.page && r.page) fam.page = r.page;
+    if (TITLE_BY_FAMILY[fid]) fam.title = TITLE_BY_FAMILY[fid];
+    else if (r.tc_id === fid) fam.title = familyTitleOf(r.scenario, feature, fid);
+    fam.deferred = [...new Set([...(fam.deferred || []), ...asList(r.deferred)])];
+    const verdict = r.real_judge === "미검증" ? "" : r.real_judge || "";
+    const evidence = r.evidence || "";
+    fam.real_judge = pickWorseVerdict(fam.real_judge, verdict);
+    if (evidence) fam.evidence = evidence;
+    fam.variants.push({
+      tc_id: r.tc_id,
+      label: variantLabelOf(r.tc_id, r.scenario),
+      scenario: r.scenario || "",
+      bdd: r.bdd,
+      step: r.step,
+      page: r.page,
+      real_judge: verdict || "미검증",
+      evidence,
+      deferred: asList(r.deferred),
+    });
   }
-  if (!rows.length) return "";
-  return `<section class="section">
-    <div class="sectionhead"><h2>구현·실기 현황</h2><div class="desc muted">${escHtml(cov.note || "mock PASS ≠ 실기 검증")}</div></div>
-    <div class="card tablewrap"><table class="cov-table">
-      <thead><tr><th>TC</th><th>BDD</th><th>Step</th><th>Page</th><th>실기 판정</th><th>10회</th><th>판정 근거</th></tr></thead>
-      <tbody>
-        ${rows
-          .map(
-            (r) => `<tr data-go="/cases/${encodeURIComponent(r.tc_id)}">
-              <td class="tcid">${escHtml(r.tc_id)}</td>
-              <td class="cov-cell">${covIcon(covDone(r.bdd))}</td>
-              <td class="cov-cell">${covIcon(covDone(r.step))}</td>
-              <td>${escHtml(r.page)}</td>
-              <td>${badge(r.real_judge === "미검증" ? "" : r.real_judge)}</td>
-              <td>${escHtml(r.repeat10)}</td>
-              <td class="muted">${escHtml(r.evidence || "")}${r.deferred && r.deferred.length ? " · 보류 " + escHtml(r.deferred.join(", ")) : ""}</td>
-            </tr>`
-          )
-          .join("")}
-      </tbody>
-    </table></div>
-  </section>`;
+  const suites = new Map();
+  for (const fam of byFamily.values()) {
+    if (!suites.has(fam.suite)) {
+      suites.set(fam.suite, { suite: fam.suite, label: suiteLabelOf(fam.suite), features: new Map() });
+    }
+    const su = suites.get(fam.suite);
+    if (!su.features.has(fam.feature)) {
+      su.features.set(fam.feature, { name: fam.feature, families: [] });
+    }
+    su.features.get(fam.feature).families.push(fam);
+  }
+  const suiteOrder = ["LIVE", "VOD"];
+  return suiteOrder
+    .filter((k) => suites.has(k))
+    .concat([...suites.keys()].filter((k) => !suiteOrder.includes(k)))
+    .map((k) => {
+      const su = suites.get(k);
+      const features = [...su.features.values()].sort((a, b) =>
+        featureOrderKey(a.name).localeCompare(featureOrderKey(b.name), "ko")
+      );
+      return { suite: su.suite, label: su.label, features };
+    });
+}
+
+function isPassVerdict(v) {
+  const s = String(v || "");
+  return s === "PASS" || s === "PASS_CHANGED" || s === "PASS(변경 감지)";
+}
+
+function variantPassTotal(variants) {
+  const list = variants || [];
+  let pass = 0;
+  for (const v of list) {
+    if (isPassVerdict(v.real_judge)) pass += 1;
+  }
+  return { pass, total: list.length };
+}
+
+function familyPassTotal(fam) {
+  return variantPassTotal(fam.variants);
+}
+
+function featurePassTotal(feat) {
+  let pass = 0;
+  let total = 0;
+  for (const fam of feat.families || []) {
+    const s = familyPassTotal(fam);
+    pass += s.pass;
+    total += s.total;
+  }
+  return { pass, total };
+}
+
+function suitePassTotal(su) {
+  let pass = 0;
+  let total = 0;
+  for (const f of su.features || []) {
+    const s = featurePassTotal(f);
+    pass += s.pass;
+    total += s.total;
+  }
+  return { pass, total };
+}
+
+function treePassCountHtml(pass, total) {
+  return `<span class="tc-tree-count" title="PASS / 전체">${pass}/${total}</span>`;
+}
+
+function treeVariantCount(tree) {
+  return (tree || []).reduce((a, su) => a + suitePassTotal(su).total, 0);
+}
+
+function covVariantRowHtml(v) {
+  const vrd = v.real_judge === "미검증" ? "" : v.real_judge;
+  return `<div class="tc-tree-var" data-go="/cases/${encodeURIComponent(v.tc_id)}" role="link" tabindex="0">
+    <div class="tc-tree-var-top">
+      ${badge(vrd)}
+      <span class="tc-tree-var-label">${escHtml(v.label)}</span>
+      <code class="tcid">${escHtml(v.tc_id)}</code>
+    </div>
+    ${v.evidence ? `<div class="tc-tree-var-msg muted">${escHtml(v.evidence)}</div>` : ""}
+  </div>`;
+}
+
+function covFamilyBlockHtml(fam) {
+  const { pass, total } = familyPassTotal(fam);
+  const body = (fam.variants || []).map(covVariantRowHtml).join("");
+  return `<details class="tc-tree-family">
+    <summary class="tc-tree-family-head">
+      <code class="tcid">${escHtml(fam.family_id)}</code>
+      <span class="tc-tree-family-title">${escHtml(fam.title)}</span>
+      ${treePassCountHtml(pass, total)}
+      ${badge(fam.real_judge || "")}
+    </summary>
+    <div class="tc-tree-family-body">${body}</div>
+  </details>`;
+}
+
+function covFeatureBlockHtml(feat, { open = false } = {}) {
+  const { pass, total } = featurePassTotal(feat);
+  const body = (feat.families || []).map(covFamilyBlockHtml).join("");
+  return `<details class="tc-tree-feature"${open ? " open" : ""}>
+    <summary class="tc-tree-feature-head">
+      <span class="tc-tree-feature-title">${escHtml(feat.name)}</span>
+      ${treePassCountHtml(pass, total)}
+    </summary>
+    <div class="tc-tree-feature-body">${body}</div>
+  </details>`;
+}
+
+function covSuiteBlockHtml(su, { open = true } = {}) {
+  const { pass, total } = suitePassTotal(su);
+  const body = (su.features || []).map((f) => covFeatureBlockHtml(f, { open: false })).join("");
+  return `<details class="tc-tree-suite"${open ? " open" : ""}>
+    <summary class="tc-tree-suite-head">
+      <span class="tc-tree-suite-title">${escHtml(su.label)}</span>
+      ${treePassCountHtml(pass, total)}
+    </summary>
+    <div class="tc-tree-suite-body">${body}</div>
+  </details>`;
+}
+
+function tcTreeHtml(runResults, opts = {}) {
+  let rows = coverageRowsForRun(runResults);
+  if (opts.filterRow) rows = rows.filter(opts.filterRow);
+  const tree = coverageTreeFromRows(rows);
+  if (!tree.length) {
+    return `<p class="muted">${escHtml(opts.empty || "이 회차에서 실행한 테스트케이스가 없습니다.")}</p>`;
+  }
+  const total = treeVariantCount(tree);
+  const head = opts.hideHead
+    ? ""
+    : `<div class="sectionhead">
+        <h2>${escHtml(opts.title || "테스트케이스")}</h2>
+        <div class="desc muted">${escHtml(opts.desc || `${total}건 · Live TV → Wing → TC`)}</div>
+      </div>`;
+  return `${head}
+    <div class="tc-tree card">${tree
+      .map((su) => covSuiteBlockHtml(su, { open: su.suite === "LIVE" || tree.length === 1 }))
+      .join("")}</div>`;
+}
+
+let LAB_RUN_CATALOG = null;
+let LAB_RUN_POLL = null;
+let LAB_RUN_CHECKED = new Set();
+let LAB_RUN_ENTRY = {};
+
+function renderLabRun() {
+  return `<header>
+      <div class="eyebrow">실기 실행</div>
+      <h1>테스트 실행</h1>
+      <p class="dash-summary">셋톱 1대 · 변형을 골라 이 PC에서 실행합니다. 이미 실행 중이면 선택이 잠깁니다.</p>
+    </header>
+    <section class="lab-run" id="lab-run">
+      <aside class="lab-run-list">
+        <div class="lab-run-busy" id="lab-run-busy" hidden>
+          <b>실행 중</b>
+          <span id="lab-run-busy-detail">셋톱을 사용 중입니다. 끝날 때까지 다른 TC를 선택할 수 없습니다.</span>
+        </div>
+        <div class="lab-run-toolbar">
+          <button type="button" class="btn" id="lab-run-all">전체 선택</button>
+          <button type="button" class="btn ghost" id="lab-run-none">선택 해제</button>
+          <button type="button" class="btn primary" id="lab-run-start">실행</button>
+        </div>
+        <div class="lab-run-status muted" id="lab-run-status">목록 불러오는 중…</div>
+        <div class="lab-run-families" id="lab-run-families"></div>
+      </aside>
+      <div class="lab-run-stage">
+        <div class="lab-run-preview">
+          <img id="lab-run-mjpeg" alt="ADB 미리보기" />
+        </div>
+        <div class="lab-run-meta">
+          <div><span class="muted">TC</span> <b id="lab-run-tc">—</b></div>
+          <div><span class="muted">BDD</span> <span id="lab-run-bdd">—</span></div>
+        </div>
+        <pre class="lab-run-log" id="lab-run-log"></pre>
+      </div>
+    </section>`;
+}
+
+function labRunSuites(families) {
+  const suiteOrder = [];
+  const suites = new Map();
+  for (const f of families || []) {
+    const suite = String(f.suite || "LIVE").toUpperCase() || "LIVE";
+    const feature = String(f.feature || suiteLabelOf(suite)).trim() || suiteLabelOf(suite);
+    if (!suites.has(suite)) {
+      suites.set(suite, { suite, label: suiteLabelOf(suite), features: new Map() });
+      suiteOrder.push(suite);
+    }
+    const su = suites.get(suite);
+    if (!su.features.has(feature)) su.features.set(feature, []);
+    su.features.get(feature).push(f);
+  }
+  const prefer = ["LIVE", "VOD"];
+  const ordered = prefer.filter((k) => suites.has(k)).concat(suiteOrder.filter((k) => !prefer.includes(k)));
+  return ordered.map((k) => {
+    const su = suites.get(k);
+    const feats = [...su.features.entries()]
+      .sort((a, b) => featureOrderKey(a[0]).localeCompare(featureOrderKey(b[0]), "ko"))
+      .map(([name, fams]) => ({ name, families: fams }));
+    return { suite: su.suite, label: su.label, features: feats };
+  });
+}
+
+function labRunFamilyBlockHtml(f) {
+  const variants = f.variants || [];
+  const ids = variants.map((v) => v.id);
+  const allOn = ids.length > 0 && ids.every((id) => LAB_RUN_CHECKED.has(id));
+  const someOn = ids.some((id) => LAB_RUN_CHECKED.has(id));
+  const entry =
+    f.entry_options && f.entry_options.length
+      ? `<select class="lab-run-entry-sel" data-family-entry="${escHtml(f.family_id)}" title="진입경로">
+            ${f.entry_options
+              .map(
+                (o) =>
+                  `<option value="${escHtml(o.id)}" ${
+                    LAB_RUN_ENTRY[f.family_id] === o.id ? "selected" : ""
+                  }>${escHtml(o.label)}</option>`
+              )
+              .join("")}
+          </select>`
+      : "";
+  /* 단일 변형: 패밀리 헤더·하위행 중복 없이 한 줄 */
+  if (variants.length <= 1) {
+    const v = variants[0] || { id: f.family_id, label: f.title };
+    const on = LAB_RUN_CHECKED.has(v.id) ? "checked" : "";
+    const short = String(v.id || "").replace(/^BTVTC-/, "");
+    return `<div class="lab-run-family lab-run-family--solo" data-family="${escHtml(f.family_id)}">
+      <label class="lab-run-item lab-run-item--solo">
+        <input type="checkbox" data-tc="${escHtml(v.id)}" ${on} />
+        <span class="lab-run-item-label">${escHtml(f.title || v.label)}</span>
+        <code class="tcid" title="${escHtml(v.id)}">${escHtml(short)}</code>
+        ${entry}
+      </label>
+    </div>`;
+  }
+  const rows = variants
+    .map((v) => {
+      const on = LAB_RUN_CHECKED.has(v.id) ? "checked" : "";
+      const short = String(v.id || "").replace(/^BTVTC-/, "");
+      return `<label class="lab-run-item">
+        <input type="checkbox" data-tc="${escHtml(v.id)}" ${on} />
+        <span class="lab-run-item-label">${escHtml(v.label)}</span>
+        <code class="tcid" title="${escHtml(v.id)}">${escHtml(short)}</code>
+      </label>`;
+    })
+    .join("");
+  return `<div class="lab-run-family" data-family="${escHtml(f.family_id)}">
+    <div class="lab-run-family-head">
+      <label class="lab-run-family-check" title="이 TC 변형 전체">
+        <input type="checkbox" data-family-all="${escHtml(f.family_id)}" ${allOn ? "checked" : ""} ${
+          someOn && !allOn ? 'data-indeterminate="1"' : ""
+        } />
+      </label>
+      <span class="lab-run-family-title">${escHtml(f.title)}</span>
+      <code class="tcid">${escHtml(String(f.family_id || "").replace(/^BTVTC-/, ""))}</code>
+      ${entry}
+      <span class="lab-run-count">${variants.length}</span>
+    </div>
+    <div class="lab-run-variants">${rows}</div>
+  </div>`;
+}
+
+function labRunFamiliesHtml(families) {
+  if (!families || !families.length) {
+    return `<p class="muted">실행 가능한 TC가 없습니다.</p>`;
+  }
+  const suites = labRunSuites(families);
+  return suites
+    .map((su) => {
+      const n = su.features.reduce((a, f) => a + f.families.reduce((b, fam) => b + (fam.variants || []).length, 0), 0);
+      const featBody = su.features
+        .map((g) => {
+          const gn = g.families.reduce((a, f) => a + (f.variants || []).length, 0);
+          const body = g.families.map(labRunFamilyBlockHtml).join("");
+          return `<details class="lab-run-group" open>
+            <summary class="lab-run-group-head">
+              <span class="lab-run-group-title">${escHtml(g.name)}</span>
+              <span class="lab-run-count">${gn}</span>
+            </summary>
+            <div class="lab-run-group-body">${body}</div>
+          </details>`;
+        })
+        .join("");
+      return `<details class="lab-run-suite"${su.suite === "LIVE" || suites.length === 1 ? " open" : ""}>
+        <summary class="lab-run-suite-head">
+          <span class="lab-run-suite-title">${escHtml(su.label)}</span>
+          <span class="lab-run-count">${n}</span>
+        </summary>
+        <div class="lab-run-suite-body">${featBody}</div>
+      </details>`;
+    })
+    .join("");
+}
+
+function syncLabRunFamilyMasters() {
+  document.querySelectorAll("#lab-run-families [data-family-all]").forEach((el) => {
+    const fid = el.getAttribute("data-family-all");
+    const box = el.closest(".lab-run-family");
+    if (!box) return;
+    const tcs = [...box.querySelectorAll("input[data-tc]")];
+    const n = tcs.length;
+    const on = tcs.filter((c) => c.checked).length;
+    el.checked = n > 0 && on === n;
+    el.indeterminate = on > 0 && on < n;
+  });
+}
+
+function syncLabRunCheckedFromDom() {
+  LAB_RUN_CHECKED = new Set();
+  document.querySelectorAll("#lab-run-families input[data-tc]").forEach((el) => {
+    if (el.checked) LAB_RUN_CHECKED.add(el.getAttribute("data-tc"));
+  });
+  document.querySelectorAll("#lab-run-families select[data-family-entry]").forEach((el) => {
+    LAB_RUN_ENTRY[el.getAttribute("data-family-entry")] = el.value;
+  });
+}
+
+function setLabRunControlsLocked(locked) {
+  const root = document.getElementById("lab-run");
+  if (root) root.classList.toggle("is-busy", !!locked);
+  ["lab-run-all", "lab-run-none", "lab-run-start"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !!locked;
+  });
+  document.querySelectorAll("#lab-run-families input[data-tc], #lab-run-families select[data-family-entry], #lab-run-families input[data-family-all]").forEach((el) => {
+    el.disabled = !!locked;
+  });
+  const busy = document.getElementById("lab-run-busy");
+  if (busy) busy.hidden = !locked;
+}
+
+function applyLabRunActive(st) {
+  const tc = document.getElementById("lab-run-tc");
+  const bdd = document.getElementById("lab-run-bdd");
+  const log = document.getElementById("lab-run-log");
+  const status = document.getElementById("lab-run-status");
+  const busyDetail = document.getElementById("lab-run-busy-detail");
+  const running = !!(st && st.running);
+  if (tc) tc.textContent = (st && st.tc_id) || "—";
+  if (bdd) bdd.textContent = (st && st.bdd) || "—";
+  if (log) {
+    const lines = (st && st.lines) || [];
+    log.textContent = lines.slice(-40).join("\n");
+    log.scrollTop = log.scrollHeight;
+  }
+  setLabRunControlsLocked(running);
+  if (busyDetail && running) {
+    const bits = [
+      st.run_id != null ? `run-${st.run_id}` : "",
+      st.tc_id || "",
+      st.bdd ? String(st.bdd).slice(0, 80) : "",
+    ].filter(Boolean);
+    busyDetail.textContent = bits.length
+      ? `셋톱 사용 중 · ${bits.join(" · ")}`
+      : "셋톱을 사용 중입니다. 끝날 때까지 다른 TC를 선택할 수 없습니다.";
+  }
+  if (status) {
+    if (running) {
+      status.textContent = `실행 중${st.run_id != null ? ` · run-${st.run_id}` : ""} · ${st.tc_id || ""} · 선택 잠금`;
+    } else if (st && st.finished) {
+      status.textContent = st.error
+        ? `종료(오류) · ${st.error}`
+        : `대기 · 마지막 run-${st.run_id != null ? st.run_id : "—"} · ${LAB_RUN_CHECKED.size}건 선택`;
+    } else {
+      status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
+    }
+  }
+}
+
+async function refreshLabRunActive() {
+  const base = apiBase();
+  if (!base) return;
+  try {
+    const st = await fetchJson(base + "/api/runs/active", 5000);
+    applyLabRunActive(st || {});
+    if (st && st.running) {
+      startLabRunPoll();
+    } else if (LAB_RUN_POLL) {
+      clearInterval(LAB_RUN_POLL);
+      LAB_RUN_POLL = null;
+    }
+  } catch {
+    /* ignore poll errors */
+  }
+}
+
+function startLabRunPoll() {
+  if (LAB_RUN_POLL) return;
+  LAB_RUN_POLL = setInterval(refreshLabRunActive, 1200);
+}
+
+async function loadLabRunCatalog() {
+  const box = document.getElementById("lab-run-families");
+  const status = document.getElementById("lab-run-status");
+  const base = apiBase();
+  if (!base) {
+    if (status) status.textContent = "랩 API(:8080)에 연결되지 않았습니다.";
+    return;
+  }
+  try {
+    LAB_RUN_CATALOG = await fetchJson(base + "/api/run-catalog", 12000);
+    if (box) {
+      box.innerHTML = labRunFamiliesHtml((LAB_RUN_CATALOG && LAB_RUN_CATALOG.families) || []);
+      syncLabRunFamilyMasters();
+    }
+    if (status) {
+      const n = ((LAB_RUN_CATALOG && LAB_RUN_CATALOG.families) || []).reduce(
+        (a, f) => a + (f.variants || []).length,
+        0
+      );
+      status.textContent = `변형 ${n}건 · ${LAB_RUN_CHECKED.size}건 선택`;
+    }
+    const img = document.getElementById("lab-run-mjpeg");
+    if (img && !img.dataset.live) {
+      img.dataset.live = "1";
+      img.src = base + "/api/preview/mjpeg?t=" + Date.now();
+    }
+    await refreshLabRunActive();
+  } catch (err) {
+    if (status) status.textContent = "목록 실패: " + ((err && err.message) || "auth/API");
+  }
+}
+
+async function startLabRun() {
+  const busy = document.getElementById("lab-run");
+  if (busy && busy.classList.contains("is-busy")) {
+    const status = document.getElementById("lab-run-status");
+    if (status) status.textContent = "이미 실행 중 · 셋톱 1대라 대기하세요.";
+    return;
+  }
+  syncLabRunCheckedFromDom();
+  const ids = [...LAB_RUN_CHECKED];
+  const status = document.getElementById("lab-run-status");
+  if (!ids.length) {
+    if (status) status.textContent = "하나 이상 선택하세요.";
+    return;
+  }
+  const base = apiBase();
+  if (!base) return;
+  // 서버 상태 재확인
+  try {
+    const st = await fetchJson(base + "/api/runs/active", 4000);
+    if (st && st.running) {
+      applyLabRunActive(st);
+      startLabRunPoll();
+      if (status) status.textContent = "이미 실행 중 · 셋톱 1대라 대기하세요.";
+      return;
+    }
+  } catch {
+    /* continue */
+  }
+  const entries = Object.values(LAB_RUN_ENTRY).filter(Boolean);
+  const entry = entries[0] || "";
+  try {
+    if (status) status.textContent = "실행 요청 중…";
+    setLabRunControlsLocked(true);
+    const res = await fetch(base + "/api/runs", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tc_ids: ids, entry, real: true }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setLabRunControlsLocked(false);
+      if (status) status.textContent = data.detail || data.error || "실행 실패";
+      return;
+    }
+    applyLabRunActive(data);
+    startLabRunPoll();
+    refreshLabRunActive();
+  } catch (err) {
+    setLabRunControlsLocked(false);
+    if (status) status.textContent = "실행 실패: " + ((err && err.message) || "");
+  }
+}
+
+function bindLabRun() {
+  const root = document.getElementById("lab-run");
+  if (!root || root.dataset.bound === "1") {
+    loadLabRunCatalog();
+    return;
+  }
+  root.dataset.bound = "1";
+  root.addEventListener("change", (e) => {
+    const t = e.target;
+    if (!t || !t.matches) return;
+    if (t.matches("input[data-family-all]")) {
+      const box = t.closest(".lab-run-family");
+      if (box) {
+        box.querySelectorAll("input[data-tc]").forEach((el) => {
+          el.checked = t.checked;
+        });
+      }
+      syncLabRunCheckedFromDom();
+      syncLabRunFamilyMasters();
+      const status = document.getElementById("lab-run-status");
+      if (status && !status.textContent.includes("실행 중")) {
+        status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
+      }
+      return;
+    }
+    if (t.matches("input[data-tc]") || t.matches("select[data-family-entry]")) {
+      syncLabRunCheckedFromDom();
+      syncLabRunFamilyMasters();
+      const status = document.getElementById("lab-run-status");
+      if (status && !status.textContent.includes("실행 중")) {
+        status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
+      }
+    }
+  });
+  const all = document.getElementById("lab-run-all");
+  const none = document.getElementById("lab-run-none");
+  const start = document.getElementById("lab-run-start");
+  if (all) {
+    all.addEventListener("click", () => {
+      document.querySelectorAll("#lab-run-families input[data-tc]").forEach((el) => {
+        el.checked = true;
+      });
+      syncLabRunCheckedFromDom();
+      syncLabRunFamilyMasters();
+      const status = document.getElementById("lab-run-status");
+      if (status) status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
+    });
+  }
+  if (none) {
+    none.addEventListener("click", () => {
+      document.querySelectorAll("#lab-run-families input[data-tc]").forEach((el) => {
+        el.checked = false;
+      });
+      syncLabRunCheckedFromDom();
+      syncLabRunFamilyMasters();
+      const status = document.getElementById("lab-run-status");
+      if (status) status.textContent = "0건 선택";
+    });
+  }
+  if (start) start.addEventListener("click", () => startLabRun());
+  loadLabRunCatalog();
 }
 
 function renderHome() {
@@ -455,28 +1142,49 @@ function renderHome() {
   const latestTotal = c.PASS + c.CHANGE + c.FAIL + c.ERROR;
   const passShow = c.PASS + c.CHANGE;
   const runLabel = run.id != null ? `#${run.id}회차` : "최신";
-  const homeRows = results.length ? rowsFromRunResults(results) : caseList();
   return `
     <header>
-      <div class="eyebrow">테스트케이스 ${homeRows.length}건</div>
+      <div class="eyebrow">테스트케이스 ${results.length}건</div>
       <h1>${escHtml(runLabel)} 테스트 결과</h1>
-      <p class="dash-summary">실행 <b>#${run.id || "—"}</b> · 총 <b>${latestTotal || homeRows.length}</b>건 · PASS <b>${passShow}</b>(변경 ${c.CHANGE}) · FAIL <b>${c.FAIL}</b> · ERROR <b>${c.ERROR}</b> · ${CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록"}</p>
+      <p class="dash-summary">실행 <b>#${run.id || "—"}</b> · 총 <b>${latestTotal || results.length}</b>건 · PASS <b>${passShow}</b>(변경 ${c.CHANGE}) · FAIL <b>${c.FAIL}</b> · ERROR <b>${c.ERROR}</b> · ${CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록"}</p>
     </header>
     <section class="dash-grid">
       ${donutPanel(c, `${runLabel} 테스트 결과`)}
       ${trendChart(timeline)}
     </section>
     <div class="card runinfo">
-      <div class="kv"><span>선택 회차</span><b>#${run.id || "—"} · ${whenRun}${run.trigger ? " · " + run.trigger : ""}</b></div>
+      <div class="kv kv-run"><span>선택 회차</span>${runPickHtml(run, whenRun)}</div>
       <div class="kv"><span>대상 단말</span><b>${device.model || "—"} · ${device.serial || ""}</b></div>
       <div class="kv"><span>연결 / 실기검증</span><b>${device.connected ? "연결됨" : "미확인"} / ${device.verified ? "실기 검증 완료" : "실기 미검증"}</b></div>
     </div>
-    ${coverageTable(results)}
     <section class="section">
-      <div class="sectionhead"><h2>테스트케이스</h2><div class="desc muted">${homeRows.length}건 · ${escHtml(runLabel)} 판정</div></div>
-      ${caseTable(homeRows, { scope: "home" })}
+      ${tcTreeHtml(results, {
+        title: "테스트케이스",
+        desc: `${results.length}건 · ${runLabel} 실행분 · Live TV → Wing → TC`,
+      })}
     </section>
   `;
+}
+
+function triggerTcList(trigger) {
+  const raw = String(trigger || "");
+  const m = raw.match(/cycle:([^:]+)/i);
+  const blob = m ? m[1] : raw;
+  return blob
+    .split(/[,|]/)
+    .map((s) => s.trim())
+    .filter((s) => /^BTVTC-/i.test(s) || /^[A-Z0-9_-]+-\d+/i.test(s));
+}
+
+function runPickHtml(run, whenRun) {
+  const id = run && run.id != null ? `#${run.id}` : "#—";
+  const short = `<b class="run-short" tabindex="0">${escHtml(id)} · ${escHtml(whenRun || "—")}</b>`;
+  const names = triggerTcList(run && run.trigger);
+  if (!names.length) return short;
+  const tip = `<div class="run-tip" role="tooltip"><b>이 회차 테스트</b><ol>${names
+    .map((n) => `<li>${escHtml(n)}</li>`)
+    .join("")}</ol></div>`;
+  return `${short}${tip}`;
 }
 
 function renderRun(id) {
@@ -1524,31 +2232,39 @@ function renderCases() {
   const item = selectedCasesItem();
   const run = (item && item.run) || CATALOG.latest_run || {};
   const runResults = (item && item.results) || [];
-  const baseRows = runResults.length ? rowsFromRunResults(runResults) : caseList();
-  const rows = baseRows.filter((tc) => {
-    const v = (tc.latest && tc.latest.verdict) || "NONE";
-    if (FILTER === "all") return true;
-    if (FILTER === "NONE") return !tc.latest;
-    if (FILTER === "CHANGE") return v === "PASS_CHANGED" || v === "PASS(변경 감지)";
-    return v === FILTER;
-  }).filter((tc) => {
-    if (SCREEN_FILTER === "all") return true;
-    const s = screenOf(tc);
-    return s.id === SCREEN_FILTER || s.screen_id === SCREEN_FILTER;
-  }).filter((tc) => {
+  const caseById = Object.fromEntries((caseList() || []).map((tc) => [tc.id, tc]));
+  const filtered = runResults.filter((r) => {
+    const v = r.verdict || "NONE";
+    if (FILTER === "PASS") {
+      if (v !== "PASS") return false;
+    } else if (FILTER === "CHANGE") {
+      if (v !== "PASS_CHANGED" && v !== "PASS(변경 감지)") return false;
+    } else if (FILTER === "FAIL" || FILTER === "ERROR") {
+      if (v !== FILTER) return false;
+    } else if (FILTER === "NONE") {
+      if (v) return false;
+    }
+    const tc = caseById[r.tc_id] || { id: r.tc_id, title: r.title || r.tc_id };
+    if (SCREEN_FILTER !== "all") {
+      const s = screenOf(tc);
+      if (s.id !== SCREEN_FILTER && s.screen_id !== SCREEN_FILTER) return false;
+    }
     const q = SEARCH.trim().toLowerCase();
-    if (!q) return true;
-    const cls = screenOf(tc);
-    return `${tc.id} ${tc.title} ${tc.steps || ""} ${cls.title} ${cls.id} ${tc.start || ""}`.toLowerCase().includes(q);
+    if (q) {
+      const cls = screenOf(tc);
+      const blob = `${r.tc_id} ${tc.title || ""} ${r.title || ""} ${r.message || ""} ${cls.title} ${cls.id}`.toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+    return true;
   });
   const tally = countsFromResults(runResults);
   const t = {
-    total: baseRows.length,
+    total: runResults.length,
     PASS: tally.PASS,
     CHANGE: tally.CHANGE,
     FAIL: tally.FAIL,
     ERROR: tally.ERROR,
-    NONE: Math.max(0, baseRows.length - (tally.PASS + tally.CHANGE + tally.FAIL + tally.ERROR)),
+    NONE: Math.max(0, runResults.length - (tally.PASS + tally.CHANGE + tally.FAIL + tally.ERROR)),
   };
   const screens = screenOptions();
   const timeline = CATALOG.timeline || [];
@@ -1564,7 +2280,7 @@ function renderCases() {
   return `
     <div class="page-compact">
     <header>
-      <div class="eyebrow">테스트케이스 ${t.total}건</div>
+      <div class="eyebrow">테스트케이스 ${filtered.length}건</div>
       <h1>#${escHtml(String(run.id || "—"))}회차 판정</h1>
     </header>
     <div class="tools compact-tools">
@@ -1600,7 +2316,13 @@ function renderCases() {
       </label>
       <input class="search" id="q" placeholder="TC ID, 분류, 항목 검색" value="${SEARCH.replace(/"/g, "&quot;")}">
     </div>
-    ${caseTable(rows, { scope: "cases" })}
+    <section class="section">
+      ${tcTreeHtml(filtered, {
+        title: "테스트케이스",
+        desc: `${filtered.length}건 · #${run.id || "—"}회차 · Live TV → Wing → TC`,
+        hideHead: true,
+      })}
+    </section>
     </div>
   `;
 }
@@ -1656,11 +2378,28 @@ function stepStatusHtml(verdict) {
   return `<span class="step-status">${escHtml(v)}</span>`;
 }
 
-function stepsHtml(text, verdict, message) {
+function stepsHtml(text, verdict, message, traceSteps) {
+  const timeout = /타임아웃/.test(String(message || ""));
+  // BDD trace가 있으면 수행 절차를 시나리오 문장+단계별 상태로 표시
+  if (Array.isArray(traceSteps) && traceSteps.length) {
+    let n = 0;
+    const rows = traceSteps
+      .map((st) => {
+        n += 1;
+        const stStatus = timeout ? "" : stepStatusHtml(st.status || verdict);
+        const detail = [st.step_def, st.detail].filter(Boolean).join(" · ");
+        return `<div class="step"><div class="num">${n}</div><div class="step-body"><div class="step-title">${richText(
+          `${st.kw || ""} ${st.text || ""}`.trim()
+        )}</div>${
+          detail ? `<div class="step-detail">${richText(detail)}</div>` : ""
+        }</div>${stStatus}</div>`;
+      })
+      .join("");
+    return `<div class="steplist">${rows}</div>`;
+  }
   const groups = parseSteps(text);
   if (!groups.length) return `<p class="muted">단계 없음</p>`;
   let n = 0;
-  const timeout = /타임아웃/.test(String(message || ""));
   const status = timeout ? "" : stepStatusHtml(verdict);
   return `<div class="steplist">${groups
     .map((g) => {
@@ -1727,29 +2466,44 @@ function readShotUrl(rd, shots) {
 function pickGalleryShot(st, shots) {
   const list = (shots || []).filter((s) => !isOcrWorkShot(s));
   if (!list.length) return "";
-  const blob = `${st.step_def || ""} ${st.page || ""} ${st.text || ""} ${st.kw || ""}`;
+  const blob = `${st.kw || ""} ${st.step_def || ""} ${st.page || ""} ${st.text || ""}`;
   const pats = [];
-  if (/caption_toggles|자막|caption/i.test(blob)) {
-    pats.push(/caption-(changed|default|toggle|menu)/i, /live-242/i, /assert-layout/i);
-  } else if (/audio_multi|음성|audio/i.test(blob)) {
-    pats.push(/audio-multi/i, /voice-menu/i, /live-249/i, /assert-layout/i);
-  } else if (/assert_layout|타이틀|슬롯/i.test(blob)) {
-    pats.push(/assert-layout|focus/i, /live-24\d/i, /voice-menu|caption-menu/i);
-  } else if (/open_right/i.test(blob)) {
-    pats.push(/open-right/i, /voice-menu|caption-menu/i, /live-24\d/i);
-  } else if (/goto_live/i.test(blob)) {
-    pats.push(/live-enter-ready/i, /live-enter-guide/i, /live-enter/i);
+  if (/조건|goto_live/i.test(blob)) {
+    pats.push(/live-enter-digit(?!-ch)/i, /live-enter-ready/i, /live-enter/i);
+  } else if (/만일|open_right|open_ai|tc_157249|tc_157242|tc_157255|find_voice|find_caption/i.test(blob)) {
+    pats.push(/open-right-menu/i, /menu-hit|voice-menu-hit|caption-menu-hit|ai-sound/i, /open-right-nav-\d+/i, /open-right-right/i);
+  } else if (/그러면|assert_layout|타이틀 슬롯/i.test(blob)) {
+    pats.push(/assert-layout|menu-hit|open-right-menu|focus/i);
+  } else if (/그리고/i.test(blob) && /audio_multi|음성다중|영어|한국어/i.test(blob) && !/caption|자막/i.test(blob)) {
+    pats.push(/audio-multi-(ko|en)\.png/i, /audio-multi/i);
+  } else if (/그리고/i.test(blob) && /ai_clear|클리어|ai_auto|자동 볼륨|ai-sound/i.test(blob)) {
+    pats.push(/ai-clear|ai-volume|ai-sound|live-255/i);
+  } else if (/그리고|caption_toggles|자막|해설|수어/i.test(blob)) {
+    pats.push(/caption-(changed|default)-(sign|desc|subtitle)/i, /caption-(changed|default)/i);
   }
   for (const re of pats) {
     const hits = list.filter((s) => re.test(shotBaseName(s)));
     if (hits.length) return hits[hits.length - 1];
   }
-  return list[list.length - 1];
+  // 다른 BDD 단계 샷으로 때우지 않는다
+  return "";
 }
 
 function stepReadsHtml(st, shots) {
   const reads = st.reads || [];
-  if (!reads.length) return "";
+  if (!reads.length) {
+    const alt = pickGalleryShot(st, shots);
+    if (!alt) return "";
+    return readCard(
+      {
+        shot: shotBaseName(alt),
+        shot_url: alt,
+        note: `${st.kw || "단계"} · ${st.text || "대표 샷"}`.slice(0, 80),
+      },
+      shots,
+      { compact: true }
+    );
+  }
   const usable = [];
   const seen = new Set();
   for (const rd of reads) {
@@ -1766,11 +2520,11 @@ function stepReadsHtml(st, shots) {
     seen.add(key);
     usable.push(rd);
   }
+  const prefer =
+    /채널 OCR|메뉴 도달|메뉴 포커스|슬롯 앵커|음성다중|자막토글|설정 확인|대조|focus|hit|판정/i;
   let pick = null;
   if (usable.length) {
-    pick =
-      [...usable].reverse().find((r) => /슬롯|앵커|대조|focus|hit|판정/i.test(String(r.note || ""))) ||
-      usable[usable.length - 1];
+    pick = [...usable].reverse().find((r) => prefer.test(String(r.note || ""))) || usable[usable.length - 1];
   } else {
     pick = reads[reads.length - 1];
   }
@@ -1797,7 +2551,7 @@ function stepReadsHtml(st, shots) {
     boxes: last.boxes && last.boxes.length ? last.boxes : pick.boxes,
     metrics: last.metrics || pick.metrics,
   };
-  return readCard(merged, shots);
+  return readCard(merged, shots, { compact: true });
 }
 
 function shotsHtml(paths, highlightLast) {
@@ -1860,15 +2614,71 @@ function shotUrlFor(name, shots) {
   return hit ? mediaSrc(hit) : "";
 }
 
-function anchorsHtml(anchors) {
+function anchorsHtml(anchors, compact) {
   const entries = Object.entries(anchors || {});
   if (!entries.length) return "";
+  if (compact) {
+    return `<ul class="anchor-compact">${entries
+      .map(([k, v]) => {
+        const on = !!v;
+        const label = String(k).replace(/^\[|\]$/g, "");
+        return `<li class="${on ? "hit" : "miss"}">${on ? "✓" : "–"} ${escHtml(label)}</li>`;
+      })
+      .join("")}</ul>`;
+  }
   return `<ul class="anchor-list">${entries
     .map(([k, v]) => `<li class="${v ? "hit" : "miss"}">${v ? "확인" : "없음"} · ${escHtml(k)}</li>`)
     .join("")}</ul>`;
 }
 
-function readCard(rd, shots) {
+function slotLinesHtml(ocrText) {
+  const raw = String(ocrText || "").trim();
+  if (!raw) return "";
+  const lines = raw
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const want = [
+    { key: "title", re: /^\[title\]\s*(.+)$/i },
+    { key: "body", re: /^\[body\]\s*(.+)$/i },
+    { key: "rail", re: /^\[rail\]\s*(.+)$/i },
+  ];
+  const found = [];
+  for (const w of want) {
+    const hit = lines.find((l) => w.re.test(l));
+    if (hit) {
+      const m = hit.match(w.re);
+      let val = (m && m[1] ? m[1] : hit).trim();
+      if (w.key === "rail" && val.length > 72) val = val.slice(0, 72) + "…";
+      found.push({ key: w.key, val });
+    }
+  }
+  if (!found.length) {
+    const short = raw.length > 160 ? raw.slice(0, 160) + "…" : raw;
+    return `<pre class="ocr-text ocr-short">${escHtml(short)}</pre>`;
+  }
+  return `<ul class="slot-lines">${found
+    .map((f) => `<li><span class="slot-k">${escHtml(f.key)}</span><span class="slot-v">${escHtml(f.val)}</span></li>`)
+    .join("")}</ul>`;
+}
+
+function topBoxesHtml(boxes) {
+  const list = (boxes || [])
+    .filter((b) => b && b.text)
+    .slice()
+    .sort((a, b) => (Number(b.confidence) || 0) - (Number(a.confidence) || 0))
+    .slice(0, 6);
+  if (!list.length) return "";
+  return `<p class="box-chips">${list
+    .map((b) => {
+      const conf = b.confidence != null ? Number(b.confidence).toFixed(2) : "—";
+      return `<span>${escHtml(b.text)} <em>${escHtml(conf)}</em></span>`;
+    })
+    .join("")}</p>`;
+}
+
+function readCard(rd, shots, opts) {
+  const compact = !!(opts && opts.compact);
   let url = readShotUrl(rd, shots);
   if (isOcrWorkShot(rd.shot || rd.shot_url || url)) url = "";
   if (rd.shot_preview === "mock-stub") url = "";
@@ -1880,6 +2690,19 @@ function readCard(rd, shots) {
   const img = url
     ? `<figure class="shot read-shot"><img src="${url}" alt="${escHtml(label)}"></figure>`
     : mockBadge;
+  if (compact) {
+    const layout = rd.metrics && rd.metrics.layout ? String(rd.metrics.layout) : "";
+    return `<div class="read-card read-compact">
+      ${img}
+      <div class="read-body">
+        <p class="howto-label">${escHtml(rd.note || "슬롯 앵커 대조")}${layout ? ` · ${escHtml(layout)}` : ""}</p>
+        ${anchorsHtml(rd.anchors, true)}
+        ${slotLinesHtml(rd.ocr_text)}
+        ${topBoxesHtml(rd.boxes)}
+        ${!url ? mockBadge : ""}
+      </div>
+    </div>`;
+  }
   const boxes = (rd.boxes || [])
     .slice(0, 12)
     .map((b) => `${b.text || ""} (${b.confidence != null ? Number(b.confidence).toFixed(2) : "—"})`)
@@ -1897,6 +2720,122 @@ function readCard(rd, shots) {
       ${!url ? mockBadge : ""}
     </div>
   </div>`;
+}
+
+function pickSlotRead(L) {
+  const shots = (L && L.shots) || [];
+  const t = (L && L.trace) || (L && L.artifacts && L.artifacts.trace) || {};
+  const prefer = /슬롯 앵커|앵커 대조|메뉴 포커스|설정 확인|판정/i;
+  let best = null;
+  for (const st of t.steps || []) {
+    for (const rd of st.reads || []) {
+      if (prefer.test(String(rd.note || ""))) best = rd;
+    }
+  }
+  if (!best) {
+    for (const st of [...(t.steps || [])].reverse()) {
+      const reads = st.reads || [];
+      if (reads.length) {
+        best = reads[reads.length - 1];
+        break;
+      }
+    }
+  }
+  if (!best) return null;
+  return { rd: best, shots };
+}
+
+function slotReadSection(L) {
+  if (!L) return "";
+  const picked = pickSlotRead(L);
+  if (!picked) {
+    return `<section class="section slot-section">
+      <h2>슬롯 앵커 대조</h2>
+      <p class="muted">이 회차에는 슬롯 앵커 판독이 없습니다.</p>
+    </section>`;
+  }
+  return `<section class="section slot-section">
+    <h2>슬롯 앵커 대조</h2>
+    <p class="muted tip">판정에 쓴 대표 샷과 슬롯 OCR·앵커입니다.</p>
+    ${readCard(picked.rd, picked.shots, { compact: true })}
+  </section>`;
+}
+
+function bddTechPanelHtml(st, panelId) {
+  const keys = (st.keys || []).filter((k) => String(k).startsWith("press")).slice(-8);
+  const rows = [
+    st.step_def ? `<div><dt>Step</dt><dd><code>${escHtml(st.step_def)}</code></dd></div>` : "",
+    st.page ? `<div><dt>Page</dt><dd><code>${escHtml(st.page)}</code></dd></div>` : "",
+    keys.length ? `<div><dt>키</dt><dd>${escHtml(keys.join(" → "))}</dd></div>` : "",
+  ].filter(Boolean);
+  if (!rows.length) return { toggle: "", panel: "" };
+  return {
+    toggle: `<button type="button" class="bdd-tech-toggle" data-toggle="${escHtml(panelId)}" aria-expanded="false" aria-label="Step·Page·키 펼치기" title="Step · Page · 키">›</button>`,
+    panel: `<div id="${escHtml(panelId)}" class="bdd-tech-panel" hidden>
+      <dl class="bdd-meta">${rows.join("")}</dl>
+    </div>`,
+  };
+}
+
+function bddStepsCompactHtml(L, tc) {
+  if (!L && !(tc && tc.bdd)) return "";
+  const shots = (L && L.shots) || [];
+  const t = (L && L.trace) || (L && L.artifacts && L.artifacts.trace) || {};
+  const stored = (tc && tc.bdd) || (L && L.artifacts && L.artifacts.bdd) || {};
+  if (!t.steps || !t.steps.length) {
+    const gherkin = stored.gherkin || "";
+    return `<section class="section bdd-section">
+      <h2>BDD 실행</h2>
+      <p class="muted">이 회차에는 Step 기록이 없습니다.${gherkin ? " 시나리오만 DB에 있습니다." : ""}</p>
+      ${gherkin ? `<pre class="gherkin-block">${escHtml(gherkin)}</pre>` : ""}
+    </section>`;
+  }
+  const head = [
+    t.feature ? `<b>기능</b> ${escHtml(t.feature)}` : "",
+    t.scenario ? `<b>시나리오</b> ${escHtml(t.scenario)}` : "",
+    t.page ? `<b>Page</b> <code>${escHtml(t.page)}</code>` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const tcSafe = String((tc && tc.id) || (L && L.tc_id) || "tc").replace(/[^A-Za-z0-9_-]/g, "-");
+  const steps = t.steps
+    .map((st, i) => {
+      const stBadge =
+        st.status === "FAIL"
+          ? badge("FAIL")
+          : st.status === "ERROR"
+            ? badge("ERROR")
+            : st.status === "PASS"
+              ? badge("PASS")
+              : "";
+      const panelId = `bdd-tech-${tcSafe}-${i}`;
+      const tech = bddTechPanelHtml(st, panelId);
+      const evidence = stepReadsHtml(st, shots);
+      return `<article class="bdd-step">
+      <header class="bdd-step-head">
+        <div class="bdd-step-main">
+          <span class="bdd-kw">${escHtml(st.kw || "")}</span>
+          <b class="bdd-step-text">${escHtml(st.text || "")}</b>
+          ${stBadge}
+        </div>
+        ${tech.toggle}
+      </header>
+      ${tech.panel}
+      ${st.detail ? `<p class="bdd-step-desc muted">${escHtml(st.detail)}</p>` : ""}
+      ${
+        evidence
+          ? `<div class="bdd-step-evidence">${evidence}</div>`
+          : `<p class="muted bdd-step-empty">이 단계의 대표 샷이 없습니다.</p>`
+      }
+    </article>`;
+    })
+    .join("");
+  return `<section class="section bdd-section">
+    <h2>BDD 실행</h2>
+    ${head ? `<p class="muted bdd-head-line">${head}</p>` : ""}
+    <p class="muted tip">조건·만일·그러면마다 대표 샷과 판독입니다. Step · Page · 키는 오른쪽 › 로 펼칩니다.</p>
+    <div class="bdd-compact">${steps}</div>
+  </section>`;
 }
 
 function bddFlowHtml(L, tc) {
@@ -2097,10 +3036,35 @@ function processCycleHtml() {
   const timeoutTalk = /타임아웃/.test(String(L.message || ""))
     ? `<p><b>타임아웃은 셋톱 실패가 아닙니다.</b> 키 입력이 끝난 뒤 화면 글자 읽기(EasyOCR)가 300초를 넘긴 것입니다. 모니터에서 영어가 바뀌었다면 기능은 수행된 겁니다.</p>`
     : "";
+  const ssimGate = (() => {
+    const thr = cmp.ssim_threshold != null ? Number(cmp.ssim_threshold) : 0.98;
+    const needed = cmp.ai_review_needed;
+    const suppressed = cmp.ssim_suppressed || 0;
+    const files = (cmp.suspect_files || [])
+      .slice(0, 8)
+      .map((f) => {
+        const ok = f.ssim_ok === true ? "ssim_ok" : f.ssim_ok === false ? "ssim_diff" : "";
+        const score = f.ssim_min != null ? ` SSIM ${Number(f.ssim_min).toFixed(3)}` : "";
+        const tier = f.ai_tier ? ` · ${escHtml(String(f.ai_tier))}` : "";
+        return `<li class="${ok}"><span class="ssim-badge">${escHtml(f.label || "?")}</span>${score}${tier} · ${escHtml(f.base || "-")} → ${escHtml(f.run || "-")}</li>`;
+      })
+      .join("");
+    const gateLine =
+      cmp.skipped
+        ? ""
+        : needed
+          ? `<p>SSIM 게이트 · 임계 ${thr} · <b>AI 호출</b>${suppressed ? ` · 억제 ${suppressed}` : ""}</p>`
+          : suspect
+            ? `<p class="muted">SSIM 게이트 · 임계 ${thr} · 의심 있으나 AI 생략${suppressed ? ` · 억제 ${suppressed}` : ""}</p>`
+            : `<p class="muted">SSIM 게이트 · 임계 ${thr} · 동일(≥임계) · AI 생략</p>`;
+    return `${gateLine}${files ? `<ul class="howto-list ssim-list">${files}</ul>` : ""}`;
+  })();
   const aiLine = cmp.skipped
     ? `<p class="muted">PASS가 아니라 샷 비교·AI를 생략했습니다.</p>`
+    : ai.skipped
+    ? `<p class="muted">AI 생략 · ${escHtml(ai.reason || ai.opinion || "ssim_ok")}</p>`
     : ai.opinion
-    ? `<p>AI 의견 · ${ai.ok === false ? "미확정" : ai.changed ? "변경" : "변경 아님"} · ${escHtml(ai.opinion)}</p>`
+    ? `<p>AI 의견 · ${ai.ok === false ? "미확정" : ai.changed ? "변경" : "변경 아님"}${ai.tier ? ` · ${escHtml(ai.tier)}` : ""} · ${escHtml(ai.opinion)}</p>`
     : suspect
       ? `<p class="muted">샷 불일치 의심. AI 결과가 아직 없습니다.</p>`
       : `<p class="muted">샷 불일치 의심 없음.</p>`;
@@ -2109,10 +3073,85 @@ function processCycleHtml() {
       <h2>이번 회차 로그 · 판정</h2>
       <p>${badge(v)} 회차 ${escHtml(String(L.run_id || "—"))} · ${escHtml(L.message || "")}</p>
       ${timeoutTalk}
+      ${ssimGate}
       ${aiLine}
       ${changeTalk}
       ${notes ? `<ul class="howto-list">${notes}</ul>` : ""}
     </section>`;
+}
+
+function renderStack() {
+  const sections = [
+    {
+      title: "런타임 · 랩 API",
+      lead: "스위트 실행, 대시보드 API, 뷰 서빙",
+      items: [
+        { name: "Python", ver: "3.11+", role: "메인 언어 · 스위트·Page·판정" },
+        { name: "FastAPI / Uvicorn", ver: "0.115+", role: "랩 API · MJPEG 프리뷰 · /api/chat" },
+        { name: "SQLite", ver: "표준", role: "회차·결과·BDD·챗 검색(FTS5)" },
+      ],
+    },
+    {
+      title: "시나리오 · 자동화",
+      lead: "Gherkin → Step → Page → ADB",
+      items: [
+        { name: "pytest-bdd", ver: "8.x", role: "Gherkin 시나리오 → Step Definition" },
+        { name: "ADB KeyEvent", ver: "시스템", role: "셋톱 원격 조작 · screencap" },
+      ],
+    },
+    {
+      title: "비전 · 판정",
+      lead: "슬롯 OCR · SSIM · 증거 샷",
+      items: [
+        { name: "EasyOCR", ver: "1.7+", role: "화면 슬롯 OCR · 메뉴/타이틀" },
+        { name: "scikit-image", ver: "0.24+", role: "SSIM 슬롯 비교 · AI 게이트" },
+        { name: "NumPy / Pillow", ver: "1.26+ / 10.4+", role: "이미지 행렬 · 캡처 저장" },
+      ],
+    },
+    {
+      title: "챗봇 · LLM",
+      lead: "탐색 Q&A · 시나리오 초안 · 명세 수정 (/api/chat)",
+      items: [
+        { name: "Gemini", ver: "API", role: "현재 답변·요약 LLM" },
+        { name: "Claude", ver: "도입 예정", role: "고난도 요약·명세 편집 후보" },
+        { name: "토큰/FTS 검색", ver: "랩 내장", role: "TC·BDD·실행결과 retrieval" },
+      ],
+    },
+  ];
+  const blocks = sections
+    .map((sec) => {
+      const cards = sec.items
+        .map(
+          (it) => `<article class="stack-card">
+      <div class="stack-card-top">
+        <p class="stack-name">${escHtml(it.name)}</p>
+        <p class="stack-ver">${escHtml(it.ver)}</p>
+      </div>
+      <p class="stack-role">${escHtml(it.role)}</p>
+    </article>`
+        )
+        .join("");
+      return `<section class="stack-sec">
+      <h2 class="stack-h2">${escHtml(sec.title)}</h2>
+      <p class="stack-sec-lead">${escHtml(sec.lead)}</p>
+      <div class="stack-grid">${cards}</div>
+    </section>`;
+    })
+    .join("");
+  return `<article class="stack-page">
+    <p class="eyebrow">기술 및 도구</p>
+    <h1>검증된 오픈소스 기술 조합</h1>
+    <p class="stack-lead">용도별로 나눈 랩 핵심 스택입니다. 챗봇은 별도 프레임워크가 아니라 기존 FastAPI·SQLite 위에 LLM을 얹습니다.</p>
+    ${blocks}
+    <section class="stack-why">
+      <h2>선택 이유</h2>
+      <ul>
+        <li><b>안정성</b> — Python·FastAPI·NumPy 등 검증된 표준 생태계</li>
+        <li><b>확장성</b> — BDD → Page → ADB/OCR 모듈 분리, TC·슬롯 추가 용이</li>
+        <li><b>성능</b> — NumPy 벡터화 + SSIM으로 불필요한 AI 호출 억제 · 챗봇은 FTS/토큰 검색 후 LLM 요약</li>
+      </ul>
+    </section>
+  </article>`;
 }
 
 function renderProcess(id) {
@@ -2352,7 +3391,6 @@ function renderCase(id) {
       <div class="case-body">
         ${callout}
         ${runMeta}
-        ${bddFlowHtml(L, tc)}
         <section class="section">
           <h2>작동 설명</h2>
           <div class="howto-grid">
@@ -2370,11 +3408,20 @@ function renderCase(id) {
             </div>
           </div>
         </section>
+        ${slotReadSection(L)}
+        ${bddStepsCompactHtml(L, tc)}
         <section class="section exec-section">
           <div class="exec-split">
             <div class="exec-steps">
               <h2>수행 절차</h2>
-              ${stepsHtml(tc.steps, L && L.verdict, L && L.message)}
+              ${stepsHtml(
+                tc.steps,
+                L && L.verdict,
+                L && L.message,
+                (L && L.trace && L.trace.steps) ||
+                  (L && L.artifacts && L.artifacts.trace && L.artifacts.trace.steps) ||
+                  null
+              )}
             </div>
             <div class="exec-result">
               <h2>선택 회차 결과</h2>
@@ -2462,6 +3509,34 @@ function syncChatChrome() {
   }
 }
 
+function chatRefsHtml(refs) {
+  const list = Array.isArray(refs) ? refs.filter((r) => r && (r.tc_id || r.run_id != null || r.path)) : [];
+  if (!list.length) return "";
+  return `<div class="chat-refs">${list
+    .map((r) => {
+      const tid = String(r.tc_id || "");
+      const runId = r.run_id != null ? String(r.run_id) : "";
+      const verd = r.verdict ? `<span class="chat-ref-verdict">${escHtml(r.verdict)}</span>` : "";
+      const title = r.title ? `<span class="chat-ref-title">${escHtml(r.title)}</span>` : "";
+      const path = r.path ? `<span class="chat-ref-path">${escHtml(r.path)}</span>` : "";
+      if (tid) {
+        return `<button type="button" class="chat-ref" data-go="/cases/${encodeURIComponent(tid)}">
+          <code>${escHtml(tid)}</code>${title}${runId ? `<span class="chat-ref-run">#${escHtml(runId)}</span>` : ""}${verd}${path}
+        </button>`;
+      }
+      if (runId) {
+        return `<button type="button" class="chat-ref" data-go="/runs/${encodeURIComponent(runId)}">
+          <span class="chat-ref-run">#${escHtml(runId)}</span>${title}
+        </button>`;
+      }
+      if (r.path) {
+        return `<span class="chat-ref chat-ref-static"><span class="chat-ref-path">${escHtml(r.path)}</span>${title}</span>`;
+      }
+      return "";
+    })
+    .join("")}</div>`;
+}
+
 function paintChat() {
   const log = document.getElementById("chat-log");
   if (!log) return;
@@ -2477,9 +3552,10 @@ function paintChat() {
           </div>`
         : "";
     const pending = m.text === "실행 중…" ? " chat-pending" : "";
+    const refs = !isUser ? chatRefsHtml(m.refs) : "";
     return `<div class="chat-msg chat-${isUser ? "user" : "bot"}${pending}">
       <div class="chat-meta">${who}</div>
-      <div class="chat-bubble"><p>${escHtml(m.text).replace(/\n/g, "<br>")}</p>${choices}</div>
+      <div class="chat-bubble"><p>${escHtml(m.text || "").replace(/\n/g, "<br>")}</p>${refs}${choices}</div>
     </div>`;
   }).join("");
   log.scrollTop = log.scrollHeight;
@@ -2518,6 +3594,46 @@ function pickChatMode(mode) {
   paintChat();
 }
 
+function unwrapChatAnswer(raw) {
+  let t = String(raw || "").trim();
+  if (!t) return "";
+  if (t.startsWith("```")) {
+    t = t.replace(/^```(?:json|text)?\s*/i, "").replace(/\s*```$/, "").trim();
+  }
+  if (t.startsWith("{") && t.includes('"answer"')) {
+    try {
+      const data = JSON.parse(t);
+      if (data && typeof data.answer === "string" && data.answer.trim()) return data.answer.trim();
+    } catch (_) {
+      const m = t.match(/"answer"\s*:\s*"((?:\\.|[^"\\])*)"/);
+      if (m) {
+        try {
+          return JSON.parse(`"${m[1]}"`);
+        } catch {
+          return m[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+        }
+      }
+    }
+  }
+  return t;
+}
+
+function chatAnswerFromBody(res, body) {
+  if (!res.ok) {
+    const detail = body && (body.detail || body.error);
+    if (typeof detail === "string" && detail.trim()) return `요청에 실패했습니다. ${detail}`;
+    return `요청에 실패했습니다. (HTTP ${res.status})`;
+  }
+  let ans = body && body.answer;
+  if (ans != null && typeof ans !== "string") {
+    if (typeof ans === "object" && ans && typeof ans.answer === "string") ans = ans.answer;
+    else ans = "";
+  }
+  ans = unwrapChatAnswer(ans);
+  if (ans && !ans.trim().startsWith("{")) return ans.trim();
+  return "답을 만들지 못했어요. 다른 키워드로 다시 물어봐 주세요.";
+}
+
 async function sendChat(text) {
   const raw = (text || "").trim();
   if (!raw) return;
@@ -2543,7 +3659,8 @@ async function sendChat(text) {
     });
     const body = await res.json().catch(() => ({}));
     CHAT_LOG = CHAT_LOG.filter((m) => m.text !== "실행 중…");
-    CHAT_LOG.push({ role: "bot", text: res.ok ? body.answer || JSON.stringify(body) : `오류 ${res.status}` });
+    const refs = Array.isArray(body && body.refs) ? body.refs : [];
+    CHAT_LOG.push({ role: "bot", text: chatAnswerFromBody(res, body), refs });
   } catch (err) {
     CHAT_LOG = CHAT_LOG.filter((m) => m.text !== "실행 중…");
     CHAT_LOG.push({ role: "bot", text: "연결 실패. 랩 서버가 켜져 있는지 보세요." });
@@ -2576,6 +3693,14 @@ function mountChat() {
     sendChat(text);
   });
   pop.addEventListener("click", (e) => {
+    const goEl = e.target.closest("[data-go]");
+    if (goEl && pop.contains(goEl)) {
+      const sel = window.getSelection && window.getSelection();
+      if (sel && String(sel.toString() || "").length) return;
+      e.preventDefault();
+      go(goEl.getAttribute("data-go"));
+      return;
+    }
     const btn = e.target.closest("[data-chat-mode]");
     if (!btn) return;
     pickChatMode(btn.getAttribute("data-chat-mode"));
@@ -2590,6 +3715,8 @@ function bootChat() {
 function bind() {
   document.querySelectorAll("[data-go]").forEach((el) => {
     el.addEventListener("click", (e) => {
+      const sel = window.getSelection && window.getSelection();
+      if (sel && String(sel.toString() || "").length) return;
       if (el.tagName === "A") e.preventDefault();
       go(el.getAttribute("data-go"));
     });
