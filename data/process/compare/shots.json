@@ -9,7 +9,7 @@
   "ssim_gray_threshold": 0.95,
   "method": "같은 TC 이전 회차의 결과 증거 샷만 비교 (audio-multi en/ko, caption 결과, ai-clear/volume). goto-live·open-right·변경 전 body·메뉴 hit는 제외. 슬롯 SSIM(≥0.98). 언어/토글 성공은 기능 판정. AI는 레이아웃·문구 UI 변경만 해석. 방송 본편·신호 팝업 제외. 전체 화면 SSIM 비사용.",
   "pairs": [],
-  "prev_run": 70,
-  "curr_run": 71,
+  "prev_run": 79,
+  "curr_run": 80,
   "tc_id": "BTVTC-157249-CHANGED"
 }

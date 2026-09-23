@@ -801,7 +801,7 @@ function labRunFamilyBlockHtml(f) {
   const someOn = ids.some((id) => LAB_RUN_CHECKED.has(id));
   const entry =
     f.entry_options && f.entry_options.length
-      ? `<select class="lab-run-entry-sel" data-family-entry="${escHtml(f.family_id)}" title="진입경로">
+      ? `<select class="lab-run-entry-sel" data-family-entry="${escHtml(f.family_id)}" title="진입경로" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
             ${f.entry_options
               .map(
                 (o) =>
@@ -812,7 +812,7 @@ function labRunFamilyBlockHtml(f) {
               .join("")}
           </select>`
       : "";
-  /* 단일 변형: 패밀리 헤더·하위행 중복 없이 한 줄 */
+  /* 단일 변형: 한 줄 (토글 없음) */
   if (variants.length <= 1) {
     const v = variants[0] || { id: f.family_id, label: f.title };
     const on = LAB_RUN_CHECKED.has(v.id) ? "checked" : "";
@@ -837,9 +837,10 @@ function labRunFamilyBlockHtml(f) {
       </label>`;
     })
     .join("");
-  return `<div class="lab-run-family" data-family="${escHtml(f.family_id)}">
-    <div class="lab-run-family-head">
-      <label class="lab-run-family-check" title="이 TC 변형 전체">
+  /* 다중 변형: 기본 닫힘 · 체크=하위 전체 · 제목 클릭=토글 */
+  return `<details class="lab-run-family" data-family="${escHtml(f.family_id)}">
+    <summary class="lab-run-family-head">
+      <label class="lab-run-node-check" title="이 TC 변형 전체" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
         <input type="checkbox" data-family-all="${escHtml(f.family_id)}" ${allOn ? "checked" : ""} ${
           someOn && !allOn ? 'data-indeterminate="1"' : ""
         } />
@@ -848,9 +849,9 @@ function labRunFamilyBlockHtml(f) {
       <code class="tcid">${escHtml(String(f.family_id || "").replace(/^BTVTC-/, ""))}</code>
       ${entry}
       <span class="lab-run-count">${variants.length}</span>
-    </div>
+    </summary>
     <div class="lab-run-variants">${rows}</div>
-  </div>`;
+  </details>`;
 }
 
 function labRunFamiliesHtml(families) {
@@ -864,9 +865,13 @@ function labRunFamiliesHtml(families) {
       const featBody = su.features
         .map((g) => {
           const gn = g.families.reduce((a, f) => a + (f.variants || []).length, 0);
+          const gid = `${su.suite}::${g.name}`;
           const body = g.families.map(labRunFamilyBlockHtml).join("");
-          return `<details class="lab-run-group" open>
+          return `<details class="lab-run-group" data-group="${escHtml(gid)}">
             <summary class="lab-run-group-head">
+              <label class="lab-run-node-check" title="이 Wing 하위 전체" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+                <input type="checkbox" data-group-all="${escHtml(gid)}" />
+              </label>
               <span class="lab-run-group-title">${escHtml(g.name)}</span>
               <span class="lab-run-count">${gn}</span>
             </summary>
@@ -874,8 +879,12 @@ function labRunFamiliesHtml(families) {
           </details>`;
         })
         .join("");
-      return `<details class="lab-run-suite"${su.suite === "LIVE" || suites.length === 1 ? " open" : ""}>
+      const suiteOpen = su.suite === "LIVE" || su.suite === "VOD" || suites.length === 1 ? " open" : "";
+      return `<details class="lab-run-suite" data-suite="${escHtml(su.suite)}"${suiteOpen}>
         <summary class="lab-run-suite-head">
+          <label class="lab-run-node-check" title="이 스위트 전체" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+            <input type="checkbox" data-suite-all="${escHtml(su.suite)}" />
+          </label>
           <span class="lab-run-suite-title">${escHtml(su.label)}</span>
           <span class="lab-run-count">${n}</span>
         </summary>
@@ -885,9 +894,8 @@ function labRunFamiliesHtml(families) {
     .join("");
 }
 
-function syncLabRunFamilyMasters() {
+function syncLabRunMasters() {
   document.querySelectorAll("#lab-run-families [data-family-all]").forEach((el) => {
-    const fid = el.getAttribute("data-family-all");
     const box = el.closest(".lab-run-family");
     if (!box) return;
     const tcs = [...box.querySelectorAll("input[data-tc]")];
@@ -896,6 +904,28 @@ function syncLabRunFamilyMasters() {
     el.checked = n > 0 && on === n;
     el.indeterminate = on > 0 && on < n;
   });
+  document.querySelectorAll("#lab-run-families [data-group-all]").forEach((el) => {
+    const box = el.closest(".lab-run-group");
+    if (!box) return;
+    const tcs = [...box.querySelectorAll("input[data-tc]")];
+    const n = tcs.length;
+    const on = tcs.filter((c) => c.checked).length;
+    el.checked = n > 0 && on === n;
+    el.indeterminate = on > 0 && on < n;
+  });
+  document.querySelectorAll("#lab-run-families [data-suite-all]").forEach((el) => {
+    const box = el.closest(".lab-run-suite");
+    if (!box) return;
+    const tcs = [...box.querySelectorAll("input[data-tc]")];
+    const n = tcs.length;
+    const on = tcs.filter((c) => c.checked).length;
+    el.checked = n > 0 && on === n;
+    el.indeterminate = on > 0 && on < n;
+  });
+}
+
+function syncLabRunFamilyMasters() {
+  syncLabRunMasters();
 }
 
 function syncLabRunCheckedFromDom() {
@@ -915,9 +945,13 @@ function setLabRunControlsLocked(locked) {
     const el = document.getElementById(id);
     if (el) el.disabled = !!locked;
   });
-  document.querySelectorAll("#lab-run-families input[data-tc], #lab-run-families select[data-family-entry], #lab-run-families input[data-family-all]").forEach((el) => {
-    el.disabled = !!locked;
-  });
+  document
+    .querySelectorAll(
+      "#lab-run-families input[data-tc], #lab-run-families select[data-family-entry], #lab-run-families input[data-family-all], #lab-run-families input[data-group-all], #lab-run-families input[data-suite-all]"
+    )
+    .forEach((el) => {
+      el.disabled = !!locked;
+    });
   const busy = document.getElementById("lab-run-busy");
   if (busy) busy.hidden = !locked;
 }
@@ -1075,9 +1109,47 @@ function bindLabRun() {
     return;
   }
   root.dataset.bound = "1";
+  /* 체크/셀렉트 클릭 시 details 토글 막기 (제목 텍스트만 열기·닫기) */
+  root.addEventListener("click", (e) => {
+    const t = e.target;
+    if (!t || !t.closest) return;
+    if (t.closest(".lab-run-node-check") || t.closest("select.lab-run-entry-sel")) {
+      e.stopPropagation();
+    }
+  });
   root.addEventListener("change", (e) => {
     const t = e.target;
     if (!t || !t.matches) return;
+    const bumpStatus = () => {
+      const status = document.getElementById("lab-run-status");
+      if (status && !status.textContent.includes("실행 중")) {
+        status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
+      }
+    };
+    if (t.matches("input[data-suite-all]")) {
+      const box = t.closest(".lab-run-suite");
+      if (box) {
+        box.querySelectorAll("input[data-tc]").forEach((el) => {
+          el.checked = t.checked;
+        });
+      }
+      syncLabRunCheckedFromDom();
+      syncLabRunMasters();
+      bumpStatus();
+      return;
+    }
+    if (t.matches("input[data-group-all]")) {
+      const box = t.closest(".lab-run-group");
+      if (box) {
+        box.querySelectorAll("input[data-tc]").forEach((el) => {
+          el.checked = t.checked;
+        });
+      }
+      syncLabRunCheckedFromDom();
+      syncLabRunMasters();
+      bumpStatus();
+      return;
+    }
     if (t.matches("input[data-family-all]")) {
       const box = t.closest(".lab-run-family");
       if (box) {
@@ -1086,20 +1158,14 @@ function bindLabRun() {
         });
       }
       syncLabRunCheckedFromDom();
-      syncLabRunFamilyMasters();
-      const status = document.getElementById("lab-run-status");
-      if (status && !status.textContent.includes("실행 중")) {
-        status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
-      }
+      syncLabRunMasters();
+      bumpStatus();
       return;
     }
     if (t.matches("input[data-tc]") || t.matches("select[data-family-entry]")) {
       syncLabRunCheckedFromDom();
-      syncLabRunFamilyMasters();
-      const status = document.getElementById("lab-run-status");
-      if (status && !status.textContent.includes("실행 중")) {
-        status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
-      }
+      syncLabRunMasters();
+      bumpStatus();
     }
   });
   const all = document.getElementById("lab-run-all");
@@ -1111,7 +1177,7 @@ function bindLabRun() {
         el.checked = true;
       });
       syncLabRunCheckedFromDom();
-      syncLabRunFamilyMasters();
+      syncLabRunMasters();
       const status = document.getElementById("lab-run-status");
       if (status) status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
     });
@@ -1122,7 +1188,7 @@ function bindLabRun() {
         el.checked = false;
       });
       syncLabRunCheckedFromDom();
-      syncLabRunFamilyMasters();
+      syncLabRunMasters();
       const status = document.getElementById("lab-run-status");
       if (status) status.textContent = "0건 선택";
     });
