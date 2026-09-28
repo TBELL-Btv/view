@@ -1696,10 +1696,15 @@ function styleGuideDoc() {
   );
 }
 
+const HIDDEN_INBOX_IDS = new Set(["셋톱박스 테스트 자동화 기획서-V2.html"]);
+
+function visibleBinaries() {
+  return (CATALOG.binaries || []).filter((b) => !HIDDEN_INBOX_IDS.has(b.id));
+}
+
 function pinNotice() {
-  const bins = CATALOG.binaries || [];
+  const bins = visibleBinaries();
   const ids = [
-    "셋톱박스 테스트 자동화 기획서-V2.html",
     "셋톱박스 테스트 자동화 用 테스트케이스 예시-V1.html",
     "셋톱박스 테스트 자동화 기획서-V1.html",
   ];
@@ -1708,7 +1713,7 @@ function pinNotice() {
   return [...pinned, ...rest];
 }
 
-/** 공지 고정 순서: 기획서 V2 → TC 예시 → 기획서 V1 → 스타일 가이드 → 그 외 */
+/** 공지 고정 순서: TC 예시 → 기획서 V1 → 스타일 가이드 → 그 외 */
 function docsNotices() {
   const bins = pinNotice();
   const guide = styleGuideDoc();
@@ -2183,7 +2188,7 @@ function sectionHtml(text, asSteps) {
 function renderDoc(id) {
   if (id.startsWith("file:")) {
     const name = id.slice(5);
-    const bin = (CATALOG.binaries || []).find((b) => b.id === name);
+    const bin = visibleBinaries().find((b) => b.id === name);
     if (!bin) return `<p>파일을 찾지 못했습니다.</p>`;
     if (!bin.preview) {
       return `<p>${bin.note || "미리보기 불가"}</p><p><a href="${mediaSrc(bin.href)}">${bin.title} 다운로드</a></p>`;
