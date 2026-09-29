@@ -13,27 +13,6 @@ let SEARCH = "";
 const PAGE_SIZE = 10;
 const CASE_PAGES = { home: 1, cases: 1 };
 let CASE_HIST_RUN = null;
-/** spec 렌더 중: 가짜 풀패널·hero 중복 샷 금지 */
-let DOC_RENDER = { mode: "default", heroShot: "" };
-const SPEC_BLOCKED_COMPS = new Set([
-  "menu-rail",
-  "option-list",
-  "options",
-  "poster",
-  "thumb",
-  "vod-card",
-  "detail-row",
-  "icon-btn",
-  "state",
-  "progress",
-  "knob",
-  "stepper",
-  "pill",
-  "badge",
-  "focus",
-  "radio",
-  "check",
-]);
 /** 홈 대시보드에 표시할 회차. null이면 최신 회차. */
 let HOME_RUN_ID = null;
 /** 테스트케이스 목록 회차 필터. null이면 최신 회차. */
@@ -139,21 +118,6 @@ function page() {
   return { name: parts[0] || "home", id: decodeURIComponent(parts.slice(1).join("/") || "") };
 }
 
-function stripDocExt(id) {
-  return String(id || "")
-    .replace(/\\/g, "/")
-    .replace(/\.(yaml|yml|md)$/i, "");
-}
-
-function sameDocId(a, b) {
-  return stripDocExt(a) === stripDocExt(b);
-}
-
-function findDoc(id) {
-  const want = stripDocExt(id);
-  return (CATALOG.docs || []).find((d) => stripDocExt(d.id) === want || stripDocExt(d.file) === want);
-}
-
 function go(path) {
   const next = path.startsWith("/") ? path : "/" + path;
   const cur = location.hash.replace(/^#/, "") || "/home";
@@ -207,9 +171,7 @@ function shotSrc(name) {
 
 function fetchJson(url, timeoutMs) {
   const ctrl = timeoutMs ? new AbortController() : null;
-  const timer = ctrl
-    ? setTimeout(() => ctrl.abort(new DOMException("요청 시간 초과", "TimeoutError")), timeoutMs)
-    : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
   return fetch(url, {
     cache: "no-store",
     credentials: "include",
@@ -224,263 +186,40 @@ function fetchJson(url, timeoutMs) {
     });
 }
 
-let RENDER_SEQ = 0;
-let PAGE_CASE = null;
-let DOCS_LOADED = false;
-const RUN_RESULTS = new Map();
-const EVIDENCE_CACHE = new Map();
-let SCROLL_TO_EXEC = false;
-
-function showBootError(err) {
-  const app = document.getElementById("app");
-  if (!app) return;
-  const msg = (err && err.message) || String(err);
-  app.innerHTML = `<div class="muted" style="padding:1.5rem;max-width:36rem;line-height:1.5">
-    <p><strong>화면 데이터를 불러오지 못했습니다.</strong></p>
-    <p>${msg.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]))}</p>
-    <p>랩 FastAPI가 켜져 있는지, <code>config.js</code>의 <code>STE_BTV_API</code>가 맞는지 확인하세요.</p>
-  </div>`;
+async function loadSnapshot() {
+  const data = await fetchJson("data/catalog.json");
+  CATALOG = data;
+  if (!CATALOG.source) CATALOG.source = "snapshot";
 }
 
-function desiredRunId(name, id) {
-  if (name === "runs" && id) return String(id);
-  if (name === "cases") return String(CASES_RUN_ID || latestRunId() || "");
-  return String(HOME_RUN_ID || latestRunId() || "");
-}
-
-function pageDataReady() {
-  const { name, id } = page();
-  if (name === "stack") return true;
-  if (!CATALOG) return false;
-    if (name === "docs") {
-    if (!DOCS_LOADED) return false;
-    if (id && !String(id).startsWith("file:")) {
-      const doc = findDoc(id);
-      if (!doc) return false;
-      if (doc.html || doc.sections) return true;
-      if (!doc._full) return false;
-    }
-    return true;
-  }
-  if (name === "process") {
-    if (!id) return true;
-    const want = decodeURIComponent(String(id));
-    return !!(PAGE_CASE && PAGE_CASE.id === want && PAGE_CASE._evKey);
-  }
-  if (name === "cases" && id) {
-    const want = decodeURIComponent(String(id));
-    return !!(PAGE_CASE && (PAGE_CASE.id === want || String(PAGE_CASE.id) === String(id)));
-  }
-  if (name === "home" || name === "cases" || name === "runs" || name === "chat" || !name) {
-    const runId = desiredRunId(name, id);
-    if (runId && !RUN_RESULTS.has(runId)) return false;
-  }
-  return true;
-}
-
-async function attachRunResults(runId) {
-  const key = String(runId || "");
-  if (!key) return;
+async function loadLive() {
   const base = apiBase();
-  if (!RUN_RESULTS.has(key)) {
-    const body = await fetchJson(base + "/api/runs/" + encodeURIComponent(key) + "/results", 20000);
-    RUN_RESULTS.set(key, body.results || []);
-    if (body.run) {
-      let item = (CATALOG.timeline || []).find((x) => String((x.run || {}).id) === key);
-      if (!item) {
-        item = { run: body.run, counts: body.counts || {}, results: [] };
-        CATALOG.timeline = [item].concat(CATALOG.timeline || []);
-      } else if (body.counts) {
-        item.counts = body.counts;
-      }
-    }
-  }
-  const results = RUN_RESULTS.get(key) || [];
-  const item = (CATALOG.timeline || []).find((x) => String((x.run || {}).id) === key);
-  if (item) item.results = results;
-  CATALOG.cases = results.map((r) => ({
-    id: r.tc_id,
-    title: r.title || r.tc_id,
-    major: r.major || "",
-    minor: r.minor || "",
-    screen_id: r.screen_id || "",
-    expect: r.expect || "",
-    start_ids: r.start_ids || [],
-    run_each_start: !!r.run_each_start,
-    parent_id: r.parent_id || "",
-    latest: { verdict: r.verdict, message: r.message, run_id: r.run_id, tc_id: r.tc_id },
-  }));
-}
-
-function applyEvidence(tc, ev) {
-  if (!tc || !ev) return;
-  const runId = String(ev.run_id == null ? "" : ev.run_id);
-  const patch = (row) => {
-    if (!row || String(row.run_id) !== runId) return;
-    row.shots = ev.shots || [];
-    row.artifacts = ev.artifacts || row.artifacts || {};
-    if (ev.trace) row.trace = ev.trace;
-  };
-  patch(tc.latest);
-  (tc.history || []).forEach(patch);
-}
-
-async function loadPage(token) {
-  const base = apiBase();
-  if (!base) {
-    throw new Error(
-      "Catalog API 주소가 없습니다. 랩 서버(예: http://127.0.0.1:8080)에서 열거나 config.js에 STE_BTV_API를 설정하세요."
-    );
-  }
-  const { name, id } = page();
-  if (!CATALOG && name !== "stack") {
-    CATALOG = await fetchJson(base + "/api/dashboard", 20000);
-    if (token !== RENDER_SEQ) return;
+  if (!base) return false;
+  try {
+    const data = await fetchJson(base + "/api/catalog", 8000);
+    CATALOG = data;
     if (!CATALOG.source) CATALOG.source = "sqlite";
-    CATALOG.docs = CATALOG.docs || [];
-    CATALOG.binaries = CATALOG.binaries || [];
-    CATALOG.cases = CATALOG.cases || [];
-  }
-  if (token !== RENDER_SEQ) return;
-  if (name === "docs") {
-    if (!DOCS_LOADED) {
-      const pack = await fetchJson(base + "/api/docs", 20000);
-      if (token !== RENDER_SEQ) return;
-      CATALOG.docs = pack.docs || [];
-      CATALOG.binaries = pack.binaries || [];
-      DOCS_LOADED = true;
-    }
-    if (id && !String(id).startsWith("file:")) {
-      const existing = findDoc(id);
-      if (existing && (existing.html || existing.sections || existing._full)) {
-        existing._full = true;
-        return;
-      }
-      try {
-        const doc = await fetchJson(
-          base + "/api/docs/" + String(id).split("/").map(encodeURIComponent).join("/"),
-          20000
-        );
-        if (token !== RENDER_SEQ) return;
-        doc._full = true;
-        const docs = CATALOG.docs || [];
-        const i = docs.findIndex((d) => sameDocId(d.id, doc.id) || sameDocId(d.id, id));
-        if (i >= 0) docs[i] = Object.assign({}, docs[i], doc);
-        else docs.push(doc);
-        CATALOG.docs = docs;
-      } catch (err) {
-        if (existing) {
-          existing._full = true;
-          existing._loadError = (err && err.message) || String(err);
-          return;
-        }
-        throw err;
-      }
-    }
-    return;
-  }
-  if (name === "process") {
-    if (!id) return;
-    const want = decodeURIComponent(String(id));
-    PAGE_CASE = await fetchJson(base + "/api/test-cases/" + encodeURIComponent(want), 20000);
-    if (token !== RENDER_SEQ) return;
-    const runId = (PAGE_CASE.latest && PAGE_CASE.latest.run_id) || "";
-    if (runId) {
-      const ev = await fetchJson(
-        base + "/api/test-cases/" + encodeURIComponent(want) + "/evidence?run_id=" + encodeURIComponent(runId),
-        20000
-      );
-      if (token !== RENDER_SEQ) return;
-      applyEvidence(PAGE_CASE, ev);
-    }
-    PAGE_CASE._evKey = want + "@" + runId;
-    return;
-  }
-  if (name === "home" || name === "cases" || name === "runs" || name === "chat" || !name) {
-    const runId = desiredRunId(name === "chat" ? "home" : name, id);
-    if (runId) await attachRunResults(runId);
-    if (token !== RENDER_SEQ) return;
-  }
-  if (name === "cases" && id) {
-    const want = decodeURIComponent(String(id));
-    if (!PAGE_CASE || (PAGE_CASE.id !== want && String(PAGE_CASE.id) !== String(id))) {
-      CASE_HIST_RUN = null;
-      PAGE_CASE = await fetchJson(base + "/api/test-cases/" + encodeURIComponent(want), 20000);
-      if (token !== RENDER_SEQ) return;
-      PAGE_CASE._evKey = "";
-    }
+    return true;
+  } catch {
+    return false;
   }
 }
 
-function queueEvidence(token) {
-  const { name, id } = page();
-  if (name !== "cases" || !id || !PAGE_CASE) return;
-  const want = decodeURIComponent(String(id));
-  const runId = CASE_HIST_RUN || (PAGE_CASE.latest && PAGE_CASE.latest.run_id) || "";
-  if (!runId) return;
-  const key = want + "@" + runId;
-  if (PAGE_CASE._evKey === key) {
-    if (SCROLL_TO_EXEC) {
-      SCROLL_TO_EXEC = false;
-      const anchor = document.querySelector(".exec-result");
-      if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-    return;
+async function boot() {
+  let snapOk = false;
+  try {
+    await loadSnapshot();
+    snapOk = true;
+    render();
+  } catch {
+    /* snapshot optional when the lab API is available */
   }
-  const apply = (ev) => {
-    if (token !== RENDER_SEQ) return;
-    if (page().name !== "cases" || decodeURIComponent(String(page().id)) !== want) return;
-    applyEvidence(PAGE_CASE, ev);
-    PAGE_CASE._evKey = key;
-    paint();
-    if (SCROLL_TO_EXEC) {
-      SCROLL_TO_EXEC = false;
-      const anchor = document.querySelector(".exec-result");
-      if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-  if (EVIDENCE_CACHE.has(key)) {
-    apply(EVIDENCE_CACHE.get(key));
-    return;
-  }
-  const base = apiBase();
-  fetchJson(
-    base + "/api/test-cases/" + encodeURIComponent(want) + "/evidence?run_id=" + encodeURIComponent(runId),
-    20000
-  )
-    .then((ev) => {
-      EVIDENCE_CACHE.set(key, ev);
-      apply(ev);
-    })
-    .catch(() => {});
+  const upgraded = await loadLive();
+  if (upgraded) render();
+  else if (!snapOk) throw new Error("catalog.json 없음");
 }
 
 function render() {
-  const token = ++RENDER_SEQ;
-  if (pageDataReady()) {
-    paint();
-    queueEvidence(token);
-    return;
-  }
-  const app = document.getElementById("app");
-  if (app && !CATALOG) app.innerHTML = `<p class="muted">불러오는 중…</p>`;
-  loadPage(token)
-    .then(() => {
-      if (token !== RENDER_SEQ) return;
-      paint();
-      queueEvidence(token);
-    })
-    .catch((err) => {
-      if (token !== RENDER_SEQ) return;
-      showBootError(err);
-    });
-}
-
-function boot() {
-  render();
-}
-
-function paint() {
   const app = document.getElementById("app");
   try {
     const { name, id } = page();
@@ -496,8 +235,8 @@ function paint() {
       gen.innerHTML = `<img class="sidefoot-img" src="side-footer.webp" width="64" alt="">
         <div class="sidefoot-copy">Copyright 2015-2026. TBELL Corp. All Rights Reserved.</div>`;
     }
-    if (!CATALOG && name !== "stack") {
-      app.innerHTML = `<p class="muted">대시보드 데이터를 불러올 수 없습니다. 랩 API 연결을 확인해주세요.</p>`;
+    if (!CATALOG) {
+      app.innerHTML = `<p class="muted">랩에서 publish_view 후 data/catalog.json 이 생깁니다.</p>`;
       return;
     }
     if (name === "chat") {
@@ -525,7 +264,6 @@ function paint() {
     } else if (name === "runs") app.innerHTML = id ? renderRun(id) : renderHome();
     else app.innerHTML = renderHome();
     bind();
-    if (document.getElementById("home-device-status")) refreshHomeDeviceStatus();
     window.scrollTo(0, 0);
   } catch (err) {
     if (app) {
@@ -680,12 +418,44 @@ function covDone(v) {
   return s === "완료" || s === "Y" || s === "yes" || s === "true" || s === "1";
 }
 
-/** 패밀리는 DB test_cases.parent_id (coverage 행의 family_id). */
-function familyIdOf(row) {
-  const id = String((row && (row.family_id || row.tc_id)) || "");
-  const m = id.match(/^(BTVTC-\d+)/i);
-  return m ? m[1].toUpperCase() : id;
+/** CHANGED/DEFAULT/CLEAR/VOLUME 변형을 패밀리 TC로 묶는다. */
+function familyIdOf(tcId) {
+  const id = String(tcId || "");
+  const m = id.match(/^(BTVTC-\d+)-(CHANGED|DEFAULT|CLEAR|VOLUME)$/i);
+  return m ? m[1] : id;
 }
+
+const VARIANT_SUFFIX_LABEL = {
+  CHANGED: "변경",
+  DEFAULT: "기본",
+  CLEAR: "클리어 보이스",
+  VOLUME: "자동 볼륨",
+};
+
+/** publish 전 스냅샷에도 Wing이 갈리도록 패밀리 기본 feature. */
+const FEATURE_BY_FAMILY = {
+  "BTVTC-157215": "좌측 Wing UI",
+  "BTVTC-157217": "좌측 Wing UI",
+  "BTVTC-157214": "좌측 Wing UI",
+  "BTVTC-157233": "우측 Wing UI",
+  "BTVTC-157255": "우측 Wing UI",
+  "BTVTC-157249": "우측 Wing UI",
+  "BTVTC-157242": "우측 Wing UI",
+  "BTVTC-157261": "우측 Wing UI",
+  "BTVTC-157265": "우측 Wing UI",
+};
+
+const TITLE_BY_FAMILY = {
+  "BTVTC-157215": "좌측 Wing 메뉴",
+  "BTVTC-157217": "인기채널 / AI 추천",
+  "BTVTC-157214": "선호 채널",
+  "BTVTC-157233": "볼만한 콘텐츠",
+  "BTVTC-157255": "AI 사운드 설정",
+  "BTVTC-157249": "음성 다중 설정",
+  "BTVTC-157242": "자막/해설/수어 설정",
+  "BTVTC-157261": "시청 환경 설정",
+  "BTVTC-157265": "마케팅 배너 제어",
+};
 
 function suiteLabelOf(suite) {
   const s = String(suite || "").toUpperCase();
@@ -694,9 +464,10 @@ function suiteLabelOf(suite) {
   return suite || "기타";
 }
 
-function featureOfRow(r) {
+function featureOfRow(r, familyId) {
   const raw = String(r.feature || "").trim();
   if (raw && raw !== "LIVE" && raw !== "VOD" && raw !== suiteLabelOf(r.suite)) return raw;
+  if (FEATURE_BY_FAMILY[familyId]) return FEATURE_BY_FAMILY[familyId];
   const suite = String(r.suite || "").toUpperCase();
   if (suite === "VOD") return "VOD Player";
   return suiteLabelOf(suite);
@@ -715,6 +486,8 @@ function variantLabelOf(tcId, scenario) {
   if (m) return m[1].trim();
   m = sc.match(/을\s+(.+?)한다$/);
   if (m && m[1].length < 40) return m[1].trim();
+  const up = String(tcId || "").split("-").pop().toUpperCase();
+  if (VARIANT_SUFFIX_LABEL[up]) return VARIANT_SUFFIX_LABEL[up];
   return sc || tcId;
 }
 
@@ -724,6 +497,7 @@ function familyTitleOf(scenario, feature, familyId) {
   if (m) return m[1].trim();
   m = sc.match(/^(.+?)를\s+/);
   if (m) return m[1].trim();
+  if (TITLE_BY_FAMILY[familyId]) return TITLE_BY_FAMILY[familyId];
   if (sc) return sc;
   return feature || familyId;
 }
@@ -748,13 +522,13 @@ function coverageRowsForRun(runResults) {
   return (runResults || []).map((r) => {
     const cov = covById[r.tc_id] || {};
     const tc = caseById[r.tc_id] || {};
+    const fid = familyIdOf(r.tc_id);
     let suite = String(cov.suite || "").toUpperCase();
     if (!suite) {
-      suite = /^BTVTC-(134|145)/.test(r.tc_id) ? "VOD" : "LIVE";
+      suite = FEATURE_BY_FAMILY[fid] ? "LIVE" : /^BTVTC-(134|145)/.test(r.tc_id) ? "VOD" : "LIVE";
     }
     return {
       tc_id: r.tc_id,
-      family_id: cov.family_id || tc.parent_id || r.tc_id,
       suite,
       feature: cov.feature || "",
       scenario: cov.scenario || tc.title || r.title || "",
@@ -773,14 +547,14 @@ function coverageTreeFromRows(rawRows) {
   const asList = (v) => (Array.isArray(v) ? v : []);
   const byFamily = new Map();
   for (const r of rawRows || []) {
-    const fid = familyIdOf(r);
+    const fid = familyIdOf(r.tc_id);
     const suite = String(r.suite || "").toUpperCase() || "LIVE";
-    const feature = featureOfRow(r);
+    const feature = featureOfRow(r, fid);
     let fam = byFamily.get(fid);
     if (!fam) {
       fam = {
         family_id: fid,
-        title: familyTitleOf(r.scenario, feature, fid),
+        title: TITLE_BY_FAMILY[fid] || familyTitleOf(r.scenario, feature, fid),
         suite,
         feature,
         bdd: r.bdd,
@@ -796,7 +570,8 @@ function coverageTreeFromRows(rawRows) {
     if (covDone(r.bdd)) fam.bdd = "완료";
     if (covDone(r.step)) fam.step = "완료";
     if (!fam.page && r.page) fam.page = r.page;
-    if (r.tc_id === fid) fam.title = familyTitleOf(r.scenario, feature, fid);
+    if (TITLE_BY_FAMILY[fid]) fam.title = TITLE_BY_FAMILY[fid];
+    else if (r.tc_id === fid) fam.title = familyTitleOf(r.scenario, feature, fid);
     fam.deferred = [...new Set([...(fam.deferred || []), ...asList(r.deferred)])];
     const verdict = r.real_judge === "미검증" ? "" : r.real_judge || "";
     const evidence = r.evidence || "";
@@ -956,90 +731,6 @@ function tcTreeHtml(runResults, opts = {}) {
       .join("")}</div>`;
 }
 
-/** #/cases — #/run 과 같은 스프레드시트형 TC 표 */
-function tcSheetVariantLabel(v, fam) {
-  const raw = String((v && v.label) || "").trim();
-  const title = String((fam && fam.title) || "").trim();
-  if (!raw || raw === title || raw === "기본") return "기본";
-  const parts = raw.split("·").map((s) => s.trim()).filter(Boolean);
-  if (parts.length > 1) return parts[parts.length - 1];
-  return raw;
-}
-
-function tcSheetHtml(runResults, opts = {}) {
-  let rows = coverageRowsForRun(runResults);
-  if (opts.filterRow) rows = rows.filter(opts.filterRow);
-  const tree = coverageTreeFromRows(rows);
-  if (!tree.length) {
-    return `<p class="muted">${escHtml(opts.empty || "이 회차에서 실행한 테스트케이스가 없습니다.")}</p>`;
-  }
-  const flat = [];
-  for (const su of tree) {
-    for (const feat of su.features || []) {
-      for (const fam of feat.families || []) {
-        const vars = fam.variants || [];
-        vars.forEach((v, i) => {
-          flat.push({
-            suite: su.suite,
-            suiteLabel: su.label,
-            feature: feat.name,
-            family: fam,
-            variant: v,
-            firstInFamily: i === 0,
-          });
-        });
-      }
-    }
-  }
-  let lastSuite = "";
-  let lastFeature = "";
-  const body = flat
-    .map((r) => {
-      const v = r.variant;
-      const f = r.family;
-      const short = String(v.tc_id || "").replace(/^BTVTC-/, "");
-      const showSuite = r.suite !== lastSuite;
-      const showFeat = showSuite || r.feature !== lastFeature;
-      lastSuite = r.suite;
-      lastFeature = r.feature;
-      const verd = v.real_judge === "미검증" ? "" : v.real_judge;
-      const msg = String(v.evidence || "").trim();
-      return `<tr class="tc-sheet-row" data-go="/cases/${encodeURIComponent(v.tc_id)}" role="link" tabindex="0">
-        <td class="tc-sheet-col-verd">${badge(verd)}</td>
-        <td class="tc-sheet-col-suite">${showSuite ? escHtml(r.suiteLabel) : ""}</td>
-        <td class="tc-sheet-col-feat">${showFeat ? escHtml(r.feature) : ""}</td>
-        <td class="tc-sheet-col-id"><code class="tcid" title="${escHtml(v.tc_id)}">${escHtml(short)}</code></td>
-        <td class="tc-sheet-col-title" title="${escHtml(f.title || v.scenario || "")}">${escHtml(f.title || v.scenario || "")}</td>
-        <td class="tc-sheet-col-var">${escHtml(tcSheetVariantLabel(v, f))}</td>
-        <td class="tc-sheet-col-msg muted" title="${escHtml(msg)}">${escHtml(msg)}</td>
-      </tr>`;
-    })
-    .join("");
-  const head = opts.hideHead
-    ? ""
-    : `<div class="sectionhead">
-        <h2>${escHtml(opts.title || "테스트케이스")}</h2>
-        <div class="desc muted">${escHtml(opts.desc || `${flat.length}건`)}</div>
-      </div>`;
-  return `${head}
-    <div class="tc-sheet-wrap">
-      <table class="tc-sheet" id="cases-sheet">
-        <thead>
-          <tr>
-            <th class="tc-sheet-col-verd">판정</th>
-            <th class="tc-sheet-col-suite">스위트</th>
-            <th class="tc-sheet-col-feat">영역</th>
-            <th class="tc-sheet-col-id">TC</th>
-            <th class="tc-sheet-col-title">제목</th>
-            <th class="tc-sheet-col-var">변형</th>
-            <th class="tc-sheet-col-msg">메시지</th>
-          </tr>
-        </thead>
-        <tbody>${body}</tbody>
-      </table>
-    </div>`;
-}
-
 let LAB_RUN_CATALOG = null;
 let LAB_RUN_POLL = null;
 let LAB_RUN_CHECKED = new Set();
@@ -1067,8 +758,7 @@ function renderLabRun() {
       </aside>
       <div class="lab-run-stage">
         <div class="lab-run-preview">
-          <img id="lab-run-mjpeg" alt="미리보기" />
-          <div class="lab-run-shot-cap muted" id="lab-run-shot-cap" hidden></div>
+          <img id="lab-run-mjpeg" alt="ADB 미리보기" />
         </div>
         <div class="lab-run-meta">
           <div><span class="muted">TC</span> <b id="lab-run-tc">—</b></div>
@@ -1104,111 +794,134 @@ function labRunSuites(families) {
   });
 }
 
-function labRunFlatRows(families) {
-  const suites = labRunSuites(families);
-  const rows = [];
-  for (const su of suites) {
-    for (const g of su.features) {
-      for (const f of g.families) {
-        const vars = f.variants || [];
-        vars.forEach((v, i) => {
-          rows.push({
-            suite: su.suite,
-            suiteLabel: su.label,
-            feature: g.name,
-            family: f,
-            variant: v,
-            firstInFamily: i === 0,
-          });
-        });
-      }
-    }
+function labRunFamilyBlockHtml(f) {
+  const variants = f.variants || [];
+  const ids = variants.map((v) => v.id);
+  const allOn = ids.length > 0 && ids.every((id) => LAB_RUN_CHECKED.has(id));
+  const someOn = ids.some((id) => LAB_RUN_CHECKED.has(id));
+  const entry =
+    f.entry_options && f.entry_options.length
+      ? `<select class="lab-run-entry-sel" data-family-entry="${escHtml(f.family_id)}" title="진입경로" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+            ${f.entry_options
+              .map(
+                (o) =>
+                  `<option value="${escHtml(o.id)}" ${
+                    LAB_RUN_ENTRY[f.family_id] === o.id ? "selected" : ""
+                  }>${escHtml(o.label)}</option>`
+              )
+              .join("")}
+          </select>`
+      : "";
+  /* 단일 변형: 한 줄 (토글 없음) */
+  if (variants.length <= 1) {
+    const v = variants[0] || { id: f.family_id, label: f.title };
+    const on = LAB_RUN_CHECKED.has(v.id) ? "checked" : "";
+    const short = String(v.id || "").replace(/^BTVTC-/, "");
+    return `<div class="lab-run-family lab-run-family--solo" data-family="${escHtml(f.family_id)}">
+      <label class="lab-run-item lab-run-item--solo">
+        <input type="checkbox" data-tc="${escHtml(v.id)}" ${on} />
+        <span class="lab-run-item-label">${escHtml(f.title || v.label)}</span>
+        <code class="tcid" title="${escHtml(v.id)}">${escHtml(short)}</code>
+        ${entry}
+      </label>
+    </div>`;
   }
-  return rows;
-}
-
-function labRunVariantLabel(v, family) {
-  const raw = String((v && v.label) || "").trim();
-  const title = String((family && family.title) || "").trim();
-  if (!raw || raw === title) return "기본";
-  // "음성 다중 · 영어(변경)" → 변형만
-  const parts = raw.split("·").map((s) => s.trim()).filter(Boolean);
-  if (parts.length > 1) return parts[parts.length - 1];
-  return raw;
+  const rows = variants
+    .map((v) => {
+      const on = LAB_RUN_CHECKED.has(v.id) ? "checked" : "";
+      const short = String(v.id || "").replace(/^BTVTC-/, "");
+      return `<label class="lab-run-item">
+        <input type="checkbox" data-tc="${escHtml(v.id)}" ${on} />
+        <span class="lab-run-item-label">${escHtml(v.label)}</span>
+        <code class="tcid" title="${escHtml(v.id)}">${escHtml(short)}</code>
+      </label>`;
+    })
+    .join("");
+  /* 다중 변형: 기본 닫힘 · 체크=하위 전체 · 제목 클릭=토글 */
+  return `<details class="lab-run-family" data-family="${escHtml(f.family_id)}">
+    <summary class="lab-run-family-head">
+      <label class="lab-run-node-check" title="이 TC 변형 전체" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+        <input type="checkbox" data-family-all="${escHtml(f.family_id)}" ${allOn ? "checked" : ""} ${
+          someOn && !allOn ? 'data-indeterminate="1"' : ""
+        } />
+      </label>
+      <span class="lab-run-family-title">${escHtml(f.title)}</span>
+      <code class="tcid">${escHtml(String(f.family_id || "").replace(/^BTVTC-/, ""))}</code>
+      ${entry}
+      <span class="lab-run-count">${variants.length}</span>
+    </summary>
+    <div class="lab-run-variants">${rows}</div>
+  </details>`;
 }
 
 function labRunFamiliesHtml(families) {
   if (!families || !families.length) {
     return `<p class="muted">실행 가능한 TC가 없습니다.</p>`;
   }
-  const rows = labRunFlatRows(families);
-  let lastSuite = "";
-  let lastFeature = "";
-  const body = rows
-    .map((r) => {
-      const v = r.variant;
-      const f = r.family;
-      const on = LAB_RUN_CHECKED.has(v.id) ? "checked" : "";
-      const short = String(v.id || "").replace(/^BTVTC-/, "");
-      const showSuite = r.suite !== lastSuite;
-      const showFeat = showSuite || r.feature !== lastFeature;
-      lastSuite = r.suite;
-      lastFeature = r.feature;
-      const entry =
-        r.firstInFamily && f.entry_options && f.entry_options.length
-          ? `<select class="lab-run-entry-sel" data-family-entry="${escHtml(f.family_id)}" title="진입경로">
-                ${f.entry_options
-                  .map(
-                    (o) =>
-                      `<option value="${escHtml(o.id)}" ${
-                        LAB_RUN_ENTRY[f.family_id] === o.id ? "selected" : ""
-                      }>${escHtml(o.label)}</option>`
-                  )
-                  .join("")}
-              </select>`
-          : r.firstInFamily
-            ? "—"
-            : "";
-      return `<tr class="lab-run-row" data-tc-row="${escHtml(v.id)}" data-suite="${escHtml(r.suite)}" data-group="${escHtml(r.suite + "::" + r.feature)}" data-family="${escHtml(f.family_id)}">
-        <td class="lab-run-col-check"><input type="checkbox" data-tc="${escHtml(v.id)}" ${on} /></td>
-        <td class="lab-run-col-suite">${showSuite ? escHtml(r.suiteLabel) : ""}</td>
-        <td class="lab-run-col-feat">${showFeat ? escHtml(r.feature) : ""}</td>
-        <td class="lab-run-col-id"><code class="tcid" title="${escHtml(v.id)}">${escHtml(short)}</code></td>
-        <td class="lab-run-col-title" title="${escHtml(f.title || v.label)}">${escHtml(f.title || v.label)}</td>
-        <td class="lab-run-col-var">${escHtml(labRunVariantLabel(v, f))}</td>
-        <td class="lab-run-col-entry">${entry}</td>
-      </tr>`;
+  const suites = labRunSuites(families);
+  return suites
+    .map((su) => {
+      const n = su.features.reduce((a, f) => a + f.families.reduce((b, fam) => b + (fam.variants || []).length, 0), 0);
+      const featBody = su.features
+        .map((g) => {
+          const gn = g.families.reduce((a, f) => a + (f.variants || []).length, 0);
+          const gid = `${su.suite}::${g.name}`;
+          const body = g.families.map(labRunFamilyBlockHtml).join("");
+          return `<details class="lab-run-group" data-group="${escHtml(gid)}">
+            <summary class="lab-run-group-head">
+              <label class="lab-run-node-check" title="이 Wing 하위 전체" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+                <input type="checkbox" data-group-all="${escHtml(gid)}" />
+              </label>
+              <span class="lab-run-group-title">${escHtml(g.name)}</span>
+              <span class="lab-run-count">${gn}</span>
+            </summary>
+            <div class="lab-run-group-body">${body}</div>
+          </details>`;
+        })
+        .join("");
+      const suiteOpen = su.suite === "LIVE" || su.suite === "VOD" || suites.length === 1 ? " open" : "";
+      return `<details class="lab-run-suite" data-suite="${escHtml(su.suite)}"${suiteOpen}>
+        <summary class="lab-run-suite-head">
+          <label class="lab-run-node-check" title="이 스위트 전체" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+            <input type="checkbox" data-suite-all="${escHtml(su.suite)}" />
+          </label>
+          <span class="lab-run-suite-title">${escHtml(su.label)}</span>
+          <span class="lab-run-count">${n}</span>
+        </summary>
+        <div class="lab-run-suite-body">${featBody}</div>
+      </details>`;
     })
     .join("");
-  return `<div class="lab-run-sheet-wrap">
-    <table class="lab-run-sheet" id="lab-run-sheet">
-      <thead>
-        <tr>
-          <th class="lab-run-col-check" title="전체">
-            <input type="checkbox" id="lab-run-sheet-all" data-sheet-all="1" />
-          </th>
-          <th class="lab-run-col-suite">스위트</th>
-          <th class="lab-run-col-feat">영역</th>
-          <th class="lab-run-col-id">TC</th>
-          <th class="lab-run-col-title">제목</th>
-          <th class="lab-run-col-var">변형</th>
-          <th class="lab-run-col-entry">진입</th>
-        </tr>
-      </thead>
-      <tbody>${body}</tbody>
-    </table>
-  </div>`;
 }
 
 function syncLabRunMasters() {
-  const sheetAll = document.getElementById("lab-run-sheet-all");
-  const tcs = [...document.querySelectorAll("#lab-run-families input[data-tc]")];
-  if (sheetAll) {
+  document.querySelectorAll("#lab-run-families [data-family-all]").forEach((el) => {
+    const box = el.closest(".lab-run-family");
+    if (!box) return;
+    const tcs = [...box.querySelectorAll("input[data-tc]")];
     const n = tcs.length;
     const on = tcs.filter((c) => c.checked).length;
-    sheetAll.checked = n > 0 && on === n;
-    sheetAll.indeterminate = on > 0 && on < n;
-  }
+    el.checked = n > 0 && on === n;
+    el.indeterminate = on > 0 && on < n;
+  });
+  document.querySelectorAll("#lab-run-families [data-group-all]").forEach((el) => {
+    const box = el.closest(".lab-run-group");
+    if (!box) return;
+    const tcs = [...box.querySelectorAll("input[data-tc]")];
+    const n = tcs.length;
+    const on = tcs.filter((c) => c.checked).length;
+    el.checked = n > 0 && on === n;
+    el.indeterminate = on > 0 && on < n;
+  });
+  document.querySelectorAll("#lab-run-families [data-suite-all]").forEach((el) => {
+    const box = el.closest(".lab-run-suite");
+    if (!box) return;
+    const tcs = [...box.querySelectorAll("input[data-tc]")];
+    const n = tcs.length;
+    const on = tcs.filter((c) => c.checked).length;
+    el.checked = n > 0 && on === n;
+    el.indeterminate = on > 0 && on < n;
+  });
 }
 
 function syncLabRunFamilyMasters() {
@@ -1234,53 +947,13 @@ function setLabRunControlsLocked(locked) {
   });
   document
     .querySelectorAll(
-      "#lab-run-families input[data-tc], #lab-run-families select[data-family-entry], #lab-run-families input[data-sheet-all]"
+      "#lab-run-families input[data-tc], #lab-run-families select[data-family-entry], #lab-run-families input[data-family-all], #lab-run-families input[data-group-all], #lab-run-families input[data-suite-all]"
     )
     .forEach((el) => {
       el.disabled = !!locked;
     });
   const busy = document.getElementById("lab-run-busy");
   if (busy) busy.hidden = !locked;
-}
-
-function updateLabRunShotPreview(st) {
-  const img = document.getElementById("lab-run-mjpeg");
-  const cap = document.getElementById("lab-run-shot-cap");
-  const base = apiBase();
-  if (!img || !base) return;
-  const running = !!(st && st.running);
-  if (running) {
-    // 실행 중엔 ADB MJPEG을 끊고(경합 방지) 최신 증거 샷을 폴링한다
-    if (img.dataset.mode !== "shots") {
-      img.dataset.mode = "shots";
-      img.dataset.live = "";
-      img.alt = "실행 중 최신 샷";
-    }
-    const m = st.shot_mtime != null ? String(st.shot_mtime) : "";
-    const name = st.shot || "";
-    if (m && img.dataset.mtime !== m) {
-      img.dataset.mtime = m;
-      img.src = base + "/api/preview/latest?t=" + encodeURIComponent(m);
-    } else if (!img.getAttribute("src") || String(img.src).includes("/mjpeg")) {
-      img.src = base + "/api/preview/latest?t=" + Date.now();
-    }
-    if (cap) {
-      cap.hidden = !name;
-      cap.textContent = name ? `최신 샷 · ${name}` : "";
-    }
-  } else {
-    if (img.dataset.mode !== "mjpeg") {
-      img.dataset.mode = "mjpeg";
-      img.dataset.live = "1";
-      img.dataset.mtime = "";
-      img.alt = "ADB 미리보기";
-      img.src = base + "/api/preview/mjpeg?t=" + Date.now();
-    }
-    if (cap) {
-      cap.hidden = true;
-      cap.textContent = "";
-    }
-  }
 }
 
 function applyLabRunActive(st) {
@@ -1290,8 +963,7 @@ function applyLabRunActive(st) {
   const status = document.getElementById("lab-run-status");
   const busyDetail = document.getElementById("lab-run-busy-detail");
   const running = !!(st && st.running);
-  const activeId = (st && st.tc_id) || "";
-  if (tc) tc.textContent = activeId || "—";
+  if (tc) tc.textContent = (st && st.tc_id) || "—";
   if (bdd) bdd.textContent = (st && st.bdd) || "—";
   if (log) {
     const lines = (st && st.lines) || [];
@@ -1299,19 +971,6 @@ function applyLabRunActive(st) {
     log.scrollTop = log.scrollHeight;
   }
   setLabRunControlsLocked(running);
-  updateLabRunShotPreview(st || {});
-  document.querySelectorAll("#lab-run-families tr.lab-run-row").forEach((tr) => {
-    const id = tr.getAttribute("data-tc-row") || "";
-    const on = !!(running && activeId && (id === activeId || id.startsWith(activeId) || activeId.startsWith(id)));
-    tr.classList.toggle("is-running", on);
-    if (on) {
-      try {
-        tr.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      } catch {
-        /* ignore */
-      }
-    }
-  });
   if (busyDetail && running) {
     const bits = [
       st.run_id != null ? `run-${st.run_id}` : "",
@@ -1354,7 +1013,7 @@ async function refreshLabRunActive() {
 
 function startLabRunPoll() {
   if (LAB_RUN_POLL) return;
-  LAB_RUN_POLL = setInterval(refreshLabRunActive, 800);
+  LAB_RUN_POLL = setInterval(refreshLabRunActive, 1200);
 }
 
 async function loadLabRunCatalog() {
@@ -1450,17 +1109,13 @@ function bindLabRun() {
     return;
   }
   root.dataset.bound = "1";
-  /* 행 클릭 시 체크 토글 (입력/셀렉트 제외) */
+  /* 체크/셀렉트 클릭 시 details 토글 막기 (제목 텍스트만 열기·닫기) */
   root.addEventListener("click", (e) => {
     const t = e.target;
     if (!t || !t.closest) return;
-    if (t.closest("input, select, button, a, label")) return;
-    const tr = t.closest("tr.lab-run-row");
-    if (!tr) return;
-    const box = tr.querySelector("input[data-tc]");
-    if (!box || box.disabled) return;
-    box.checked = !box.checked;
-    box.dispatchEvent(new Event("change", { bubbles: true }));
+    if (t.closest(".lab-run-node-check") || t.closest("select.lab-run-entry-sel")) {
+      e.stopPropagation();
+    }
   });
   root.addEventListener("change", (e) => {
     const t = e.target;
@@ -1471,10 +1126,37 @@ function bindLabRun() {
         status.textContent = `${LAB_RUN_CHECKED.size}건 선택`;
       }
     };
-    if (t.matches("input[data-sheet-all]")) {
-      document.querySelectorAll("#lab-run-families input[data-tc]").forEach((el) => {
-        el.checked = t.checked;
-      });
+    if (t.matches("input[data-suite-all]")) {
+      const box = t.closest(".lab-run-suite");
+      if (box) {
+        box.querySelectorAll("input[data-tc]").forEach((el) => {
+          el.checked = t.checked;
+        });
+      }
+      syncLabRunCheckedFromDom();
+      syncLabRunMasters();
+      bumpStatus();
+      return;
+    }
+    if (t.matches("input[data-group-all]")) {
+      const box = t.closest(".lab-run-group");
+      if (box) {
+        box.querySelectorAll("input[data-tc]").forEach((el) => {
+          el.checked = t.checked;
+        });
+      }
+      syncLabRunCheckedFromDom();
+      syncLabRunMasters();
+      bumpStatus();
+      return;
+    }
+    if (t.matches("input[data-family-all]")) {
+      const box = t.closest(".lab-run-family");
+      if (box) {
+        box.querySelectorAll("input[data-tc]").forEach((el) => {
+          el.checked = t.checked;
+        });
+      }
       syncLabRunCheckedFromDom();
       syncLabRunMasters();
       bumpStatus();
@@ -1526,13 +1208,11 @@ function renderHome() {
   const latestTotal = c.PASS + c.CHANGE + c.FAIL + c.ERROR;
   const passShow = c.PASS + c.CHANGE;
   const runLabel = run.id != null ? `#${run.id}회차` : "최신";
-  const modeLabel =
-    CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록";
   return `
     <header>
       <div class="eyebrow">테스트케이스 ${results.length}건</div>
       <h1>${escHtml(runLabel)} 테스트 결과</h1>
-      <p class="dash-summary">실행 <b>#${run.id || "—"}</b> · 총 <b>${latestTotal || results.length}</b>건 · PASS <b>${passShow}</b>(변경 ${c.CHANGE}) · FAIL <b>${c.FAIL}</b> · ERROR <b>${c.ERROR}</b> · ${modeLabel}</p>
+      <p class="dash-summary">실행 <b>#${run.id || "—"}</b> · 총 <b>${latestTotal || results.length}</b>건 · PASS <b>${passShow}</b>(변경 ${c.CHANGE}) · FAIL <b>${c.FAIL}</b> · ERROR <b>${c.ERROR}</b> · ${CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록"}</p>
     </header>
     <section class="dash-grid">
       ${donutPanel(c, `${runLabel} 테스트 결과`)}
@@ -1541,9 +1221,7 @@ function renderHome() {
     <div class="card runinfo">
       <div class="kv kv-run"><span>선택 회차</span>${runPickHtml(run, whenRun)}</div>
       <div class="kv"><span>대상 단말</span><b>${device.model || "—"} · ${device.serial || ""}</b></div>
-      <div class="kv" title="ADB device 연결 여부 · 최근 catalog 실행 모드(실기/mock)">
-        <span>ADB / 실행</span><b id="home-device-status">확인 중…</b>
-      </div>
+      <div class="kv"><span>연결 / 실기검증</span><b>${device.connected ? "연결됨" : "미확인"} / ${device.verified ? "실기 검증 완료" : "실기 미검증"}</b></div>
     </div>
     <section class="section">
       ${tcTreeHtml(results, {
@@ -1552,31 +1230,6 @@ function renderHome() {
       })}
     </section>
   `;
-}
-
-/** 홈: catalog의 connected/verified는 스냅샷 고정값이라 쓰지 않고, 랩이면 /api/session으로 ADB만 본다. */
-async function refreshHomeDeviceStatus() {
-  const el = document.getElementById("home-device-status");
-  if (!el) return;
-  const modeLabel =
-    CATALOG.mode === "mock" ? "mock 실행" : CATALOG.mode === "real" ? "실기 실행" : "모드 미기록";
-  const base = apiBase();
-  if (!base) {
-    el.textContent = `스냅샷 · ${modeLabel}`;
-    return;
-  }
-  try {
-    const s = await fetchJson(base + "/api/session", 5000);
-    const conn =
-      s && s.ok && s.state === "device"
-        ? "연결됨"
-        : s && s.state
-          ? String(s.state)
-          : "끊김";
-    el.textContent = `${conn} · ${modeLabel}`;
-  } catch (_) {
-    el.textContent = `조회 실패 · ${modeLabel}`;
-  }
 }
 
 function triggerTcList(trigger) {
@@ -1632,24 +1285,12 @@ function renderRun(id) {
 }
 
 function screenOf(tc) {
-  const ownMajor = (tc && tc.major) || "";
-  const ownMinor = (tc && tc.minor) || "";
-  if (ownMajor || ownMinor) {
-    const title = ownMinor && ownMajor ? `${ownMajor} · ${ownMinor}` : ownMajor || ownMinor || (tc && tc.screen_id) || "기타";
-    return {
-      id: (tc && tc.screen_id) || title,
-      screen_id: (tc && tc.screen_id) || "",
-      major: ownMajor,
-      minor: ownMinor,
-      title,
-    };
-  }
-  const specs = ((CATALOG && CATALOG.docs) || []).filter((d) => d.kind === "spec");
-  const byScreen = specs.find((d) => d.screen_id && d.screen_id === tc.screen_id);
+  const specs = (CATALOG.docs || []).filter((d) => d.kind === "spec");
   const byRelated = specs.find((d) => (d.related_tcs || []).includes(tc.id));
-  const spec = byScreen || byRelated;
+  const byScreen = specs.find((d) => d.screen_id === tc.screen_id);
+  const spec = byRelated || byScreen;
   const major = (spec && spec.major) || tc.major || "";
-  const minor = (spec && spec.minor) || tc.minor || "";
+  const minor = (spec && spec.minor) || "";
   const title = minor && major ? `${major} · ${minor}` : (spec && spec.title) || tc.screen_id || "기타";
   return {
     id: (spec && spec.id) || tc.screen_id || "",
@@ -1662,18 +1303,9 @@ function screenOf(tc) {
 
 function screenOptions() {
   const seen = new Map();
-  const specs = ((CATALOG && CATALOG.docs) || []).filter((x) => x.kind === "spec");
-  if (specs.length) {
-    for (const d of specs) {
-      const title = d.minor && d.major ? `${d.major} · ${d.minor}` : d.title;
-      seen.set(d.id || d.screen_id, title);
-    }
-  } else {
-    const item = selectedCasesItem();
-    for (const r of (item && item.results) || []) {
-      const s = screenOf({ major: r.major, minor: r.minor, screen_id: r.screen_id });
-      if (s.title) seen.set(s.screen_id || s.id || s.title, s.title);
-    }
+  for (const d of (CATALOG.docs || []).filter((x) => x.kind === "spec")) {
+    const title = d.minor && d.major ? `${d.major} · ${d.minor}` : d.title;
+    seen.set(d.id || d.screen_id, title);
   }
   return [...seen.entries()]
     .map(([id, title]) => ({ id, title }))
@@ -1738,7 +1370,7 @@ function styleGuideDoc() {
   const docs = CATALOG.docs || [];
   return (
     docs.find((d) => d.kind === "styleguide") ||
-    docs.find((d) => String(d.id || "").includes("style-guide")) ||
+    docs.find((d) => d.id === "design/style-guide.md") ||
     docs.find((d) => String(d.title || "").includes("스타일 가이드")) || {
       id: "design/style-guide.md",
       title: "스타일 가이드",
@@ -1747,15 +1379,10 @@ function styleGuideDoc() {
   );
 }
 
-const HIDDEN_INBOX_IDS = new Set(["셋톱박스 테스트 자동화 기획서-V2.html"]);
-
-function visibleBinaries() {
-  return (CATALOG.binaries || []).filter((b) => !HIDDEN_INBOX_IDS.has(b.id));
-}
-
 function pinNotice() {
-  const bins = visibleBinaries();
+  const bins = CATALOG.binaries || [];
   const ids = [
+    "셋톱박스 테스트 자동화 기획서-V2.html",
     "셋톱박스 테스트 자동화 用 테스트케이스 예시-V1.html",
     "셋톱박스 테스트 자동화 기획서-V1.html",
   ];
@@ -1764,7 +1391,7 @@ function pinNotice() {
   return [...pinned, ...rest];
 }
 
-/** 원본 자료 고정 순서: TC 예시 → 기획서 V1 → 스타일 가이드 → 그 외 */
+/** 공지 고정 순서: 기획서 V2 → TC 예시 → 기획서 V1 → 스타일 가이드 → 그 외 */
 function docsNotices() {
   const bins = pinNotice();
   const guide = styleGuideDoc();
@@ -1819,16 +1446,10 @@ function renderDocs() {
       <h1>화면 명세</h1>
     </header>
     <section class="section docs-notice">
-      <details class="docs-sources">
-        <summary>
-          <span class="feat-chev" aria-hidden="true"></span>
-          <h2>원본 자료</h2>
-          <span class="desc muted">${notices.length}건</span>
-        </summary>
-        <div class="doc-list">
-          ${notices.map((n) => noticeBtn(n)).join("")}
-        </div>
-      </details>
+      <div class="sectionhead"><h2>공지</h2></div>
+      <div class="doc-list">
+        ${notices.map((n) => noticeBtn(n)).join("")}
+      </div>
     </section>
     ${majors
       .map((maj) => {
@@ -1842,7 +1463,7 @@ function renderDocs() {
         <tbody>
           ${rows
             .map((d) => {
-              const n = d.db_tc_count != null ? d.db_tc_count : (d.related_tcs || []).length || tcsForScreen(d.screen_id).length;
+              const n = (d.related_tcs || []).length || tcsForScreen(d.screen_id).length;
               const approved = String(d.status || "") === "approved";
               return `<tr data-go="/docs/${encodeURIComponent(d.id)}">
                 <td class="name"><b>${escHtml(d.minor || d.title)}</b><span>${escHtml(d.screen_id || d.id)}</span></td>
@@ -1895,22 +1516,9 @@ function parseCompAttrs(raw) {
   return out;
 }
 
-function shotBasename(file) {
-  return String(file || "")
-    .replace(/^.*[/\\]/, "")
-    .toLowerCase();
-}
-
 function renderComp(name, rawAttrs) {
   const a = parseCompAttrs(rawAttrs);
   const n = String(name || "").toLowerCase();
-  if (DOC_RENDER.mode === "spec") {
-    if (SPEC_BLOCKED_COMPS.has(n)) return "";
-    if (n === "shot") {
-      const file = a.file || a.name || a.src || "";
-      if (DOC_RENDER.heroShot && shotBasename(file) === shotBasename(DOC_RENDER.heroShot)) return "";
-    }
-  }
   const bg = (v, fallback) => {
     const rgb = hexToRgb(v || fallback);
     return rgb ? rgb.css : "rgb(100,100,100)";
@@ -2215,18 +1823,13 @@ function sectionHtml(text, asSteps) {
       i += 1;
       continue;
     }
-    if (line.trim().startsWith("|") && i + 1 < lines.length && /^\s*\|?[-:\s|]+\|?\s*$/.test(lines[i + 1] || "")) {
+    if (line.trim().startsWith("|") && i + 1 < lines.length && /---/.test(lines[i + 1] || "")) {
       const block = [];
       while (i < lines.length && lines[i].trim().startsWith("|")) {
         block.push(lines[i].trim());
         i += 1;
       }
-      const cells = (row) =>
-        row
-          .replace(/^\|/, "")
-          .replace(/\|$/, "")
-          .split("|")
-          .map((c) => c.trim());
+      const cells = (row) => row.split("|").slice(1, -1).map((c) => c.trim());
       const headers = cells(block[0]);
       const rows = block.slice(2).map(cells);
       chunks.push(
@@ -2263,7 +1866,7 @@ function sectionHtml(text, asSteps) {
 function renderDoc(id) {
   if (id.startsWith("file:")) {
     const name = id.slice(5);
-    const bin = visibleBinaries().find((b) => b.id === name);
+    const bin = (CATALOG.binaries || []).find((b) => b.id === name);
     if (!bin) return `<p>파일을 찾지 못했습니다.</p>`;
     if (!bin.preview) {
       return `<p>${bin.note || "미리보기 불가"}</p><p><a href="${mediaSrc(bin.href)}">${bin.title} 다운로드</a></p>`;
@@ -2276,33 +1879,20 @@ function renderDoc(id) {
       ${isPdf ? `<embed class="frame" src="${href}" type="application/pdf">` : `<iframe class="frame" src="${href}" title="${bin.title}"></iframe>`}
     `;
   }
-  const doc = findDoc(id) ||
+  const doc =
+    (CATALOG.docs || []).find((d) => d.id === id) ||
     (id === "design/style-guide.md" || String(id).includes("style-guide")
       ? styleGuideDoc()
       : null);
   if (!doc) return `<p>문서를 찾지 못했습니다.</p>`;
-  if (doc._loadError) {
-    return `<button class="btn" type="button" data-go="/docs">← 기획</button>
-      <p class="muted">${escHtml(doc._loadError)}</p>`;
-  }
-  if (doc.kind === "styleguide" || String(doc.id || "").includes("style-guide")) return renderStyleGuide(doc);
+  if (doc.kind === "styleguide" || doc.id === "design/style-guide.md") return renderStyleGuide(doc);
   if (doc.kind === "spec") return renderSpec(doc);
-  const eyebrow =
-    {
-      starts: "시작",
-      "rules/verdicts": "판정",
-      "design/home-menu-rail": "레일",
-    }[stripDocExt(doc.id)] || "기준";
   return `
     <button class="btn" type="button" data-go="/docs">← 기획</button>
-    <article class="card case-sheet">
-      <div class="case-head">
-        <div>
-          <div class="eyebrow">${eyebrow}</div>
-          <h1>${escHtml(doc.title)}</h1>
-        </div>
-      </div>
-      <div class="case-body doc-canon-body">${enhanceHtml(doc.html || "")}</div>
+    <article class="doc-body">
+      <div class="eyebrow">${doc.kind}</div>
+      <h1>${doc.title}</h1>
+      ${enhanceHtml(doc.html || "")}
     </article>
   `;
 }
@@ -2346,7 +1936,49 @@ function renderStyleGuide(doc) {
       id: "toggle",
       name: "토글 (켜짐/꺼짐 문구)",
       preview: `${renderComp("toggle", "off")} ${renderComp("toggle", "on")}`,
-      where: "자막·마케팅 배너. 트랙 안에 꺼짐/켜짐 문구.",
+      where: "자막·마케팅 배너·음성 다중 등. 트랙 안에 꺼짐/켜짐 문구. 문구 없는 iOS형 스위치로 그리면 틀림.",
+    },
+    {
+      id: "option-list",
+      name: "옵션 리스트",
+      preview: renderComp(
+        "option-list",
+        "title=AI_클리어_보이스 selected=기본 focus=기본 options=사용_안_함|기본|크게|아주_크게"
+      ),
+      where: "우측 Wing 상세 패널. 라디오+✓. AI 사운드·음성 다중(한국어/영어) 등.",
+    },
+    {
+      id: "menu-rail",
+      name: "Wing 메뉴 레일",
+      preview: `${renderComp(
+        "menu-rail",
+        "mode=focus selected=AI_사운드_설정 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
+      )} ${renderComp(
+        "menu-rail",
+        "mode=selected selected=AI_사운드_설정 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
+      )}`,
+      where: "포커스=그라데이션. 상세 진입 후 부모=회색 하이라이트. 무료·AI 화질은 레일에 없음.",
+    },
+    {
+      id: "detail-row",
+      name: "상세 행",
+      preview: `${renderComp("detail-row", "label=자막_보기 focus toggle=off")} ${renderComp("detail-row", "label=자막_스타일 arrow")}`,
+      where: "우측 Wing 2depth. 포커스=밝은 테두리. 토글·›·✓ 는 행 끝.",
+    },
+    {
+      id: "poster",
+      name: "VOD · 회차 썸네일",
+      preview: `${renderComp("poster", "label=1화 focus ep=무료")} ${renderComp("poster", "label=2화 ep=무료")} ${renderComp("poster", "label=3화")}`,
+      where: "회차 목록·볼만한 콘텐츠 카드. 포커스=파란 링.",
+    },
+    {
+      id: "home-rail",
+      name: "홈 좌측 메뉴",
+      preview: renderComp(
+        "menu-rail",
+        "selected=홈 items=무료|홈|Btv+|영화/시리즈|TV방송"
+      ),
+      where: "메인 홈 [좌]×2. 기본 포커스 홈. [하]×3 → TV방송.",
     },
     {
       id: "stepper",
@@ -2358,19 +1990,31 @@ function renderStyleGuide(doc) {
       id: "badge",
       name: "연령 뱃지",
       preview: renderComp("badge", "label=15 color=#DD7430"),
-      where: "Clean A/V 좌상단. 화면 명세에는 넣지 않음.",
+      where: "Clean A/V 좌상단.",
     },
     {
       id: "pill",
       name: "필 버튼",
       preview: `${renderComp("pill", "label=회차_목록 color=#333333")} ${renderComp("pill", "label=mobile_Btv color=#221A56")}`,
-      where: "스타일 가이드 전용. spec은 실사 샷.",
+      where: "회차 목록·mobile Btv·메뉴 칩.",
+    },
+    {
+      id: "focus",
+      name: "포커스 링",
+      preview: renderComp("focus", "label=카드"),
+      where: "좌측 Wing 채널 카드 등.",
+    },
+    {
+      id: "radio-check",
+      name: "라디오 / 체크",
+      preview: `${renderComp("radio", "on")} ${renderComp("radio", "")} ${renderComp("check", "on")} ${renderComp("check", "")}`,
+      where: "선택·체크 상태 표시.",
     },
     {
       id: "key",
       name: "리모컨 키",
       preview: `${renderComp("key", "label=OK")} ${renderComp("key", "label=우")} ${renderComp("key", "label=나가기")}`,
-      where: "기획 문장 안 칩. spec에 허용.",
+      where: "기획 문서에서 조작을 설명할 때 사용.",
     },
   ];
   const typoRows = [
@@ -2379,6 +2023,7 @@ function renderStyleGuide(doc) {
     ["설명 문구", "20–24px", "보통 · #B0B0B0"],
     ["토글 문구", "11–14px", "볼드"],
   ];
+  const railShot = shotSrc("wing-right-menu-171.png");
   const sec = doc.sections || {};
   const introRaw = String(sec["본문"] || "").replace(/^#\s*.+\n+/, "").trim();
   const intro =
@@ -2439,15 +2084,34 @@ function renderStyleGuide(doc) {
         </section>
         <section class="section">
           <h2>상태 · 액티브 / 논액티브</h2>
-          <div class="tablewrap"><table class="sg-table">
-            <thead><tr><th>대상</th><th>포커스</th><th>논액티브</th></tr></thead>
-            <tbody>
-              <tr><td>메뉴 레일</td><td>블루→보라 그라데이션 · 흰 볼드</td><td>하이라이트 없음 · 얇은 글자</td></tr>
-              <tr><td>레일 부모(상세 진입 후)</td><td>회색 하이라이트 · 흰 볼드</td><td>—</td></tr>
-              <tr><td>상세 설정 행</td><td>옅은 채움 + 밝은 테두리 · 흰 볼드</td><td>검정 패널 · 얇은 글자</td></tr>
-            </tbody>
-          </table></div>
-          <p class="muted tip">제품 화면은 각 spec 실사. 여기서는 색·두께만 적는다.</p>
+          <div class="sg-state-grid sg-state-grid-3">
+            <div class="sg-state-card">
+              <p class="howto-label">메뉴 레일 · 포커스</p>
+              ${renderComp(
+                "menu-rail",
+                "mode=focus selected=자막/해설/수어 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
+              )}
+              <p class="muted tip">포커스가 레일에 있을 때 · 그라데이션+볼드</p>
+            </div>
+            <div class="sg-state-card">
+              <p class="howto-label">메뉴 레일 · 상세 진입</p>
+              ${renderComp(
+                "menu-rail",
+                "mode=selected selected=자막/해설/수어 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
+              )}
+              <p class="muted tip">상세로 들어간 뒤 부모 항목 · 회색 하이라이트+볼드</p>
+            </div>
+            <div class="sg-state-card">
+              <p class="howto-label">상세 행 · 포커스</p>
+              <div class="ui-comp ui-opt-panel">
+                <div class="ui-opt-title">자막/해설/수어 설정</div>
+                ${renderComp("detail-row", "label=자막_보기 focus toggle=off")}
+                ${renderComp("detail-row", "label=음소거_시_자막_보기 toggle=off")}
+                ${renderComp("detail-row", "label=자막_스타일 arrow")}
+              </div>
+              <p class="muted tip">행 포커스 = 밝은 테두리+옅은 채움+볼드 · 선택값은 ✓/토글</p>
+            </div>
+          </div>
         </section>
         <section class="section">
           <h2>리모컨</h2>
@@ -2482,12 +2146,24 @@ function renderStyleGuide(doc) {
           </div>
         </section>
         <section class="section">
-          <h2>메뉴 순서</h2>
-          <p class="howto-p">우측 Wing은 <button type="button" class="tc-link" data-go="/docs/screens/wing-right-banner">화면 명세</button>와 DB <code>screen_menus</code>. 홈 좌측은 home-menu-rail.md. 여기서 제품 화면을 다시 그리지 않는다.</p>
+          <h2>우측 Wing 메뉴 레일 (ADB 실측)</h2>
+          <ol class="howto-list">
+            <li>볼만한 콘텐츠 (기본 포커스)</li>
+            <li>AI 사운드 설정</li>
+            <li>자막/해설/수어</li>
+            <li>시청 환경 설정</li>
+            <li>(조건부) 음성 다중 설정 — 171 등</li>
+            <li>블루투스 연결</li>
+          </ol>
+          <p class="muted tip">상단 아이콘 멀티뷰·zem 키즈홈은 [하] 카운트에 넣지 않음. 레일에 무료 콘텐츠·AI 화질 없음.</p>
+          <figure class="spec-hero">
+            <img src="${railShot}" alt="우측 Wing 메뉴 레일 실측">
+            <figcaption>171 채널 · 음성 다중 포함 · 2026-09-16 ADB</figcaption>
+          </figure>
         </section>
         <section class="section">
           <h2>UI 컴포넌트</h2>
-          <p class="muted tip">작은 칩만. 레일·옵션 패널 풀샷은 화면 명세의 실사를 본다.</p>
+          <p class="muted tip">? 를 누르면 사용처가 나옵니다.</p>
           <div class="sg-comps">
             ${comps
               .map(
@@ -2501,6 +2177,15 @@ function renderStyleGuide(doc) {
               )
               .join("")}
           </div>
+          <div class="sg-ref-shots">
+            <p class="howto-label">실측 참고</p>
+            <div class="shots">
+              <figure class="shot"><img src="${shotSrc("wing-right-panel-caption.png")}" alt="자막 상세"><figcaption>상세 행 포커스</figcaption></figure>
+              <figure class="shot"><img src="${shotSrc("wing-right-settings-enter-4.png")}" alt="상세 진입 레일"><figcaption>레일 · 상세 진입(회색)</figcaption></figure>
+              <figure class="shot"><img src="${shotSrc("shots-129-player-nav3-s3-02.jpg")}" alt="회차 목록"><figcaption>회차 목록 필</figcaption></figure>
+              <figure class="shot"><img src="${shotSrc("wing-right-menu-171.png")}" alt="볼만한"><figcaption>볼만한 콘텐츠 썸네일</figcaption></figure>
+            </div>
+          </div>
         </section>
       </div>
     </article>
@@ -2508,375 +2193,29 @@ function renderStyleGuide(doc) {
   `;
 }
 
-function heroFigureHtml(doc) {
+function heroHtml(doc) {
   const shot = doc.hero_shot || "";
   if (!shot) return "";
   const file = shot.endsWith(".png") || shot.endsWith(".jpg") || shot.endsWith(".jpeg") ? shot : `${shot}.png`;
-  const cap = doc.hero_caption || "대표 사진";
-  return `<figure class="spec-hero">
-        <img src="${shotSrc(file)}" alt="${escHtml(cap)}">
-        <figcaption>${escHtml(cap)}</figcaption>
-      </figure>`;
-}
-
-function heroHtml(doc) {
-  const inner = heroFigureHtml(doc);
-  if (!inner) return "";
+  const src = shotSrc(file);
+  const cap = doc.hero_caption || "대표 화면";
   return `<section class="section spec-hero-sec">
-      <h2>대표 기능</h2>
-      ${inner}
+      <h2>대표 화면</h2>
+      <figure class="spec-hero">
+        <img src="${src}" alt="${escHtml(cap)}">
+        <figcaption>${escHtml(cap)}</figcaption>
+      </figure>
     </section>`;
 }
 
-function railMenuGroups(menus) {
-  const groups = [
-    { id: "paid", label: "유료", with: "paid_preview", without: "paid_preview_novoice" },
-    { id: "free", label: "무료", with: "free", without: "free_novoice" },
-    { id: "shop", label: "판매", with: "shop", without: "shop_novoice" },
-  ];
-  const isVoice = (m) => m.menu_id === "audio_multi" || (m.aliases || []).includes("voice");
-  return groups
-    .filter((g) => (menus[g.with] && menus[g.with].length) || (menus[g.without] && menus[g.without].length))
-    .map((g) => {
-      const src = (menus[g.with] && menus[g.with].length ? menus[g.with] : menus[g.without]) || [];
-      let items = src.map((m) => ({ ...m }));
-      if (!items.some(isVoice)) {
-        const bt = items.findIndex((m) => m.menu_id === "bluetooth");
-        const row = { menu_id: "audio_multi", label: "음성 다중 설정", sort_order: 0, is_default: false };
-        if (bt >= 0) items.splice(bt, 0, row);
-        else items.push(row);
-      }
-      items = items.map((m, i) => ({
-        ...m,
-        sort_order: i,
-        optional: isVoice(m),
-      }));
-      return { id: g.id, label: g.label, items };
-    });
-}
-
-function railVisibleItems(items, voiceOn) {
-  return (items || []).filter((m) => voiceOn || !m.optional);
-}
-
-function railRowsHtml(items, voiceOn, picked) {
-  return railVisibleItems(items, voiceOn)
-    .map((m, i) => {
-      const pick = picked && m.menu_id === picked ? " is-picked" : "";
-      const badge = m.is_default ? `<span class="rail-focus">기본</span>` : "";
-      return `<tr class="${m.optional ? "rail-opt" : ""}${pick}" data-rail-menu="${escHtml(m.menu_id || "")}">
-        <td class="rail-ord">${i}</td>
-        <td>${escHtml(m.label || "")}${badge}</td>
-      </tr>`;
-    })
-    .join("");
-}
-
-function railTableHtml(items, voiceOn, picked) {
-  return `<div class="rail-list"><table class="rail-table">
-    <tbody>${railRowsHtml(items, voiceOn, picked)}</tbody>
-  </table></div>`;
-}
-
-function railJsonScript(cls, obj) {
-  return `<pre hidden class="${cls}">${escHtml(JSON.stringify(obj))}</pre>`;
-}
-
-function railReadJson(root, cls) {
-  const el = root && root.querySelector("." + cls);
-  try {
-    return JSON.parse((el && el.textContent) || "null");
-  } catch (_) {
-    return null;
-  }
-}
-
-function railDetailHtml(panels, menuId) {
-  const groups = (panels && panels[menuId]) || [];
-  if (!groups.length) {
-    return `<p class="muted tip">하위 없음</p>`;
-  }
-  return groups
-    .map((g) => {
-      const kind = g.kind || "options";
-      const selectable = kind === "options" || kind === "toggle";
-      const rows = g.options || [];
-      const isGuide = (o) =>
-        o.option_id === "guide" || (!selectable && /[.。]$/.test(String(o.label || "")) && String(o.label || "").length > 18);
-      const guides = rows.filter(isGuide);
-      const rest = rows.filter((o) => !isGuide(o));
-      const guideHtml = guides.map((o) => `<p class="rail-guide">${escHtml(o.label || "")}</p>`).join("");
-      let body = "";
-      if (selectable && rest.length) {
-        body = `<div class="rail-choices">${rest
-          .map(
-            (o) =>
-              `<span class="rail-choice${o.is_default ? " is-default" : ""}">${escHtml(o.label || "")}${o.is_default ? " ✓" : ""}</span>`
-          )
-          .join("")}</div>`;
-      } else if (rest.length) {
-        body = rest.map((o) => `<div class="rail-note">${escHtml(o.label || "")}</div>`).join("");
-      }
-      return `<div class="rail-group"><div class="rail-group-h">${escHtml(g.label || g.group_id || "")}</div>${guideHtml}${body}</div>`;
-    })
-    .join("");
-}
-
-function stripShotTags(text) {
-  return String(text || "")
-    .replace(/\{\{shot:[^}]+\}\}/gi, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-function firstShotMeta(text) {
-  const m = String(text || "").match(/\{\{shot:([^\s}]+)([^}]*)\}\}/i);
-  if (!m) return { file: "", caption: "" };
-  const capM = String(m[2] || "").match(/caption=([^\s}]+)/i);
-  return { file: m[1], caption: (capM ? capM[1] : "").replace(/_/g, " ") };
-}
-
-function normFeat(s) {
-  return String(s || "")
-    .replace(/\[|\]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-}
-
-function specFeatPack(doc) {
-  const parsed = parseNamedBlocks((doc.sections || {})["기능"] || "");
-  const intro = [];
-  const blocks = [];
-  for (const b of parsed.blocks) {
-    const t = b.title || "";
-    if (/호출/.test(t)) intro.push(b);
-    else if (/메뉴 구성/.test(t)) continue;
-    else blocks.push(b);
-  }
-  return {
-    intro,
-    blocks,
-    hero: { file: doc.hero_shot || "", caption: doc.hero_caption || "" },
-  };
-}
-
-function featureMatchesMenu(block, menu, panels) {
-  const title = normFeat(block.title);
-  const label = normFeat(menu && menu.label);
-  if (!title) return false;
-  if (label && (title.includes(label) || label.includes(title))) return true;
-  const parts = title.split(/\s*[·\/]\s*/).filter(Boolean);
-  if (label && parts.some((p) => p && (label.includes(p) || p.includes(label)))) return true;
-  for (const g of (panels || {})[(menu && menu.menu_id) || ""] || []) {
-    const gl = normFeat(g.label);
-    if (gl && (title.includes(gl) || gl.includes(title))) return true;
-  }
-  return false;
-}
-
-function menuFeatureHits(menu, blocks, panels) {
-  return (blocks || []).filter((b) => featureMatchesMenu(b, menu, panels));
-}
-
-function menuShotOf(menu, blocks, panels, hero) {
-  const hits = menuFeatureHits(menu, blocks, panels);
-  for (const b of hits) {
-    const s = firstShotMeta(b.body);
-    if (s.file) return s;
-  }
-  if (menu && menu.is_default && hero && hero.file) return hero;
-  return { file: "", caption: "" };
-}
-
-function featShotHtml(shot) {
-  if (!shot || !shot.file) {
-    return `<figure class="feat-shot-fig is-empty"><p class="muted tip">이 메뉴가 열린 샷이 아직 없습니다.</p></figure>`;
-  }
-  const raw = shot.file;
-  const file = /\.(png|jpe?g)$/i.test(raw) ? raw : `${raw}.png`;
-  const cap = shot.caption || "";
-  return `<figure class="feat-shot-fig"><img src="${shotSrc(file)}" alt="${escHtml(cap || "대표 사진")}"><figcaption>${escHtml(cap)}</figcaption></figure>`;
-}
-
-function featCopyHtml(blocks) {
-  if (!blocks.length) return `<p class="muted tip">이 메뉴에 연결된 기능 설명이 없습니다.</p>`;
-  return blocks
-    .map(
-      (b) =>
-        `<div class="feat-copy-block"><h3>${richText(b.title)}</h3><div>${sectionHtml(stripShotTags(b.body))}</div></div>`
-    )
-    .join("");
-}
-
-function featIntroHtml(intro) {
-  if (!intro || !intro.length) return "";
-  return `<div class="feat-list feat-intro-list">${intro
-    .map(
-      (b) => `<details class="feat feat-intro-fold">
-        <summary>
-          <span class="feat-chev" aria-hidden="true"></span>
-          <span class="feat-name">${richText(b.title)}</span>
-        </summary>
-        <div class="feat-body">${sectionHtml(stripShotTags(b.body))}</div>
-      </details>`
-    )
-    .join("")}</div>`;
-}
-
-function firstMenuWithPanel(items, panels) {
-  const hit = (items || []).find((m) => ((panels || {})[m.menu_id] || []).length);
-  return hit ? hit.menu_id : "";
-}
-
-function railPickId(items, panels) {
-  const list = items || [];
-  const def = list.find((m) => m.is_default);
-  if (def && def.menu_id) return def.menu_id;
-  return firstMenuWithPanel(list, panels) || (list[0] && list[0].menu_id) || "";
-}
-
-function applyRailPick(pane, sec, menuId) {
-  const items = railReadJson(pane, "rail-items-json") || [];
-  const panels = railReadJson(sec, "rail-panels-json") || {};
-  const feat = railReadJson(sec, "rail-feat-json") || { blocks: [], hero: {} };
-  const menu = items.find((m) => m.menu_id === menuId) || { menu_id: menuId, label: "" };
-  const box = pane.querySelector("[data-rail-detail]");
-  if (box) box.innerHTML = railDetailHtml(panels, menuId);
-  const shotBox = pane.querySelector("[data-feat-shot]");
-  if (shotBox) shotBox.innerHTML = featShotHtml(menuShotOf(menu, feat.blocks, panels, feat.hero));
-  const copyBox = pane.querySelector("[data-feat-copy]");
-  if (copyBox) copyBox.innerHTML = featCopyHtml(menuFeatureHits(menu, feat.blocks, panels));
-}
-
-function railWorkHtml(items, panels, voiceOn, picked, feat) {
-  const pack = feat || { blocks: [], hero: {} };
-  const shown = railVisibleItems(items, voiceOn);
-  const id = picked || railPickId(shown, panels);
-  const menu = shown.find((m) => m.menu_id === id) || items.find((m) => m.menu_id === id) || {};
-  return `${railJsonScript("rail-items-json", items)}
-    <div class="feat-stage">
-      ${railTableHtml(items, voiceOn, id)}
-      <div class="rail-detail" data-rail-detail>${railDetailHtml(panels, id)}</div>
-      <div class="feat-shot" data-feat-shot>${featShotHtml(menuShotOf(menu, pack.blocks, panels, pack.hero))}</div>
-    </div>
-    <div class="feat-copy" data-feat-copy>${featCopyHtml(menuFeatureHits(menu, pack.blocks, panels))}</div>`;
-}
-
-function paintRailPane(pane, sec) {
-  const cb = sec.querySelector("[data-rail-voice]");
-  const voiceOn = !cb || cb.checked;
-  const items = railReadJson(pane, "rail-items-json") || [];
-  const panels = railReadJson(sec, "rail-panels-json") || {};
-  const shown = railVisibleItems(items, voiceOn);
-  let picked = "";
-  const cur = pane.querySelector("tr.is-picked");
-  if (cur) picked = cur.getAttribute("data-rail-menu") || "";
-  if (picked && !shown.some((m) => m.menu_id === picked)) picked = "";
-  if (!picked) picked = railPickId(shown, panels);
-  const tbody = pane.querySelector("tbody");
-  if (tbody) tbody.innerHTML = railRowsHtml(items, voiceOn, picked);
-  applyRailPick(pane, sec, picked);
-}
-
-function specRuntimeHtml(doc) {
-  const rt = doc.runtime || {};
-  const parts = [];
-  const menus = rt.menus || {};
-  const grouped = railMenuGroups(menus);
-  const panels = rt.panels || {};
-  const feat = specFeatPack(doc);
-  const featJson = { blocks: feat.blocks, hero: feat.hero };
-  if (grouped.length) {
-    const first = grouped[0].id;
-    const nav = grouped
-      .map(
-        (g) =>
-          `<button type="button" class="rail-prof${g.id === first ? " on" : ""}" data-rail-prof="${escHtml(g.id)}">${escHtml(g.label)}</button>`
-      )
-      .join("");
-    const panes = grouped
-      .map((g) => {
-        const shown = railVisibleItems(g.items, true);
-        const picked = railPickId(shown, panels);
-        return `<div class="rail-pane"${g.id === first ? "" : " hidden"} data-rail-pane="${escHtml(g.id)}">
-          ${railWorkHtml(g.items, panels, true, picked, feat)}
-        </div>`;
-      })
-      .join("");
-    parts.push(`<section class="section" data-rail-section>
-      <h2>대표 기능</h2>
-      ${featIntroHtml(feat.intro)}
-      ${railJsonScript("rail-panels-json", panels)}
-      ${railJsonScript("rail-feat-json", featJson)}
-      <div class="rail-toolbar">
-        <nav class="rail-seg" aria-label="채널 유형">${nav}</nav>
-        <label class="rail-voice"><input type="checkbox" checked data-rail-voice> 음성 다중 채널</label>
-      </div>
-      <div class="rail-panes">${panes}</div>
-    </section>`);
-  } else {
-    const profs = Object.keys(menus);
-    if (profs.length) {
-      const items = (menus[profs[0]] || []).map((m) => ({ ...m, optional: false }));
-      const picked = railPickId(items, panels);
-      parts.push(`<section class="section" data-rail-section>
-      <h2>대표 기능</h2>
-      ${featIntroHtml(feat.intro)}
-      ${railJsonScript("rail-panels-json", panels)}
-      ${railJsonScript("rail-feat-json", featJson)}
-      ${railWorkHtml(items, panels, true, picked, feat)}
-    </section>`);
-    } else {
-      parts.push(`<section class="section">
-      <h2>대표 기능</h2>
-      ${heroFigureHtml(doc)}
-      ${featuresHtml((doc.sections || {})["기능"], "규칙 없음")}
-    </section>`);
-    }
-  }
-  return parts.join("");
-}
-
-function specDbTestsHtml(doc) {
-  const rt = doc.runtime || {};
-  const rows = rt.tcs || [];
-  if (!rows.length) return "";
-  const flags = [];
-  const missing = rt.missing_in_db || [];
-  const notInSpec = rt.not_in_spec || [];
-  if (missing.length) {
-    flags.push(`<p>spec에 있으나 DB에 없음: ${missing.map((id) => `<code>${escHtml(id)}</code>`).join(", ")}</p>`);
-  }
-  if (notInSpec.length) {
-    flags.push(`<p>DB에는 있으나 spec 목록에 없음: ${notInSpec.map((id) => `<code>${escHtml(id)}</code>`).join(", ")}</p>`);
-  }
-  const body = rows
-    .map((t) => {
-      return `<tr data-go="/tcs/${encodeURIComponent(t.id)}">
-        <td class="name"><b>${escHtml(t.id)}</b><span>${escHtml(t.title || "")}</span></td>
-      </tr>`;
-    })
-    .join("");
-  return `${flags.join("")}<div class="card tablewrap"><table>
-    <thead><tr><th>TC</th></tr></thead>
-    <tbody>${body}</tbody>
-  </table></div>`;
-}
-
 function renderSpec(doc) {
-  const prev = DOC_RENDER;
-  DOC_RENDER = { mode: "spec", heroShot: doc.hero_shot || "" };
-  try {
-    return renderSpecBody(doc);
-  } finally {
-    DOC_RENDER = prev;
-  }
-}
-
-function renderSpecBody(doc) {
   const sec = doc.sections || {};
+  const relatedIds = new Set(doc.related_tcs || []);
+  const tcs = relatedIds.size
+    ? caseList().filter((tc) => relatedIds.has(tc.id))
+    : tcsForScreen(doc.screen_id);
   const notices = pinNotice().filter((b) => b.preview);
+  const related = sec["관련 테스트"] || sec["케이스"] || "";
   const cls = [doc.major, doc.minor].filter(Boolean).join(" · ");
   return `
     <button class="btn" type="button" data-go="/docs">← 기획</button>
@@ -2893,9 +2232,19 @@ function renderSpecBody(doc) {
         <div class="card runinfo spec-meta">
           <div class="kv"><span>화면 ID</span><b>${doc.screen_id || "—"}</b></div>
           <div class="kv"><span>승인 상태</span><b>${String(doc.status || "") === "approved" ? "approved (기준 반영)" : "대기 · baseline 미반영"}</b></div>
-          <div class="kv"><span>DB TC</span><b>${(doc.runtime && doc.runtime.tcs ? doc.runtime.tcs.length : 0)}건</b></div>
+          <div class="kv"><span>관련 TC</span><b>${tcs.length}건</b></div>
         </div>
-        ${specRuntimeHtml(doc)}
+        ${(doc.sources || []).length
+          ? `<section class="section"><h2>원본 문서</h2>
+              <p class="muted tip">spec.md는 여러 형식 입력을 정규화한 최종 기준입니다. 아래가 등록된 원본입니다.</p>
+              <ul class="howto-list">${(doc.sources || []).map((s) => `<li><code>${escHtml(s)}</code></li>`).join("")}</ul>
+            </section>`
+          : ""}
+        ${heroHtml(doc)}
+        <section class="section">
+          <h2>기능</h2>
+          ${featuresHtml(sec["기능"], "규칙 없음")}
+        </section>
         <section class="section">
           <h2>디자인</h2>
           <p class="muted tip">불일치 → PASS(변경 감지). 폭·폰트·색을 기준으로 본다.</p>
@@ -2915,22 +2264,12 @@ function renderSpecBody(doc) {
         </section>
         <section class="section">
           <h2>관련 테스트</h2>
-          ${
-            (doc.runtime && doc.runtime.tcs && doc.runtime.tcs.length)
-              ? specDbTestsHtml(doc)
-              : sectionHtml(sec["관련 테스트"] || sec["케이스"])
-          }
+          <p class="muted tip">시작 경로·위치 반복은 각 TC와 starts.md에 있습니다.</p>
+          ${relatedTestsHtml(related, tcs)}
         </section>
         <section class="section">
           <h2>참고</h2>
           ${sectionHtml(sec["참고"])}
-          ${
-            (doc.sources || []).length
-              ? `<details class="docs-sources"><summary><span class="feat-chev" aria-hidden="true"></span><h2>등록 원본</h2><span class="desc muted">${doc.sources.length}건</span></summary>
-                  <ul class="howto-list">${doc.sources.map((s) => `<li><code>${escHtml(s)}</code></li>`).join("")}</ul>
-                </details>`
-              : ""
-          }
           ${
             notices.length
               ? `<div class="hist">${notices
@@ -3043,8 +2382,8 @@ function renderCases() {
       </label>
       <input class="search" id="q" placeholder="TC ID, 분류, 항목 검색" value="${SEARCH.replace(/"/g, "&quot;")}">
     </div>
-    <section class="section cases-sheet-section">
-      ${tcSheetHtml(filtered, {
+    <section class="section">
+      ${tcTreeHtml(filtered, {
         title: "테스트케이스",
         desc: `${filtered.length}건 · #${run.id || "—"}회차 · Live TV → Wing → TC`,
         hideHead: true,
@@ -3472,21 +2811,13 @@ function pickSlotRead(L) {
   return { rd: best, shots };
 }
 
-function slotReadSection(L, tc) {
-  const picked = L ? pickSlotRead(L) : null;
+function slotReadSection(L) {
+  if (!L) return "";
+  const picked = pickSlotRead(L);
   if (!picked) {
-    const rows = ((tc && tc.tc_expectations) || [])
-      .map((row) => String(row.source_text || row.target || "").trim())
-      .filter(Boolean);
-    const anchors = ((tc && tc.bdd && tc.bdd.anchors) || []).map((a) => String(a || "").trim()).filter(Boolean);
-    const lines = rows.length ? rows : anchors;
-    const body = lines.length
-      ? `<ul class="expect-list">${lines.map((line) => `<li>${escHtml(line)}</li>`).join("")}</ul>
-         <p class="muted">이 회차에는 판독 샷이 없습니다. 위는 DB에 적힌 대조 기준입니다.</p>`
-      : `<p class="muted">이 회차에는 슬롯 앵커 판독이 없습니다.</p>`;
     return `<section class="section slot-section">
       <h2>슬롯 앵커 대조</h2>
-      ${body}
+      <p class="muted">이 회차에는 슬롯 앵커 판독이 없습니다.</p>
     </section>`;
   }
   return `<section class="section slot-section">
@@ -3497,13 +2828,15 @@ function slotReadSection(L, tc) {
 }
 
 function bddTechPanelHtml(st, panelId) {
+  const keys = (st.keys || []).filter((k) => String(k).startsWith("press")).slice(-8);
   const rows = [
     st.step_def ? `<div><dt>Step</dt><dd><code>${escHtml(st.step_def)}</code></dd></div>` : "",
     st.page ? `<div><dt>Page</dt><dd><code>${escHtml(st.page)}</code></dd></div>` : "",
+    keys.length ? `<div><dt>키</dt><dd>${escHtml(keys.join(" → "))}</dd></div>` : "",
   ].filter(Boolean);
   if (!rows.length) return { toggle: "", panel: "" };
   return {
-    toggle: `<button type="button" class="bdd-tech-toggle" data-toggle="${escHtml(panelId)}" aria-expanded="false" aria-label="Step·Page 펼치기" title="Step · Page">›</button>`,
+    toggle: `<button type="button" class="bdd-tech-toggle" data-toggle="${escHtml(panelId)}" aria-expanded="false" aria-label="Step·Page·키 펼치기" title="Step · Page · 키">›</button>`,
     panel: `<div id="${escHtml(panelId)}" class="bdd-tech-panel" hidden>
       <dl class="bdd-meta">${rows.join("")}</dl>
     </div>`,
@@ -3566,7 +2899,7 @@ function bddStepsCompactHtml(L, tc) {
   return `<section class="section bdd-section">
     <h2>BDD 실행</h2>
     ${head ? `<p class="muted bdd-head-line">${head}</p>` : ""}
-    <p class="muted tip">조건·만일·그러면마다 대표 샷과 판독입니다. Step · Page는 오른쪽 › 로 펼칩니다.</p>
+    <p class="muted tip">조건·만일·그러면마다 대표 샷과 판독입니다. Step · Page · 키는 오른쪽 › 로 펼칩니다.</p>
     <div class="bdd-compact">${steps}</div>
   </section>`;
 }
@@ -3591,6 +2924,7 @@ function bddFlowHtml(L, tc) {
     .join('<span class="flow-arrow">→</span>');
   const steps = t.steps
     .map((st) => {
+      const keys = (st.keys || []).filter((k) => String(k).startsWith("press")).slice(-10);
       const reads = stepReadsHtml(st, shots);
       const devices = (st.devices || []).map((d) => `${d.action || ""} ${d.detail || ""}`.trim()).join(" · ");
       const stBadge =
@@ -3604,6 +2938,7 @@ function bddFlowHtml(L, tc) {
       <dl class="bdd-meta">
         <div><dt>Step Definition</dt><dd><code>${escHtml(st.step_def || "")}</code></dd></div>
         <div><dt>Page 메서드</dt><dd><code>${escHtml(st.page || "")}</code></dd></div>
+        ${keys.length ? `<div><dt>ADB 키</dt><dd>${escHtml(keys.join(" → "))}</dd></div>` : ""}
         ${devices ? `<div><dt>기기</dt><dd>${escHtml(devices)}</dd></div>` : ""}
       </dl>
       ${st.detail ? `<p class="muted">${escHtml(st.detail)}</p>` : ""}
@@ -3627,16 +2962,19 @@ ${(t.steps || []).map((s) => `    ${s.kw}   ${s.text}`).join("\n")}`;
 }
 
 function lastRunId() {
-  const tc = PAGE_CASE || {};
-  return (tc.latest && tc.latest.run_id) || (CATALOG && CATALOG.latest_run && CATALOG.latest_run.id) || "";
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
+  return (tc.latest && tc.latest.run_id) || (CATALOG.latest_run && CATALOG.latest_run.id) || "";
 }
 
 function lastRunShot(file) {
   const run = lastRunId();
   if (!run || !file) return "";
+  const path = `data/shots/run-${run}/${file}`;
   const base = apiBase();
-  if (base) return base + "/api/shots/run-" + encodeURIComponent(run) + "/" + file.split("/").map(encodeURIComponent).join("/");
-  return "data/shots/run-" + run + "/" + file;
+  if (CATALOG && CATALOG.source === "sqlite" && base) {
+    return base + "/" + path;
+  }
+  return path;
 }
 
 function fillStepPairs(boxId, pairs) {
@@ -3665,7 +3003,7 @@ function fillStepPairs(boxId, pairs) {
 }
 
 function lastRunShotFiles() {
-  const tc = PAGE_CASE || {};
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
   const L = tc.latest || {};
   const arts = L.artifacts || {};
   const names = [];
@@ -3693,18 +3031,10 @@ function lastRunShotName(matchers, fallback) {
   return fallback || "";
 }
 
-function escRe(s) {
-  return String(s || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function fillProcessShots() {
-  const bdd = (PAGE_CASE && PAGE_CASE.bdd) || {};
-  if (!PAGE_CASE || PAGE_CASE.feature_id !== "audio-multi") return;
-  const shot = String(bdd.shot || "");
-  const shotRe = shot ? new RegExp("^" + escRe(shot) + "$") : /$^/;
   fillStepPairs("proc-step-1-shot-list", [
     {
-      label: "0번 경유 · 미니 EPG",
+      label: "0→171 · 미니 EPG",
       base: "data/process/goto-live/live-enter-01-ok.png",
       lastFile: lastRunShotName([/live-enter-.*digit/, /live-enter-.*epg/, /live-enter-.*ok/], "live-enter-00-digit.png"),
     },
@@ -3721,21 +3051,21 @@ function fillProcessShots() {
   ]);
   fillStepPairs("proc-step-2-shot-list", [
     {
-      label: "우측 Wing · 볼만한 콘텐츠",
+      label: "[우] 후 우측 Wing · 볼만한 콘텐츠",
       base: "data/process/open-right/open-right-01-right.png",
       lastFile: lastRunShotName([/open-right-.*right/, /open-right-00-right/], "open-right-00-right.png"),
     },
     {
-      label: "음성 다중 설정까지 이동",
+      label: "[하]×4 음성 다중 설정",
       base: "data/process/open-right/open-right-02-target.png",
-      lastFile: lastRunShotName([shotRe, /open-right-.*down/, /open-right-.*target/], shot),
+      lastFile: lastRunShotName([/^live-249\.png$/, /open-right-.*down/, /open-right-.*target/], "live-249.png"),
     },
   ]);
   fillStepPairs("proc-step-4-shot-list", [
     {
       label: "타이틀·본문 · 한국어 기본",
       base: "data/process/baseline/body.png",
-      lastFile: lastRunShotName([/assert-layout-/, shotRe], "assert-layout-00-ko.png"),
+      lastFile: lastRunShotName([/assert-layout-/, /^live-249\.png$/], "assert-layout-00-ko.png"),
     },
   ]);
   fillStepPairs("proc-step-5-shot-list", [
@@ -3745,7 +3075,7 @@ function fillProcessShots() {
       lastFile: lastRunShotName([/audio-multi-.*body/, /audio-multi-00-/], "audio-multi-00-body.png"),
     },
     {
-      label: "한국어 선택 후 하늘색 아웃라인",
+      label: "[확인] 후 한국어 하늘색 아웃라인",
       base: "data/process/baseline/focus.png",
       lastFile: lastRunShotName([/audio-multi-.*focus/, /audio-multi-01-/], "audio-multi-01-focus.png"),
     },
@@ -3757,8 +3087,9 @@ function fillProcessShots() {
   ]);
 }
 
-function processCycleHtml(tc) {
-  const L = (tc && tc.latest) || {};
+function processCycleHtml() {
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
+  const L = tc.latest || {};
   const arts = L.artifacts || {};
   const ai = arts.ai_review || {};
   const cmp = arts.compare || {};
@@ -3819,40 +3150,37 @@ function renderStack() {
   const sections = [
     {
       title: "런타임 · 랩 API",
-      lead: "스위트 실행, 페이지별 조회 API, 뷰 서빙",
+      lead: "스위트 실행, 대시보드 API, 뷰 서빙",
       items: [
         { name: "Python", ver: "3.11+", role: "메인 언어 · 스위트·Page·판정" },
-        { name: "FastAPI / Uvicorn", ver: "0.115+", role: "대시보드·TC·기획·증거 API · MJPEG · /api/chat" },
-        { name: "SQLite", ver: "SoT", role: "TC 정의·BDD·회차·evidence 메타 · FTS5 검색" },
-        { name: "Cloudflare Tunnel", ver: "cloudflared", role: "랩 PC를 HTTPS로 외부 브라우저에 연결" },
+        { name: "FastAPI / Uvicorn", ver: "0.115+", role: "랩 API · MJPEG 프리뷰 · /api/chat" },
+        { name: "SQLite", ver: "표준", role: "회차·결과·BDD·챗 검색(FTS5)" },
       ],
     },
     {
       title: "시나리오 · 자동화",
-      lead: "DB BDD → Page 메서드 → ADB",
+      lead: "Gherkin → Step → Page → ADB",
       items: [
-        { name: "bdd_scenarios", ver: "SQLite", role: "실행 대상·method·goto·expects 런타임 SoT" },
-        { name: "pytest-bdd", ver: "8.x", role: "feature 시나리오 · Step Definition 점검" },
+        { name: "pytest-bdd", ver: "8.x", role: "Gherkin 시나리오 → Step Definition" },
         { name: "ADB KeyEvent", ver: "시스템", role: "셋톱 원격 조작 · screencap" },
       ],
     },
     {
       title: "비전 · 판정",
-      lead: "슬롯 OCR · SSIM · 신호 팝업은 캡처 시 1회 판정",
+      lead: "슬롯 OCR · SSIM · 증거 샷",
       items: [
-        { name: "EasyOCR", ver: "1.7+", role: "화면 슬롯 OCR · 메뉴/타이틀 (ko/en)" },
-        { name: "scikit-image", ver: "0.24+", role: "SSIM 슬롯 비교 · 불필요 AI 호출 억제" },
+        { name: "EasyOCR", ver: "1.7+", role: "화면 슬롯 OCR · 메뉴/타이틀" },
+        { name: "scikit-image", ver: "0.24+", role: "SSIM 슬롯 비교 · AI 게이트" },
         { name: "NumPy / Pillow", ver: "1.26+ / 10.4+", role: "이미지 행렬 · 캡처 저장" },
       ],
     },
     {
-      title: "대시보드 · 챗봇",
-      lead: "페이지별 JSON · 탐색 Q&A · 시나리오 초안 (/api/chat)",
+      title: "챗봇 · LLM",
+      lead: "탐색 Q&A · 시나리오 초안 · 명세 수정 (/api/chat)",
       items: [
-        { name: "Vanilla JS", ver: "view/", role: "홈·TC·기획 · catalog 없이 페이지별 fetch" },
-        { name: "Gemini", ver: "3.6 Flash", role: "챗봇 답변·요약 LLM" },
-        { name: "Ollama", ver: "qwen2.5:3b", role: "Gemini 차단·쿼터 시 로컬 폴백" },
-        { name: "FTS5 / 토큰 검색", ver: "랩 내장", role: "TC·BDD·실행결과 retrieval 후 LLM 요약" },
+        { name: "Gemini", ver: "API", role: "현재 답변·요약 LLM" },
+        { name: "Claude", ver: "도입 예정", role: "고난도 요약·명세 편집 후보" },
+        { name: "토큰/FTS 검색", ver: "랩 내장", role: "TC·BDD·실행결과 retrieval" },
       ],
     },
   ];
@@ -3879,97 +3207,98 @@ function renderStack() {
   return `<article class="stack-page">
     <p class="eyebrow">기술 및 도구</p>
     <h1>검증된 오픈소스 기술 조합</h1>
-    <p class="stack-lead">런타임 SoT는 SQLite입니다. Web은 페이지별 API만 호출하고, 챗봇은 FastAPI·SQLite 위에 LLM을 얹습니다.</p>
+    <p class="stack-lead">용도별로 나눈 랩 핵심 스택입니다. 챗봇은 별도 프레임워크가 아니라 기존 FastAPI·SQLite 위에 LLM을 얹습니다.</p>
     ${blocks}
     <section class="stack-why">
       <h2>선택 이유</h2>
       <ul>
-        <li><b>단일 소스</b> — TC 정의·BDD·회차·증거 메타를 SQLite에 두고, Markdown/YAML은 런타임에 읽지 않음</li>
-        <li><b>조회 분리</b> — 홈·TC 목록·TC 상세·증거를 각각 SELECT. 새로고침마다 PNG를 다시 분석하지 않음</li>
-        <li><b>판정 비용</b> — SSIM이 통과하면 AI를 생략하고, 신호 팝업은 캡처 시점에 한 번만 기록</li>
+        <li><b>안정성</b> — Python·FastAPI·NumPy 등 검증된 표준 생태계</li>
+        <li><b>확장성</b> — BDD → Page → ADB/OCR 모듈 분리, TC·슬롯 추가 용이</li>
+        <li><b>성능</b> — NumPy 벡터화 + SSIM으로 불필요한 AI 호출 억제 · 챗봇은 FTS/토큰 검색 후 LLM 요약</li>
       </ul>
     </section>
   </article>`;
 }
 
-const BDD_KIND_LABEL = { GIVEN: "조건", WHEN: "만일", THEN: "그러면", AND: "그리고" };
-
-function processExpectsText(bdd) {
-  const lines = [];
-  if (bdd.layout) lines.push(`layout: ${bdd.layout}`);
-  if (bdd.shot) lines.push(`shot: ${bdd.shot}`);
-  for (const exp of bdd.expects || []) {
-    const texts = (exp.texts || []).map((t) => JSON.stringify(String(t))).join(", ");
-    lines.push(`${exp.slot || "?"}: [${texts}]`);
-  }
-  return lines.join("\n");
-}
-
 function renderProcess(id) {
-  const tcId = decodeURIComponent(String(id || ""));
-  const tc = PAGE_CASE && PAGE_CASE.id === tcId ? PAGE_CASE : {};
-  if (!tc.id) return `<p class="muted">프로세스를 볼 TC를 테스트케이스 화면에서 선택하세요.</p>`;
+  const tcId = id || "BTVTC-157249";
+  const tc = (CATALOG.cases || []).find((c) => c.id === "BTVTC-157249") || {};
   const L = tc.latest || {};
-  const bdd = tc.bdd || {};
-  const steps = tc.bdd_steps || [];
-  const stepRows = steps
-    .map(
-      (st) => `<tr>
-              <td><b>${escHtml(BDD_KIND_LABEL[String(st.kind || "").toUpperCase()] || st.kind || "")}</b> ${escHtml(st.display_text || "")}</td>
-              <td><code>${escHtml(st.action || "")}</code></td>
-              <td><code>${escHtml(bdd.page || "")}</code></td>
-            </tr>`
-    )
-    .join("");
-  const expectsText = processExpectsText(bdd);
-  const walkthrough = tc.feature_id === "audio-multi" ? processAudioMultiPageHtml(expectsText, bdd) : "";
+  const gherkin = `# language: ko
+기능: 우측 Wing UI
+  원 TC: BTVTC-157249
+  Page: LiveWingPage
+
+  시나리오: 음성 다중 설정을 확인한다
+    조건   음성 다중 채널(171) 실시간 라이브 화면에 진입한다
+    만일   우측 Wing을 열고 음성 다중 설정까지 이동한다
+    그러면 타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다
+    그리고 영어로 설정한다`;
+  const note =
+    tcId !== "BTVTC-157249"
+      ? `<p class="muted">지금은 <b>BTVTC-157249</b>만 풀어 둡니다. 요청하신 TC는 ${escHtml(tcId)}입니다.</p>`
+      : "";
   return `
     <article class="card case-sheet proc-sheet">
-      <p class="eyebrow">프로세스 · ${escHtml(tc.id)}</p>
-      <h1>${escHtml(tc.title || tc.id)}</h1>
-      <div class="tcid">${escHtml(tc.id)} · ${escHtml(bdd.page || "")} · 신호 복구 팝업 샷은 판정에서 제외</div>
-      ${processCycleHtml(tc)}
+      <p class="eyebrow">프로세스 · BTVTC-157249</p>
+      <h1>[LiveTV] 우측 Wing UI &gt; 음성 다중 설정</h1>
+      <div class="tcid">BTVTC-157249 · LiveWingPage · 신호 복구 팝업 샷은 판정에서 제외</div>
+      ${note}
+      ${processCycleHtml()}
       ${bddFlowHtml(L, tc)}
-      <p><a class="btn" href="#/cases/${encodeURIComponent(tc.id)}" data-go="/cases/${encodeURIComponent(tc.id)}">테스트케이스 보기</a></p>
+      <p class="muted tip">1단계는 <code>goto_live("audio_multi")</code>가 <b>0 → 171</b>로 들어갑니다. 도착 후 미니 EPG 5초, 이어서 <b>라이브 안내보기</b>(하단 좌측 편성표 · 우측 맞춤 서비스) 5초를 기다립니다. 안내보기가 꺼지기 1초 전에 신호 복구 팝업이 뜨면 꺼질 때까지 기다린 다음 <code>[우]</code>로 우측 Wing을 엽니다. 번호 토글을 열면 <b>왼쪽이 기준 사진</b>, <b>오른쪽이 마지막 실행 샷</b>입니다. 3번은 이번 회차에서 실행하지 않습니다.</p>
+      <p><a class="btn" href="#/cases/BTVTC-157249" data-go="/cases/BTVTC-157249">테스트케이스 보기</a></p>
 
       <nav class="proc-toc" aria-label="순서 목차">
         <p class="howto-label">순서 목차</p>
         <ol>
           <li><button type="button" data-jump="proc-bdd">BDD — Gherkin이 러너에 들어오는 경로</button></li>
-          ${walkthrough ? `<li><button type="button" data-jump="proc-page">Page — ${escHtml(bdd.page || "Page")}가 하는 일</button></li>` : ""}
+          <li><button type="button" data-jump="proc-page">Page — LiveWingPage가 하는 일</button></li>
         </ol>
       </nav>
 
       <section class="section proc-section" id="proc-bdd">
         <h2>1. BDD</h2>
-        <p>BDD 기준은 SQLite <code>bdd_scenarios</code>입니다. 컴파일러가 바인딩과 스텝에서 시나리오를 만들고, LIVE 스위트는 그 행의 Page 메서드를 호출합니다.</p>
+        <p>BDD는 Markdown TC가 아니라 <code>bdd_map.py</code>의 시나리오 표입니다. 랩이 켜지면 SQLite <code>bdd_scenarios</code>에 심고, <code>bdd_features/BTVTC-157249.feature</code>로 내보냅니다. LIVE 스위트는 그 표를 읽어 <code>run_live_mapped</code>가 문장 순서대로 Page를 부릅니다.</p>
         <div class="bdd-layers">
-          <span class="flow-node">tc_bindings</span><span class="flow-arrow">→</span>
-          <span class="flow-node">bdd_scenarios</span><span class="flow-arrow">→</span>
-          <span class="flow-node">runner/suite.py</span><span class="flow-arrow">→</span>
-          <span class="flow-node">${escHtml(bdd.page || "Page")}</span>
+          <span class="flow-node">bdd_map</span><span class="flow-arrow">→</span>
+          <span class="flow-node">SQLite / .feature</span><span class="flow-arrow">→</span>
+          <span class="flow-node">run_live_mapped</span><span class="flow-arrow">→</span>
+          <span class="flow-node">LiveWingPage</span>
         </div>
         <p class="howto-label">이 TC의 Gherkin</p>
-        ${bdd.gherkin ? `<pre class="gherkin-block">${escHtml(bdd.gherkin)}</pre>` : `<p class="muted">DB에 이 TC의 시나리오가 없습니다.</p>`}
-        ${stepRows ? `<table class="proc-table">
-          <thead><tr><th>문장</th><th>Step 동작</th><th>Page</th></tr></thead>
-          <tbody>${stepRows}</tbody>
-        </table>` : ""}
-        ${!walkthrough && expectsText ? `<p class="howto-label">채택하는 판정 기준 (expects)</p><pre class="gherkin-block">${escHtml(expectsText)}</pre>` : ""}
+        <pre class="gherkin-block">${escHtml(gherkin)}</pre>
+        <table class="proc-table">
+          <thead><tr><th>문장</th><th>Step Definition</th><th>Page</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>조건</b> 음성 다중 채널(171) 실시간 라이브 화면에 진입한다</td>
+              <td><code>goto_live("audio_multi")</code></td>
+              <td><code>LiveWingPage.goto_live</code></td>
+            </tr>
+            <tr>
+              <td><b>만일</b> 우측 Wing을 열고 음성 다중 설정까지 이동한다</td>
+              <td><code>open_right("audio_multi")</code></td>
+              <td><code>LiveWingPage.open_right</code></td>
+            </tr>
+            <tr>
+              <td><b>그러면</b> 타이틀 슬롯에서 음성 다중 설정 포커스를 확인한다</td>
+              <td><code>assert_layout()</code></td>
+              <td><code>LiveWingPage.assert_layout</code></td>
+            </tr>
+            <tr>
+              <td><b>그리고</b> 영어로 설정한다</td>
+              <td><code>audio_multi("en")</code></td>
+              <td><code>LiveWingPage.audio_multi</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="muted">매핑 파일: <code>dev/src/ste_btv/runner/bdd_map.py</code> · 실행 함수: <code>runner/bdd_run.py</code> <code>run_live_mapped</code>. 스위트가 <code>LIVE</code> 또는 <code>BTVTC-157249</code>일 때만 이 경로가 탑니다.</p>
       </section>
-      ${walkthrough}
-    </article>
-  `;
-}
-
-function processAudioMultiPageHtml(expectsText, bdd) {
-  const shot = String((bdd && bdd.shot) || "");
-  return `
-      <p class="muted tip">번호 토글을 열면 <b>왼쪽이 기준 사진</b>, <b>오른쪽이 마지막 실행 샷</b>입니다.</p>
 
       <section class="section proc-section" id="proc-page">
         <h2>2. Page</h2>
-        <p>페이지 객체는 <code>${escHtml((bdd && bdd.page) || "LiveWingPage")}</code>입니다. 메뉴를 찾은 뒤 <code>assert_layout</code>이 ${shot ? `<code>${escHtml(shot)}</code>` : "판정 샷"}을 아래 판정 기준으로 슬롯 OCR 대조합니다. 골든샷 전체 비교는 하지 않습니다.</p>
+        <p>페이지 객체는 <code>LiveWingPage</code> 하나입니다. <code>tc_157249</code>가 메뉴를 찾고, 이어서 <code>assert_layout</code>이 <code>live-249.png</code>를 슬롯 OCR로 대조합니다. 골든샷 전체 비교는 하지 않습니다.</p>
         <table class="proc-table">
           <thead><tr><th>순서</th><th>메서드</th><th>동작</th></tr></thead>
           <tbody>
@@ -3981,7 +3310,7 @@ function processAudioMultiPageHtml(expectsText, bdd) {
                 </div>
               </td>
               <td><code>goto_live("audio_multi")</code></td>
-              <td class="proc-desc">모든 채널 이동은 <b>0번을 한 번 거친 뒤</b> 목적 채널로 간다.<br>→ 도착 후 하단 미니 EPG 5초. 이어서 <b>라이브 안내보기</b>(좌측 편성표 · 우측 맞춤 서비스) 5초. 안내보기 설정에서 켜/끌 수 있다.<br>→ 안내보기가 꺼지기 1초 전에 신호 복구 팝업이 뜨면, 꺼질 때까지 기다린다. 이 구간에서는 전체 OCR 대기 루프를 돌리지 않는다.</td>
+              <td class="proc-desc">모든 채널 이동은 <b>0번을 한 번 거친 뒤</b> 171로 간다.<br>→ 도착 후 하단 미니 EPG 5초. 이어서 <b>라이브 안내보기</b>(좌측 편성표 · 우측 맞춤 서비스) 5초. 안내보기 설정에서 켜/끌 수 있다.<br>→ 안내보기가 꺼지기 1초 전에 신호 복구 팝업이 뜨면, 꺼질 때까지 기다린다. 이 구간에서는 전체 OCR 대기 루프를 돌리지 않는다.</td>
             </tr>
             <tr id="proc-step-1-shots" class="proc-shot-row" hidden>
               <td colspan="3">
@@ -3997,7 +3326,7 @@ function processAudioMultiPageHtml(expectsText, bdd) {
                 </div>
               </td>
               <td><code>open_right("audio_multi")</code></td>
-              <td class="proc-desc">팝업이 꺼진 뒤에 우측 Wing을 연다. 기본 포커스는 볼만한 콘텐츠.<br>→ 음성 다중 설정 칸까지 레일을 이동한다.<br>→ 우측 Wing은 5분 이상 유지되므로 닫힐 때까지 기다리지 않는다.</td>
+              <td class="proc-desc">팝업이 꺼진 뒤에 <code>[우]</code>로 우측 Wing을 연다. 기본 포커스는 볼만한 콘텐츠.<br>→ DB <code>menu_rails</code>의 <code>audio_multi</code> <code>[하]</code> 횟수(4)만큼 내린다.<br>→ 우측 Wing은 5분 이상 유지되므로 닫힐 때까지 기다리지 않는다.</td>
             </tr>
             <tr id="proc-step-2-shots" class="proc-shot-row" hidden>
               <td colspan="3">
@@ -4006,14 +3335,19 @@ function processAudioMultiPageHtml(expectsText, bdd) {
               </td>
             </tr>
             <tr>
+              <td>3</td>
+              <td><code>tc_157249()</code></td>
+              <td class="proc-desc">이번 회차에서는 실행하지 않음. 171에서 메뉴가 없으면 후보 188·987. 그래도 없으면 <b>ERROR</b>(전제 미충족).</td>
+            </tr>
+            <tr>
               <td>
                 <div class="proc-num">
                   <button type="button" class="proc-toggle" data-toggle="proc-step-4-shots" aria-expanded="false" aria-label="assert_layout 샷 펼치기">›</button>
-                  3
+                  4
                 </div>
               </td>
-              <td><code>assert_layout(${escHtml(shot ? JSON.stringify(shot) : "")})</code></td>
-              <td class="proc-desc">신호 팝업 프레임이면 ERROR. 아래 판정 기준의 슬롯 문구로 대조한다.</td>
+              <td><code>assert_layout("live-249.png")</code></td>
+              <td class="proc-desc">화면 종류 <code>right_wing</code>. 신호 팝업이면 ERROR.<br>→ 타이틀 슬롯 <code>음성</code>, 본문 슬롯 <code>한국어</code>. 상세가 걸리고 기본이 한국어인 샷 1장.</td>
             </tr>
             <tr id="proc-step-4-shots" class="proc-shot-row" hidden>
               <td colspan="3">
@@ -4025,11 +3359,11 @@ function processAudioMultiPageHtml(expectsText, bdd) {
               <td>
                 <div class="proc-num">
                   <button type="button" class="proc-toggle" data-toggle="proc-step-5-shots" aria-expanded="false" aria-label="audio_multi 샷 펼치기">›</button>
-                  4
+                  5
                 </div>
               </td>
               <td><code>audio_multi("ko")</code><br><code>audio_multi("en")</code></td>
-              <td class="proc-desc">본문 슬롯이 열린 상태에서 옵션에 들어간다. 한국어에 하늘색 아웃라인이 생긴다.<br>→ <code>ko</code>: 한국어를 설정한다.<br>→ <code>en</code>: 다음 항목으로 이동한 뒤 영어를 설정한다.<br>→ 본문 열린 샷 · 아웃라인 샷 · 설정 후 샷.</td>
+              <td class="proc-desc">본문 슬롯이 열린 상태에서 <code>[확인]</code>으로 옵션에 들어간다. 한국어에 하늘색 아웃라인이 생긴다.<br>→ <code>ko</code>: <code>[확인]</code>으로 한국어를 설정한다.<br>→ <code>en</code>: <code>[하]</code> 후 <code>[확인]</code>으로 영어를 설정한다.<br>→ 본문 열린 샷 · 아웃라인 샷 · 설정 후 샷.</td>
             </tr>
             <tr id="proc-step-5-shots" class="proc-shot-row" hidden>
               <td colspan="3">
@@ -4040,9 +3374,14 @@ function processAudioMultiPageHtml(expectsText, bdd) {
           </tbody>
         </table>
         <p class="howto-label">채택하는 판정 기준 (expects)</p>
-        <pre class="gherkin-block">${escHtml(expectsText || "DB에 판정 기준이 없습니다.")}</pre>
+        <pre class="gherkin-block">layout: right_wing
+shot: live-249.png
+title: ["음성"]
+body: ["한국어"]
+제외: 채널명 · 프로그램명 · 시계 · 방송 본편 픽셀 · 신호 복구 팝업 프레임</pre>
         <p class="muted">파일: <code>dev/src/ste_btv/pages/wing_live.py</code>. 슬롯 정의는 <code>vision/layout.py</code>의 <code>TEMPLATES["right_wing"]</code>입니다. 방송 영역 <code>live</code>는 화면 종류 확인만 하고 문구 비교에 넣지 않습니다.</p>
       </section>
+    </article>
   `;
 }
 
@@ -4055,8 +3394,7 @@ function histRow(h, selected) {
 
 function findCase(id) {
   const want = decodeURIComponent(String(id || ""));
-  if (PAGE_CASE && (PAGE_CASE.id === want || String(PAGE_CASE.id) === String(id))) return PAGE_CASE;
-  return ((CATALOG && CATALOG.cases) || []).find((x) => x.id === want || String(x.id) === String(id));
+  return (CATALOG.cases || []).find((x) => x.id === want || String(x.id) === String(id));
 }
 
 function renderCase(id) {
@@ -4099,8 +3437,8 @@ function renderCase(id) {
       ? `<p class="muted">시간 ${arts.duration_s ?? "—"}s · 모드 ${escHtml(arts.mode || "미기록")} · 보류 ${escHtml((arts.deferred || []).join(", ") || "없음")}</p>`
       : "";
   const procLink =
-    tc.bdd && tc.bdd.gherkin
-      ? `<button class="btn" type="button" data-go="/process/${encodeURIComponent(tc.id)}">프로세스</button>`
+    tc.id === "BTVTC-157249"
+      ? `<button class="btn" type="button" data-go="/process/BTVTC-157249">프로세스</button>`
       : "";
   return `
     <div class="tools">
@@ -4136,7 +3474,7 @@ function renderCase(id) {
             </div>
           </div>
         </section>
-        ${slotReadSection(L, tc)}
+        ${slotReadSection(L)}
         ${bddStepsCompactHtml(L, tc)}
         <section class="section exec-section">
           <div class="exec-split">
@@ -4245,9 +3583,8 @@ function chatRefsHtml(refs) {
       const tid = String(r.tc_id || "");
       const runId = r.run_id != null ? String(r.run_id) : "";
       const verd = r.verdict ? `<span class="chat-ref-verdict">${escHtml(r.verdict)}</span>` : "";
-      const compact = !!r.compact || (!r.title && !r.path);
-      const title = !compact && r.title ? `<span class="chat-ref-title">${escHtml(r.title)}</span>` : "";
-      const path = !compact && r.path ? `<span class="chat-ref-path">${escHtml(r.path)}</span>` : "";
+      const title = r.title ? `<span class="chat-ref-title">${escHtml(r.title)}</span>` : "";
+      const path = r.path ? `<span class="chat-ref-path">${escHtml(r.path)}</span>` : "";
       if (tid) {
         return `<button type="button" class="chat-ref" data-go="/cases/${encodeURIComponent(tid)}">
           <code>${escHtml(tid)}</code>${title}${runId ? `<span class="chat-ref-run">#${escHtml(runId)}</span>` : ""}${verd}${path}
@@ -4272,26 +3609,14 @@ function paintChat() {
   log.innerHTML = CHAT_LOG.map((m) => {
     const isUser = m.role === "user";
     const who = isUser ? "나" : "랩";
-    let choices = "";
-    if (m.choices && !CHAT_MODE) {
-      choices = `<div class="chat-choices">
+    const choices =
+      m.choices && !CHAT_MODE
+        ? `<div class="chat-choices">
             <button type="button" data-chat-mode="explore">탐색</button>
             <button type="button" data-chat-mode="bdd">시나리오 추가</button>
             <button type="button" data-chat-mode="edit">정보 수정·기입</button>
-          </div>`;
-    } else if (!isUser && Array.isArray(m.followChoices) && m.followChoices.length) {
-      choices = `<div class="chat-choices">${m.followChoices
-        .map((c) => {
-          const label = escHtml(c.label || c.send || "");
-          const send = escHtml(c.send || c.label || "");
-          if (String(c.send || "").startsWith("__NAV__")) {
-            const path = String(c.send).replace(/^__NAV__\s*/, "");
-            return `<button type="button" data-chat-nav="${escHtml(path)}">${label}</button>`;
-          }
-          return `<button type="button" data-chat-send="${send}">${label}</button>`;
-        })
-        .join("")}</div>`;
-    }
+          </div>`
+        : "";
     const pending = m.text === "실행 중…" ? " chat-pending" : "";
     const refs = !isUser ? chatRefsHtml(m.refs) : "";
     return `<div class="chat-msg chat-${isUser ? "user" : "bot"}${pending}">
@@ -4401,8 +3726,7 @@ async function sendChat(text) {
     const body = await res.json().catch(() => ({}));
     CHAT_LOG = CHAT_LOG.filter((m) => m.text !== "실행 중…");
     const refs = Array.isArray(body && body.refs) ? body.refs : [];
-    const followChoices = Array.isArray(body && body.choices) ? body.choices : [];
-    CHAT_LOG.push({ role: "bot", text: chatAnswerFromBody(res, body), refs, followChoices });
+    CHAT_LOG.push({ role: "bot", text: chatAnswerFromBody(res, body), refs });
   } catch (err) {
     CHAT_LOG = CHAT_LOG.filter((m) => m.text !== "실행 중…");
     CHAT_LOG.push({ role: "bot", text: "연결 실패. 랩 서버가 켜져 있는지 보세요." });
@@ -4443,23 +3767,6 @@ function mountChat() {
       go(goEl.getAttribute("data-go"));
       return;
     }
-    const sendBtn = e.target.closest("[data-chat-send]");
-    if (sendBtn && pop.contains(sendBtn)) {
-      e.preventDefault();
-      sendChat(sendBtn.getAttribute("data-chat-send") || "");
-      return;
-    }
-    const navBtn = e.target.closest("[data-chat-nav]");
-    if (navBtn && pop.contains(navBtn)) {
-      e.preventDefault();
-      const raw = navBtn.getAttribute("data-chat-nav") || "";
-      const qm = String(raw).match(/[?&]q=([^&]*)/);
-      if (qm) SEARCH = decodeURIComponent(qm[1].replace(/\+/g, " "));
-      CASE_PAGES.cases = 1;
-      closeChat();
-      go("/cases");
-      return;
-    }
     const btn = e.target.closest("[data-chat-mode]");
     if (!btn) return;
     pickChatMode(btn.getAttribute("data-chat-mode"));
@@ -4478,37 +3785,6 @@ function bind() {
       if (sel && String(sel.toString() || "").length) return;
       if (el.tagName === "A") e.preventDefault();
       go(el.getAttribute("data-go"));
-    });
-  });
-  document.querySelectorAll("[data-rail-section]").forEach((sec) => {
-    if (sec.dataset.railBound) return;
-    sec.dataset.railBound = "1";
-    sec.addEventListener("click", (e) => {
-      const prof = e.target.closest("[data-rail-prof]");
-      if (prof && sec.contains(prof)) {
-        e.preventDefault();
-        e.stopPropagation();
-        const wrap = sec.querySelector(".rail-toolbar") || sec;
-        const id = prof.getAttribute("data-rail-prof") || "";
-        wrap.querySelectorAll("[data-rail-prof]").forEach((b) => b.classList.toggle("on", b === prof));
-        sec.querySelectorAll(".rail-pane").forEach((p) => {
-          p.hidden = p.getAttribute("data-rail-pane") !== id;
-        });
-        return;
-      }
-      const tr = e.target.closest("tr[data-rail-menu]");
-      if (!tr || !sec.contains(tr)) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const pane = tr.closest(".rail-pane") || sec;
-      pane.querySelectorAll("tr[data-rail-menu]").forEach((r) => r.classList.toggle("is-picked", r === tr));
-      applyRailPick(pane, sec, tr.getAttribute("data-rail-menu") || "");
-    });
-    sec.addEventListener("change", (e) => {
-      if (!e.target.closest("[data-rail-voice]")) return;
-      const panes = sec.querySelectorAll(".rail-pane");
-      if (panes.length) panes.forEach((pane) => paintRailPane(pane, sec));
-      else paintRailPane(sec, sec);
     });
   });
   document.querySelectorAll("[data-toggle]").forEach((el) => {
@@ -4626,9 +3902,9 @@ function bind() {
   document.querySelectorAll("[data-hist-run]").forEach((el) => {
     el.addEventListener("click", () => {
       CASE_HIST_RUN = el.getAttribute("data-hist-run");
-      SCROLL_TO_EXEC = true;
-      if (PAGE_CASE) PAGE_CASE._evKey = "";
       render();
+      const anchor = document.querySelector(".exec-result");
+      if (anchor) anchor.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
   document.querySelectorAll(".sg-help").forEach((btn) => {
@@ -4787,5 +4063,7 @@ document.addEventListener("keydown", (e) => {
 
 if (document.getElementById("app")) {
   mountChat();
-  boot();
+  boot().catch((err) => {
+    document.getElementById("app").innerHTML = `<p class="muted">${err.message}</p>`;
+  });
 }
