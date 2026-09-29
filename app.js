@@ -4041,7 +4041,7 @@ function processAudioMultiPageHtml(expectsText, bdd) {
         </table>
         <p class="howto-label">채택하는 판정 기준 (expects)</p>
         <pre class="gherkin-block">${escHtml(expectsText || "DB에 판정 기준이 없습니다.")}</pre>
-        <p class="muted">파일: <code>poc/src/ste_btv/pages/wing_live.py</code>. 슬롯 정의는 <code>vision/layout.py</code>의 <code>TEMPLATES["right_wing"]</code>입니다. 방송 영역 <code>live</code>는 화면 종류 확인만 하고 문구 비교에 넣지 않습니다.</p>
+        <p class="muted">파일: <code>dev/src/ste_btv/pages/wing_live.py</code>. 슬롯 정의는 <code>vision/layout.py</code>의 <code>TEMPLATES["right_wing"]</code>입니다. 방송 영역 <code>live</code>는 화면 종류 확인만 하고 문구 비교에 넣지 않습니다.</p>
       </section>
   `;
 }
