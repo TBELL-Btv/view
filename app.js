@@ -13,6 +13,27 @@ let SEARCH = "";
 const PAGE_SIZE = 10;
 const CASE_PAGES = { home: 1, cases: 1 };
 let CASE_HIST_RUN = null;
+/** spec 렌더 중: 가짜 풀패널·hero 중복 샷 금지 */
+let DOC_RENDER = { mode: "default", heroShot: "" };
+const SPEC_BLOCKED_COMPS = new Set([
+  "menu-rail",
+  "option-list",
+  "options",
+  "poster",
+  "thumb",
+  "vod-card",
+  "detail-row",
+  "icon-btn",
+  "state",
+  "progress",
+  "knob",
+  "stepper",
+  "pill",
+  "badge",
+  "focus",
+  "radio",
+  "check",
+]);
 /** 홈 대시보드에 표시할 회차. null이면 최신 회차. */
 let HOME_RUN_ID = null;
 /** 테스트케이스 목록 회차 필터. null이면 최신 회차. */
@@ -118,6 +139,21 @@ function page() {
   return { name: parts[0] || "home", id: decodeURIComponent(parts.slice(1).join("/") || "") };
 }
 
+function stripDocExt(id) {
+  return String(id || "")
+    .replace(/\\/g, "/")
+    .replace(/\.(yaml|yml|md)$/i, "");
+}
+
+function sameDocId(a, b) {
+  return stripDocExt(a) === stripDocExt(b);
+}
+
+function findDoc(id) {
+  const want = stripDocExt(id);
+  return (CATALOG.docs || []).find((d) => stripDocExt(d.id) === want || stripDocExt(d.file) === want);
+}
+
 function go(path) {
   const next = path.startsWith("/") ? path : "/" + path;
   const cur = location.hash.replace(/^#/, "") || "/home";
@@ -216,11 +252,13 @@ function pageDataReady() {
   const { name, id } = page();
   if (name === "stack") return true;
   if (!CATALOG) return false;
-  if (name === "docs") {
+    if (name === "docs") {
     if (!DOCS_LOADED) return false;
     if (id && !String(id).startsWith("file:")) {
-      const doc = (CATALOG.docs || []).find((d) => d.id === id);
-      if (!doc || !doc._full) return false;
+      const doc = findDoc(id);
+      if (!doc) return false;
+      if (doc.html || doc.sections) return true;
+      if (!doc._full) return false;
     }
     return true;
   }
@@ -313,18 +351,31 @@ async function loadPage(token) {
       DOCS_LOADED = true;
     }
     if (id && !String(id).startsWith("file:")) {
-      const path = String(id)
-        .split("/")
-        .map((part) => encodeURIComponent(part))
-        .join("/");
-      const doc = await fetchJson(base + "/api/docs/" + path, 20000);
-      if (token !== RENDER_SEQ) return;
-      doc._full = true;
-      const docs = CATALOG.docs || [];
-      const i = docs.findIndex((d) => d.id === doc.id);
-      if (i >= 0) docs[i] = doc;
-      else docs.push(doc);
-      CATALOG.docs = docs;
+      const existing = findDoc(id);
+      if (existing && (existing.html || existing.sections || existing._full)) {
+        existing._full = true;
+        return;
+      }
+      try {
+        const doc = await fetchJson(
+          base + "/api/docs/" + String(id).split("/").map(encodeURIComponent).join("/"),
+          20000
+        );
+        if (token !== RENDER_SEQ) return;
+        doc._full = true;
+        const docs = CATALOG.docs || [];
+        const i = docs.findIndex((d) => sameDocId(d.id, doc.id) || sameDocId(d.id, id));
+        if (i >= 0) docs[i] = Object.assign({}, docs[i], doc);
+        else docs.push(doc);
+        CATALOG.docs = docs;
+      } catch (err) {
+        if (existing) {
+          existing._full = true;
+          existing._loadError = (err && err.message) || String(err);
+          return;
+        }
+        throw err;
+      }
     }
     return;
   }
@@ -1687,7 +1738,7 @@ function styleGuideDoc() {
   const docs = CATALOG.docs || [];
   return (
     docs.find((d) => d.kind === "styleguide") ||
-    docs.find((d) => d.id === "design/style-guide.md") ||
+    docs.find((d) => String(d.id || "").includes("style-guide")) ||
     docs.find((d) => String(d.title || "").includes("스타일 가이드")) || {
       id: "design/style-guide.md",
       title: "스타일 가이드",
@@ -1713,7 +1764,7 @@ function pinNotice() {
   return [...pinned, ...rest];
 }
 
-/** 공지 고정 순서: TC 예시 → 기획서 V1 → 스타일 가이드 → 그 외 */
+/** 원본 자료 고정 순서: TC 예시 → 기획서 V1 → 스타일 가이드 → 그 외 */
 function docsNotices() {
   const bins = pinNotice();
   const guide = styleGuideDoc();
@@ -1768,10 +1819,16 @@ function renderDocs() {
       <h1>화면 명세</h1>
     </header>
     <section class="section docs-notice">
-      <div class="sectionhead"><h2>공지</h2></div>
-      <div class="doc-list">
-        ${notices.map((n) => noticeBtn(n)).join("")}
-      </div>
+      <details class="docs-sources">
+        <summary>
+          <span class="feat-chev" aria-hidden="true"></span>
+          <h2>원본 자료</h2>
+          <span class="desc muted">${notices.length}건</span>
+        </summary>
+        <div class="doc-list">
+          ${notices.map((n) => noticeBtn(n)).join("")}
+        </div>
+      </details>
     </section>
     ${majors
       .map((maj) => {
@@ -1785,7 +1842,7 @@ function renderDocs() {
         <tbody>
           ${rows
             .map((d) => {
-              const n = (d.related_tcs || []).length || tcsForScreen(d.screen_id).length;
+              const n = d.db_tc_count != null ? d.db_tc_count : (d.related_tcs || []).length || tcsForScreen(d.screen_id).length;
               const approved = String(d.status || "") === "approved";
               return `<tr data-go="/docs/${encodeURIComponent(d.id)}">
                 <td class="name"><b>${escHtml(d.minor || d.title)}</b><span>${escHtml(d.screen_id || d.id)}</span></td>
@@ -1838,9 +1895,22 @@ function parseCompAttrs(raw) {
   return out;
 }
 
+function shotBasename(file) {
+  return String(file || "")
+    .replace(/^.*[/\\]/, "")
+    .toLowerCase();
+}
+
 function renderComp(name, rawAttrs) {
   const a = parseCompAttrs(rawAttrs);
   const n = String(name || "").toLowerCase();
+  if (DOC_RENDER.mode === "spec") {
+    if (SPEC_BLOCKED_COMPS.has(n)) return "";
+    if (n === "shot") {
+      const file = a.file || a.name || a.src || "";
+      if (DOC_RENDER.heroShot && shotBasename(file) === shotBasename(DOC_RENDER.heroShot)) return "";
+    }
+  }
   const bg = (v, fallback) => {
     const rgb = hexToRgb(v || fallback);
     return rgb ? rgb.css : "rgb(100,100,100)";
@@ -2145,13 +2215,18 @@ function sectionHtml(text, asSteps) {
       i += 1;
       continue;
     }
-    if (line.trim().startsWith("|") && i + 1 < lines.length && /---/.test(lines[i + 1] || "")) {
+    if (line.trim().startsWith("|") && i + 1 < lines.length && /^\s*\|?[-:\s|]+\|?\s*$/.test(lines[i + 1] || "")) {
       const block = [];
       while (i < lines.length && lines[i].trim().startsWith("|")) {
         block.push(lines[i].trim());
         i += 1;
       }
-      const cells = (row) => row.split("|").slice(1, -1).map((c) => c.trim());
+      const cells = (row) =>
+        row
+          .replace(/^\|/, "")
+          .replace(/\|$/, "")
+          .split("|")
+          .map((c) => c.trim());
       const headers = cells(block[0]);
       const rows = block.slice(2).map(cells);
       chunks.push(
@@ -2201,20 +2276,33 @@ function renderDoc(id) {
       ${isPdf ? `<embed class="frame" src="${href}" type="application/pdf">` : `<iframe class="frame" src="${href}" title="${bin.title}"></iframe>`}
     `;
   }
-  const doc =
-    (CATALOG.docs || []).find((d) => d.id === id) ||
+  const doc = findDoc(id) ||
     (id === "design/style-guide.md" || String(id).includes("style-guide")
       ? styleGuideDoc()
       : null);
   if (!doc) return `<p>문서를 찾지 못했습니다.</p>`;
-  if (doc.kind === "styleguide" || doc.id === "design/style-guide.md") return renderStyleGuide(doc);
+  if (doc._loadError) {
+    return `<button class="btn" type="button" data-go="/docs">← 기획</button>
+      <p class="muted">${escHtml(doc._loadError)}</p>`;
+  }
+  if (doc.kind === "styleguide" || String(doc.id || "").includes("style-guide")) return renderStyleGuide(doc);
   if (doc.kind === "spec") return renderSpec(doc);
+  const eyebrow =
+    {
+      starts: "시작",
+      "rules/verdicts": "판정",
+      "design/home-menu-rail": "레일",
+    }[stripDocExt(doc.id)] || "기준";
   return `
     <button class="btn" type="button" data-go="/docs">← 기획</button>
-    <article class="doc-body">
-      <div class="eyebrow">${doc.kind}</div>
-      <h1>${doc.title}</h1>
-      ${enhanceHtml(doc.html || "")}
+    <article class="card case-sheet">
+      <div class="case-head">
+        <div>
+          <div class="eyebrow">${eyebrow}</div>
+          <h1>${escHtml(doc.title)}</h1>
+        </div>
+      </div>
+      <div class="case-body doc-canon-body">${enhanceHtml(doc.html || "")}</div>
     </article>
   `;
 }
@@ -2258,49 +2346,7 @@ function renderStyleGuide(doc) {
       id: "toggle",
       name: "토글 (켜짐/꺼짐 문구)",
       preview: `${renderComp("toggle", "off")} ${renderComp("toggle", "on")}`,
-      where: "자막·마케팅 배너·음성 다중 등. 트랙 안에 꺼짐/켜짐 문구. 문구 없는 iOS형 스위치로 그리면 틀림.",
-    },
-    {
-      id: "option-list",
-      name: "옵션 리스트",
-      preview: renderComp(
-        "option-list",
-        "title=AI_클리어_보이스 selected=기본 focus=기본 options=사용_안_함|기본|크게|아주_크게"
-      ),
-      where: "우측 Wing 상세 패널. 라디오+✓. AI 사운드·음성 다중(한국어/영어) 등.",
-    },
-    {
-      id: "menu-rail",
-      name: "Wing 메뉴 레일",
-      preview: `${renderComp(
-        "menu-rail",
-        "mode=focus selected=AI_사운드_설정 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
-      )} ${renderComp(
-        "menu-rail",
-        "mode=selected selected=AI_사운드_설정 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
-      )}`,
-      where: "포커스=그라데이션. 상세 진입 후 부모=회색 하이라이트. 무료·AI 화질은 레일에 없음.",
-    },
-    {
-      id: "detail-row",
-      name: "상세 행",
-      preview: `${renderComp("detail-row", "label=자막_보기 focus toggle=off")} ${renderComp("detail-row", "label=자막_스타일 arrow")}`,
-      where: "우측 Wing 2depth. 포커스=밝은 테두리. 토글·›·✓ 는 행 끝.",
-    },
-    {
-      id: "poster",
-      name: "VOD · 회차 썸네일",
-      preview: `${renderComp("poster", "label=1화 focus ep=무료")} ${renderComp("poster", "label=2화 ep=무료")} ${renderComp("poster", "label=3화")}`,
-      where: "회차 목록·볼만한 콘텐츠 카드. 포커스=파란 링.",
-    },
-    {
-      id: "home-rail",
-      name: "홈 좌측 메뉴",
-      preview: renderComp(
-        "menu-rail",
-        "selected=홈 items=무료|홈|Btv+|영화/시리즈|TV방송"
-      ),
-      where: "메인 홈 좌측 메뉴. 기본 포커스는 홈. TV방송까지 내려간다.",
+      where: "자막·마케팅 배너. 트랙 안에 꺼짐/켜짐 문구.",
     },
     {
       id: "stepper",
@@ -2312,31 +2358,19 @@ function renderStyleGuide(doc) {
       id: "badge",
       name: "연령 뱃지",
       preview: renderComp("badge", "label=15 color=#DD7430"),
-      where: "Clean A/V 좌상단.",
+      where: "Clean A/V 좌상단. 화면 명세에는 넣지 않음.",
     },
     {
       id: "pill",
       name: "필 버튼",
       preview: `${renderComp("pill", "label=회차_목록 color=#333333")} ${renderComp("pill", "label=mobile_Btv color=#221A56")}`,
-      where: "회차 목록·mobile Btv·메뉴 칩.",
-    },
-    {
-      id: "focus",
-      name: "포커스 링",
-      preview: renderComp("focus", "label=카드"),
-      where: "좌측 Wing 채널 카드 등.",
-    },
-    {
-      id: "radio-check",
-      name: "라디오 / 체크",
-      preview: `${renderComp("radio", "on")} ${renderComp("radio", "")} ${renderComp("check", "on")} ${renderComp("check", "")}`,
-      where: "선택·체크 상태 표시.",
+      where: "스타일 가이드 전용. spec은 실사 샷.",
     },
     {
       id: "key",
       name: "리모컨 키",
       preview: `${renderComp("key", "label=OK")} ${renderComp("key", "label=우")} ${renderComp("key", "label=나가기")}`,
-      where: "기획 문서에서 조작을 설명할 때 사용.",
+      where: "기획 문장 안 칩. spec에 허용.",
     },
   ];
   const typoRows = [
@@ -2345,7 +2379,6 @@ function renderStyleGuide(doc) {
     ["설명 문구", "20–24px", "보통 · #B0B0B0"],
     ["토글 문구", "11–14px", "볼드"],
   ];
-  const railShot = shotSrc("wing-right-menu-171.png");
   const sec = doc.sections || {};
   const introRaw = String(sec["본문"] || "").replace(/^#\s*.+\n+/, "").trim();
   const intro =
@@ -2406,34 +2439,15 @@ function renderStyleGuide(doc) {
         </section>
         <section class="section">
           <h2>상태 · 액티브 / 논액티브</h2>
-          <div class="sg-state-grid sg-state-grid-3">
-            <div class="sg-state-card">
-              <p class="howto-label">메뉴 레일 · 포커스</p>
-              ${renderComp(
-                "menu-rail",
-                "mode=focus selected=자막/해설/수어 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
-              )}
-              <p class="muted tip">포커스가 레일에 있을 때 · 그라데이션+볼드</p>
-            </div>
-            <div class="sg-state-card">
-              <p class="howto-label">메뉴 레일 · 상세 진입</p>
-              ${renderComp(
-                "menu-rail",
-                "mode=selected selected=자막/해설/수어 items=볼만한_콘텐츠|AI_사운드_설정|자막/해설/수어|시청_환경_설정|블루투스_연결"
-              )}
-              <p class="muted tip">상세로 들어간 뒤 부모 항목 · 회색 하이라이트+볼드</p>
-            </div>
-            <div class="sg-state-card">
-              <p class="howto-label">상세 행 · 포커스</p>
-              <div class="ui-comp ui-opt-panel">
-                <div class="ui-opt-title">자막/해설/수어 설정</div>
-                ${renderComp("detail-row", "label=자막_보기 focus toggle=off")}
-                ${renderComp("detail-row", "label=음소거_시_자막_보기 toggle=off")}
-                ${renderComp("detail-row", "label=자막_스타일 arrow")}
-              </div>
-              <p class="muted tip">행 포커스 = 밝은 테두리+옅은 채움+볼드 · 선택값은 ✓/토글</p>
-            </div>
-          </div>
+          <div class="tablewrap"><table class="sg-table">
+            <thead><tr><th>대상</th><th>포커스</th><th>논액티브</th></tr></thead>
+            <tbody>
+              <tr><td>메뉴 레일</td><td>블루→보라 그라데이션 · 흰 볼드</td><td>하이라이트 없음 · 얇은 글자</td></tr>
+              <tr><td>레일 부모(상세 진입 후)</td><td>회색 하이라이트 · 흰 볼드</td><td>—</td></tr>
+              <tr><td>상세 설정 행</td><td>옅은 채움 + 밝은 테두리 · 흰 볼드</td><td>검정 패널 · 얇은 글자</td></tr>
+            </tbody>
+          </table></div>
+          <p class="muted tip">제품 화면은 각 spec 실사. 여기서는 색·두께만 적는다.</p>
         </section>
         <section class="section">
           <h2>리모컨</h2>
@@ -2468,24 +2482,12 @@ function renderStyleGuide(doc) {
           </div>
         </section>
         <section class="section">
-          <h2>우측 Wing 메뉴 레일 (ADB 실측)</h2>
-          <ol class="howto-list">
-            <li>볼만한 콘텐츠 (기본 포커스)</li>
-            <li>AI 사운드 설정</li>
-            <li>자막/해설/수어</li>
-            <li>시청 환경 설정</li>
-            <li>(조건부) 음성 다중 설정 — 171 등</li>
-            <li>블루투스 연결</li>
-          </ol>
-          <p class="muted tip">상단 아이콘 멀티뷰·zem 키즈홈은 이동 칸수에 넣지 않음. 레일에 무료 콘텐츠·AI 화질 없음.</p>
-          <figure class="spec-hero">
-            <img src="${railShot}" alt="우측 Wing 메뉴 레일 실측">
-            <figcaption>171 채널 · 음성 다중 포함 · 2026-09-16 ADB</figcaption>
-          </figure>
+          <h2>메뉴 순서</h2>
+          <p class="howto-p">우측 Wing은 <button type="button" class="tc-link" data-go="/docs/screens/wing-right-banner">화면 명세</button>와 DB <code>screen_menus</code>. 홈 좌측은 home-menu-rail.md. 여기서 제품 화면을 다시 그리지 않는다.</p>
         </section>
         <section class="section">
           <h2>UI 컴포넌트</h2>
-          <p class="muted tip">? 를 누르면 사용처가 나옵니다.</p>
+          <p class="muted tip">작은 칩만. 레일·옵션 패널 풀샷은 화면 명세의 실사를 본다.</p>
           <div class="sg-comps">
             ${comps
               .map(
@@ -2499,15 +2501,6 @@ function renderStyleGuide(doc) {
               )
               .join("")}
           </div>
-          <div class="sg-ref-shots">
-            <p class="howto-label">실측 참고</p>
-            <div class="shots">
-              <figure class="shot"><img src="${shotSrc("wing-right-panel-caption.png")}" alt="자막 상세"><figcaption>상세 행 포커스</figcaption></figure>
-              <figure class="shot"><img src="${shotSrc("wing-right-settings-enter-4.png")}" alt="상세 진입 레일"><figcaption>레일 · 상세 진입(회색)</figcaption></figure>
-              <figure class="shot"><img src="${shotSrc("shots-129-player-nav3-s3-02.jpg")}" alt="회차 목록"><figcaption>회차 목록 필</figcaption></figure>
-              <figure class="shot"><img src="${shotSrc("wing-right-menu-171.png")}" alt="볼만한"><figcaption>볼만한 콘텐츠 썸네일</figcaption></figure>
-            </div>
-          </div>
         </section>
       </div>
     </article>
@@ -2515,29 +2508,375 @@ function renderStyleGuide(doc) {
   `;
 }
 
-function heroHtml(doc) {
+function heroFigureHtml(doc) {
   const shot = doc.hero_shot || "";
   if (!shot) return "";
   const file = shot.endsWith(".png") || shot.endsWith(".jpg") || shot.endsWith(".jpeg") ? shot : `${shot}.png`;
-  const src = shotSrc(file);
-  const cap = doc.hero_caption || "대표 화면";
-  return `<section class="section spec-hero-sec">
-      <h2>대표 화면</h2>
-      <figure class="spec-hero">
-        <img src="${src}" alt="${escHtml(cap)}">
+  const cap = doc.hero_caption || "대표 사진";
+  return `<figure class="spec-hero">
+        <img src="${shotSrc(file)}" alt="${escHtml(cap)}">
         <figcaption>${escHtml(cap)}</figcaption>
-      </figure>
+      </figure>`;
+}
+
+function heroHtml(doc) {
+  const inner = heroFigureHtml(doc);
+  if (!inner) return "";
+  return `<section class="section spec-hero-sec">
+      <h2>대표 기능</h2>
+      ${inner}
     </section>`;
 }
 
+function railMenuGroups(menus) {
+  const groups = [
+    { id: "paid", label: "유료", with: "paid_preview", without: "paid_preview_novoice" },
+    { id: "free", label: "무료", with: "free", without: "free_novoice" },
+    { id: "shop", label: "판매", with: "shop", without: "shop_novoice" },
+  ];
+  const isVoice = (m) => m.menu_id === "audio_multi" || (m.aliases || []).includes("voice");
+  return groups
+    .filter((g) => (menus[g.with] && menus[g.with].length) || (menus[g.without] && menus[g.without].length))
+    .map((g) => {
+      const src = (menus[g.with] && menus[g.with].length ? menus[g.with] : menus[g.without]) || [];
+      let items = src.map((m) => ({ ...m }));
+      if (!items.some(isVoice)) {
+        const bt = items.findIndex((m) => m.menu_id === "bluetooth");
+        const row = { menu_id: "audio_multi", label: "음성 다중 설정", sort_order: 0, is_default: false };
+        if (bt >= 0) items.splice(bt, 0, row);
+        else items.push(row);
+      }
+      items = items.map((m, i) => ({
+        ...m,
+        sort_order: i,
+        optional: isVoice(m),
+      }));
+      return { id: g.id, label: g.label, items };
+    });
+}
+
+function railVisibleItems(items, voiceOn) {
+  return (items || []).filter((m) => voiceOn || !m.optional);
+}
+
+function railRowsHtml(items, voiceOn, picked) {
+  return railVisibleItems(items, voiceOn)
+    .map((m, i) => {
+      const pick = picked && m.menu_id === picked ? " is-picked" : "";
+      const badge = m.is_default ? `<span class="rail-focus">기본</span>` : "";
+      return `<tr class="${m.optional ? "rail-opt" : ""}${pick}" data-rail-menu="${escHtml(m.menu_id || "")}">
+        <td class="rail-ord">${i}</td>
+        <td>${escHtml(m.label || "")}${badge}</td>
+      </tr>`;
+    })
+    .join("");
+}
+
+function railTableHtml(items, voiceOn, picked) {
+  return `<div class="rail-list"><table class="rail-table">
+    <tbody>${railRowsHtml(items, voiceOn, picked)}</tbody>
+  </table></div>`;
+}
+
+function railJsonScript(cls, obj) {
+  return `<pre hidden class="${cls}">${escHtml(JSON.stringify(obj))}</pre>`;
+}
+
+function railReadJson(root, cls) {
+  const el = root && root.querySelector("." + cls);
+  try {
+    return JSON.parse((el && el.textContent) || "null");
+  } catch (_) {
+    return null;
+  }
+}
+
+function railDetailHtml(panels, menuId) {
+  const groups = (panels && panels[menuId]) || [];
+  if (!groups.length) {
+    return `<p class="muted tip">하위 없음</p>`;
+  }
+  return groups
+    .map((g) => {
+      const kind = g.kind || "options";
+      const selectable = kind === "options" || kind === "toggle";
+      const rows = g.options || [];
+      const isGuide = (o) =>
+        o.option_id === "guide" || (!selectable && /[.。]$/.test(String(o.label || "")) && String(o.label || "").length > 18);
+      const guides = rows.filter(isGuide);
+      const rest = rows.filter((o) => !isGuide(o));
+      const guideHtml = guides.map((o) => `<p class="rail-guide">${escHtml(o.label || "")}</p>`).join("");
+      let body = "";
+      if (selectable && rest.length) {
+        body = `<div class="rail-choices">${rest
+          .map(
+            (o) =>
+              `<span class="rail-choice${o.is_default ? " is-default" : ""}">${escHtml(o.label || "")}${o.is_default ? " ✓" : ""}</span>`
+          )
+          .join("")}</div>`;
+      } else if (rest.length) {
+        body = rest.map((o) => `<div class="rail-note">${escHtml(o.label || "")}</div>`).join("");
+      }
+      return `<div class="rail-group"><div class="rail-group-h">${escHtml(g.label || g.group_id || "")}</div>${guideHtml}${body}</div>`;
+    })
+    .join("");
+}
+
+function stripShotTags(text) {
+  return String(text || "")
+    .replace(/\{\{shot:[^}]+\}\}/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function firstShotMeta(text) {
+  const m = String(text || "").match(/\{\{shot:([^\s}]+)([^}]*)\}\}/i);
+  if (!m) return { file: "", caption: "" };
+  const capM = String(m[2] || "").match(/caption=([^\s}]+)/i);
+  return { file: m[1], caption: (capM ? capM[1] : "").replace(/_/g, " ") };
+}
+
+function normFeat(s) {
+  return String(s || "")
+    .replace(/\[|\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function specFeatPack(doc) {
+  const parsed = parseNamedBlocks((doc.sections || {})["기능"] || "");
+  const intro = [];
+  const blocks = [];
+  for (const b of parsed.blocks) {
+    const t = b.title || "";
+    if (/호출/.test(t)) intro.push(b);
+    else if (/메뉴 구성/.test(t)) continue;
+    else blocks.push(b);
+  }
+  return {
+    intro,
+    blocks,
+    hero: { file: doc.hero_shot || "", caption: doc.hero_caption || "" },
+  };
+}
+
+function featureMatchesMenu(block, menu, panels) {
+  const title = normFeat(block.title);
+  const label = normFeat(menu && menu.label);
+  if (!title) return false;
+  if (label && (title.includes(label) || label.includes(title))) return true;
+  const parts = title.split(/\s*[·\/]\s*/).filter(Boolean);
+  if (label && parts.some((p) => p && (label.includes(p) || p.includes(label)))) return true;
+  for (const g of (panels || {})[(menu && menu.menu_id) || ""] || []) {
+    const gl = normFeat(g.label);
+    if (gl && (title.includes(gl) || gl.includes(title))) return true;
+  }
+  return false;
+}
+
+function menuFeatureHits(menu, blocks, panels) {
+  return (blocks || []).filter((b) => featureMatchesMenu(b, menu, panels));
+}
+
+function menuShotOf(menu, blocks, panels, hero) {
+  const hits = menuFeatureHits(menu, blocks, panels);
+  for (const b of hits) {
+    const s = firstShotMeta(b.body);
+    if (s.file) return s;
+  }
+  if (menu && menu.is_default && hero && hero.file) return hero;
+  return { file: "", caption: "" };
+}
+
+function featShotHtml(shot) {
+  if (!shot || !shot.file) {
+    return `<figure class="feat-shot-fig is-empty"><p class="muted tip">이 메뉴가 열린 샷이 아직 없습니다.</p></figure>`;
+  }
+  const raw = shot.file;
+  const file = /\.(png|jpe?g)$/i.test(raw) ? raw : `${raw}.png`;
+  const cap = shot.caption || "";
+  return `<figure class="feat-shot-fig"><img src="${shotSrc(file)}" alt="${escHtml(cap || "대표 사진")}"><figcaption>${escHtml(cap)}</figcaption></figure>`;
+}
+
+function featCopyHtml(blocks) {
+  if (!blocks.length) return `<p class="muted tip">이 메뉴에 연결된 기능 설명이 없습니다.</p>`;
+  return blocks
+    .map(
+      (b) =>
+        `<div class="feat-copy-block"><h3>${richText(b.title)}</h3><div>${sectionHtml(stripShotTags(b.body))}</div></div>`
+    )
+    .join("");
+}
+
+function featIntroHtml(intro) {
+  if (!intro || !intro.length) return "";
+  return `<div class="feat-list feat-intro-list">${intro
+    .map(
+      (b) => `<details class="feat feat-intro-fold">
+        <summary>
+          <span class="feat-chev" aria-hidden="true"></span>
+          <span class="feat-name">${richText(b.title)}</span>
+        </summary>
+        <div class="feat-body">${sectionHtml(stripShotTags(b.body))}</div>
+      </details>`
+    )
+    .join("")}</div>`;
+}
+
+function firstMenuWithPanel(items, panels) {
+  const hit = (items || []).find((m) => ((panels || {})[m.menu_id] || []).length);
+  return hit ? hit.menu_id : "";
+}
+
+function railPickId(items, panels) {
+  const list = items || [];
+  const def = list.find((m) => m.is_default);
+  if (def && def.menu_id) return def.menu_id;
+  return firstMenuWithPanel(list, panels) || (list[0] && list[0].menu_id) || "";
+}
+
+function applyRailPick(pane, sec, menuId) {
+  const items = railReadJson(pane, "rail-items-json") || [];
+  const panels = railReadJson(sec, "rail-panels-json") || {};
+  const feat = railReadJson(sec, "rail-feat-json") || { blocks: [], hero: {} };
+  const menu = items.find((m) => m.menu_id === menuId) || { menu_id: menuId, label: "" };
+  const box = pane.querySelector("[data-rail-detail]");
+  if (box) box.innerHTML = railDetailHtml(panels, menuId);
+  const shotBox = pane.querySelector("[data-feat-shot]");
+  if (shotBox) shotBox.innerHTML = featShotHtml(menuShotOf(menu, feat.blocks, panels, feat.hero));
+  const copyBox = pane.querySelector("[data-feat-copy]");
+  if (copyBox) copyBox.innerHTML = featCopyHtml(menuFeatureHits(menu, feat.blocks, panels));
+}
+
+function railWorkHtml(items, panels, voiceOn, picked, feat) {
+  const pack = feat || { blocks: [], hero: {} };
+  const shown = railVisibleItems(items, voiceOn);
+  const id = picked || railPickId(shown, panels);
+  const menu = shown.find((m) => m.menu_id === id) || items.find((m) => m.menu_id === id) || {};
+  return `${railJsonScript("rail-items-json", items)}
+    <div class="feat-stage">
+      ${railTableHtml(items, voiceOn, id)}
+      <div class="rail-detail" data-rail-detail>${railDetailHtml(panels, id)}</div>
+      <div class="feat-shot" data-feat-shot>${featShotHtml(menuShotOf(menu, pack.blocks, panels, pack.hero))}</div>
+    </div>
+    <div class="feat-copy" data-feat-copy>${featCopyHtml(menuFeatureHits(menu, pack.blocks, panels))}</div>`;
+}
+
+function paintRailPane(pane, sec) {
+  const cb = sec.querySelector("[data-rail-voice]");
+  const voiceOn = !cb || cb.checked;
+  const items = railReadJson(pane, "rail-items-json") || [];
+  const panels = railReadJson(sec, "rail-panels-json") || {};
+  const shown = railVisibleItems(items, voiceOn);
+  let picked = "";
+  const cur = pane.querySelector("tr.is-picked");
+  if (cur) picked = cur.getAttribute("data-rail-menu") || "";
+  if (picked && !shown.some((m) => m.menu_id === picked)) picked = "";
+  if (!picked) picked = railPickId(shown, panels);
+  const tbody = pane.querySelector("tbody");
+  if (tbody) tbody.innerHTML = railRowsHtml(items, voiceOn, picked);
+  applyRailPick(pane, sec, picked);
+}
+
+function specRuntimeHtml(doc) {
+  const rt = doc.runtime || {};
+  const parts = [];
+  const menus = rt.menus || {};
+  const grouped = railMenuGroups(menus);
+  const panels = rt.panels || {};
+  const feat = specFeatPack(doc);
+  const featJson = { blocks: feat.blocks, hero: feat.hero };
+  if (grouped.length) {
+    const first = grouped[0].id;
+    const nav = grouped
+      .map(
+        (g) =>
+          `<button type="button" class="rail-prof${g.id === first ? " on" : ""}" data-rail-prof="${escHtml(g.id)}">${escHtml(g.label)}</button>`
+      )
+      .join("");
+    const panes = grouped
+      .map((g) => {
+        const shown = railVisibleItems(g.items, true);
+        const picked = railPickId(shown, panels);
+        return `<div class="rail-pane"${g.id === first ? "" : " hidden"} data-rail-pane="${escHtml(g.id)}">
+          ${railWorkHtml(g.items, panels, true, picked, feat)}
+        </div>`;
+      })
+      .join("");
+    parts.push(`<section class="section" data-rail-section>
+      <h2>대표 기능</h2>
+      ${featIntroHtml(feat.intro)}
+      ${railJsonScript("rail-panels-json", panels)}
+      ${railJsonScript("rail-feat-json", featJson)}
+      <div class="rail-toolbar">
+        <nav class="rail-seg" aria-label="채널 유형">${nav}</nav>
+        <label class="rail-voice"><input type="checkbox" checked data-rail-voice> 음성 다중 채널</label>
+      </div>
+      <div class="rail-panes">${panes}</div>
+    </section>`);
+  } else {
+    const profs = Object.keys(menus);
+    if (profs.length) {
+      const items = (menus[profs[0]] || []).map((m) => ({ ...m, optional: false }));
+      const picked = railPickId(items, panels);
+      parts.push(`<section class="section" data-rail-section>
+      <h2>대표 기능</h2>
+      ${featIntroHtml(feat.intro)}
+      ${railJsonScript("rail-panels-json", panels)}
+      ${railJsonScript("rail-feat-json", featJson)}
+      ${railWorkHtml(items, panels, true, picked, feat)}
+    </section>`);
+    } else {
+      parts.push(`<section class="section">
+      <h2>대표 기능</h2>
+      ${heroFigureHtml(doc)}
+      ${featuresHtml((doc.sections || {})["기능"], "규칙 없음")}
+    </section>`);
+    }
+  }
+  return parts.join("");
+}
+
+function specDbTestsHtml(doc) {
+  const rt = doc.runtime || {};
+  const rows = rt.tcs || [];
+  if (!rows.length) return "";
+  const flags = [];
+  const missing = rt.missing_in_db || [];
+  const notInSpec = rt.not_in_spec || [];
+  if (missing.length) {
+    flags.push(`<p>spec에 있으나 DB에 없음: ${missing.map((id) => `<code>${escHtml(id)}</code>`).join(", ")}</p>`);
+  }
+  if (notInSpec.length) {
+    flags.push(`<p>DB에는 있으나 spec 목록에 없음: ${notInSpec.map((id) => `<code>${escHtml(id)}</code>`).join(", ")}</p>`);
+  }
+  const body = rows
+    .map((t) => {
+      return `<tr data-go="/tcs/${encodeURIComponent(t.id)}">
+        <td class="name"><b>${escHtml(t.id)}</b><span>${escHtml(t.title || "")}</span></td>
+      </tr>`;
+    })
+    .join("");
+  return `${flags.join("")}<div class="card tablewrap"><table>
+    <thead><tr><th>TC</th></tr></thead>
+    <tbody>${body}</tbody>
+  </table></div>`;
+}
+
 function renderSpec(doc) {
+  const prev = DOC_RENDER;
+  DOC_RENDER = { mode: "spec", heroShot: doc.hero_shot || "" };
+  try {
+    return renderSpecBody(doc);
+  } finally {
+    DOC_RENDER = prev;
+  }
+}
+
+function renderSpecBody(doc) {
   const sec = doc.sections || {};
-  const relatedIds = new Set(doc.related_tcs || []);
-  const tcs = relatedIds.size
-    ? caseList().filter((tc) => relatedIds.has(tc.id))
-    : tcsForScreen(doc.screen_id);
   const notices = pinNotice().filter((b) => b.preview);
-  const related = sec["관련 테스트"] || sec["케이스"] || "";
   const cls = [doc.major, doc.minor].filter(Boolean).join(" · ");
   return `
     <button class="btn" type="button" data-go="/docs">← 기획</button>
@@ -2554,19 +2893,9 @@ function renderSpec(doc) {
         <div class="card runinfo spec-meta">
           <div class="kv"><span>화면 ID</span><b>${doc.screen_id || "—"}</b></div>
           <div class="kv"><span>승인 상태</span><b>${String(doc.status || "") === "approved" ? "approved (기준 반영)" : "대기 · baseline 미반영"}</b></div>
-          <div class="kv"><span>관련 TC</span><b>${tcs.length}건</b></div>
+          <div class="kv"><span>DB TC</span><b>${(doc.runtime && doc.runtime.tcs ? doc.runtime.tcs.length : 0)}건</b></div>
         </div>
-        ${(doc.sources || []).length
-          ? `<section class="section"><h2>원본 문서</h2>
-              <p class="muted tip">spec.md는 여러 형식 입력을 정규화한 최종 기준입니다. 아래가 등록된 원본입니다.</p>
-              <ul class="howto-list">${(doc.sources || []).map((s) => `<li><code>${escHtml(s)}</code></li>`).join("")}</ul>
-            </section>`
-          : ""}
-        ${heroHtml(doc)}
-        <section class="section">
-          <h2>기능</h2>
-          ${featuresHtml(sec["기능"], "규칙 없음")}
-        </section>
+        ${specRuntimeHtml(doc)}
         <section class="section">
           <h2>디자인</h2>
           <p class="muted tip">불일치 → PASS(변경 감지). 폭·폰트·색을 기준으로 본다.</p>
@@ -2586,12 +2915,22 @@ function renderSpec(doc) {
         </section>
         <section class="section">
           <h2>관련 테스트</h2>
-          <p class="muted tip">시작 경로·위치 반복은 각 TC와 starts.md에 있습니다.</p>
-          ${relatedTestsHtml(related, tcs)}
+          ${
+            (doc.runtime && doc.runtime.tcs && doc.runtime.tcs.length)
+              ? specDbTestsHtml(doc)
+              : sectionHtml(sec["관련 테스트"] || sec["케이스"])
+          }
         </section>
         <section class="section">
           <h2>참고</h2>
           ${sectionHtml(sec["참고"])}
+          ${
+            (doc.sources || []).length
+              ? `<details class="docs-sources"><summary><span class="feat-chev" aria-hidden="true"></span><h2>등록 원본</h2><span class="desc muted">${doc.sources.length}건</span></summary>
+                  <ul class="howto-list">${doc.sources.map((s) => `<li><code>${escHtml(s)}</code></li>`).join("")}</ul>
+                </details>`
+              : ""
+          }
           ${
             notices.length
               ? `<div class="hist">${notices
@@ -3702,7 +4041,7 @@ function processAudioMultiPageHtml(expectsText, bdd) {
         </table>
         <p class="howto-label">채택하는 판정 기준 (expects)</p>
         <pre class="gherkin-block">${escHtml(expectsText || "DB에 판정 기준이 없습니다.")}</pre>
-        <p class="muted">파일: <code>dev/src/ste_btv/pages/wing_live.py</code>. 슬롯 정의는 <code>vision/layout.py</code>의 <code>TEMPLATES["right_wing"]</code>입니다. 방송 영역 <code>live</code>는 화면 종류 확인만 하고 문구 비교에 넣지 않습니다.</p>
+        <p class="muted">파일: <code>poc/src/ste_btv/pages/wing_live.py</code>. 슬롯 정의는 <code>vision/layout.py</code>의 <code>TEMPLATES["right_wing"]</code>입니다. 방송 영역 <code>live</code>는 화면 종류 확인만 하고 문구 비교에 넣지 않습니다.</p>
       </section>
   `;
 }
@@ -4139,6 +4478,37 @@ function bind() {
       if (sel && String(sel.toString() || "").length) return;
       if (el.tagName === "A") e.preventDefault();
       go(el.getAttribute("data-go"));
+    });
+  });
+  document.querySelectorAll("[data-rail-section]").forEach((sec) => {
+    if (sec.dataset.railBound) return;
+    sec.dataset.railBound = "1";
+    sec.addEventListener("click", (e) => {
+      const prof = e.target.closest("[data-rail-prof]");
+      if (prof && sec.contains(prof)) {
+        e.preventDefault();
+        e.stopPropagation();
+        const wrap = sec.querySelector(".rail-toolbar") || sec;
+        const id = prof.getAttribute("data-rail-prof") || "";
+        wrap.querySelectorAll("[data-rail-prof]").forEach((b) => b.classList.toggle("on", b === prof));
+        sec.querySelectorAll(".rail-pane").forEach((p) => {
+          p.hidden = p.getAttribute("data-rail-pane") !== id;
+        });
+        return;
+      }
+      const tr = e.target.closest("tr[data-rail-menu]");
+      if (!tr || !sec.contains(tr)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const pane = tr.closest(".rail-pane") || sec;
+      pane.querySelectorAll("tr[data-rail-menu]").forEach((r) => r.classList.toggle("is-picked", r === tr));
+      applyRailPick(pane, sec, tr.getAttribute("data-rail-menu") || "");
+    });
+    sec.addEventListener("change", (e) => {
+      if (!e.target.closest("[data-rail-voice]")) return;
+      const panes = sec.querySelectorAll(".rail-pane");
+      if (panes.length) panes.forEach((pane) => paintRailPane(pane, sec));
+      else paintRailPane(sec, sec);
     });
   });
   document.querySelectorAll("[data-toggle]").forEach((el) => {

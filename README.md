@@ -27,7 +27,7 @@ GitHub Pages(정적)만으로는 SQLite를 실행하지 못한다. 랩 FastAPI�
 로컬(권장):
 
 ```powershell
-cd c:\develop_folder\STE-Btv_server\dev
+cd c:\develop_folder\STE-Btv_server\poc
 .\.venv\Scripts\python.exe -m ste_btv.scripts.serve_lab
 ```
 
@@ -44,6 +44,6 @@ github.io에서 실시간으로 보려면 Cloudflare Tunnel로 8080을 HTTPS로 
 선택적 스냅샷(런타임 미사용, 디버그/아카이브용):
 
 ```powershell
-cd c:\develop_folder\STE-Btv_server\dev
+cd c:\develop_folder\STE-Btv_server\poc
 .\.venv\Scripts\python.exe -m ste_btv.scripts.publish_view --snapshot
 ```
